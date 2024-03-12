@@ -1,5 +1,24 @@
+import React, { useState, useEffect } from "react";
+
 function App() {
-  return <h1 className="text-3xl font-bold underline">Hello world!</h1>;
+  const [data, setData] = useState([{}]);
+
+  useEffect(() => {
+    fetch("/api/members")
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error("Error fetching data:", err));
+  }, []);
+
+  return (
+    <div>
+      {typeof data.members == "undefined" ? (
+        <p>Loading...</p>
+      ) : (
+        data.members.map((member, i) => <p key={i}>{member}</p>)
+      )}
+    </div>
+  );
 }
 
 export default App;
