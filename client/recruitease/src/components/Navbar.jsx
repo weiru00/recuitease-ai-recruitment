@@ -6,7 +6,7 @@ import { navLinks } from "../constants";
 const Navbar = () => {
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
-      <div className="max-w-screen-xl flex justify-between flex-wrap items-center mx-auto p-4">
+      <div className="max-w-screen-xl flex justify-between flex-wrap items-center mx-auto px-4 pt-4 pb-2">
         <a
           href="https://flowbite.com/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
@@ -19,7 +19,7 @@ const Navbar = () => {
             <li>
               <a
                 href="#"
-                className="block py-2 px-3 md:p-0 text-gray-800 hover:text-purple-800"
+                className="block py-2 px-3 md:p-0 text-gray-800 hover:text-purple-700"
               >
                 About
               </a>
@@ -27,7 +27,7 @@ const Navbar = () => {
             <li>
               <a
                 href="#"
-                className="block py-2 px-3 md:p-0 text-gray-800 hover:text-purple-800"
+                className="block py-2 px-3 md:p-0 text-gray-800 hover:text-purple-700"
               >
                 Services
               </a>
@@ -35,7 +35,7 @@ const Navbar = () => {
             <li>
               <a
                 href="#"
-                className="block py-2 px-3 md:p-0 text-gray-900 hover:text-purple-800 "
+                className="block py-2 px-3 md:p-0 text-gray-900 hover:text-purple-700 "
               >
                 Contact
               </a>

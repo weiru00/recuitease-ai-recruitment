@@ -55,9 +55,9 @@ const App = () => {
 
       <div className={`bg-white ${styles.paddingX} ${styles.flexCenter}`}>
         <div className={`${styles.boxWidth}`}>
-          {/* <Features />
+          <Features />
           <JobPostings />
-          <Footer /> */}
+          <Footer />
         </div>
       </div>
     </div>
