@@ -35,7 +35,14 @@
 import React from "react";
 import styles from "./style";
 // import "../dist/output.css";
-import { Navbar, Hero, Features, JobPostings, Footer } from "./components";
+import {
+  Navbar,
+  Hero,
+  Features,
+  JobPostings,
+  Footer,
+  JobForm,
+} from "./components";
 // import { Button, Navbar } from "flowbite-react";
 
 const App = () => {
@@ -57,9 +64,11 @@ const App = () => {
         <div className={`${styles.boxWidth}`}>
           <Features />
           <JobPostings />
-          <Footer />
+
+          {/* <Footer /> */}
         </div>
       </div>
+      <JobForm />
     </div>
   );
 };

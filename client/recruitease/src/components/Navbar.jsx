@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { logo } from "../assets";
-import { navLinks } from "../constants";
-// import { Button } from "./Button";
+import Button from "./Button";
 
 const Navbar = () => {
   return (
@@ -43,12 +42,13 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-          <button
+          {/* <button
             type="button"
             className="text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-6 py-2 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
           >
             Log In
-          </button>
+          </button> */}
+          <Button text="Log In" size="small" type="submit" />
           <button
             data-collapse-toggle="navbar-cta"
             type="button"

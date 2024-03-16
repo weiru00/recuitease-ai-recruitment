@@ -30,6 +30,14 @@
     text-fill-color: transparent;
 }
 
+.animation-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.animation-fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
 .bg-blue-gradient {
     background: linear-gradient(157.81deg,
             #F6F5FF -43.27%,
@@ -71,6 +79,26 @@
 .sidebar {
     -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
     animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 0.5;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 0.5;
+    }
+
+    to {
+        opacity: 0;
+    }
 }
 
 @-webkit-keyframes slide-top {

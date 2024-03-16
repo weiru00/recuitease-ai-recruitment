@@ -4,5 +4,6 @@ import Footer from "./Footer";
 import Hero from "./Hero";
 import JobPostings from "./JobPostings";
 import Navbar from "./Navbar";
+import JobForm from "./JobForm";
 
-export { Button, Features, Footer, Hero, JobPostings, Navbar };
+export { Button, Features, Footer, Hero, JobPostings, Navbar, JobForm };
