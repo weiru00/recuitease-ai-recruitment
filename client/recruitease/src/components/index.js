@@ -6,6 +6,7 @@ import JobPostings from "./JobPostings";
 import Navbar from "./Navbar";
 import JobForm from "./JobForm";
 import Dashboard from "./Dashboard";
+import DashNavbar from "./DashNavbar";
 import Home from "./Home";
 
 export {
@@ -17,5 +18,6 @@ export {
   Navbar,
   JobForm,
   Dashboard,
+  DashNavbar,
   Home,
 };
