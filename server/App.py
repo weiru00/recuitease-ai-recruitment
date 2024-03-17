@@ -54,6 +54,21 @@ def create_job():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
     
+@app.route("/update-job/<job_id>", methods=['POST'])
+def update_job(job_id):
+    try:
+        # Extract job details from the request body
+        job_data = request.json
+
+        # Reference to the specific job document
+        job_ref = db.collection('jobListings').document(job_id)
+
+        # Update the job document with new data
+        job_ref.update(job_data)
+
+        return jsonify({"success": True, "message": "Job updated successfully."}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 @app.route("/members")
 def members():

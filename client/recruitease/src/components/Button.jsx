@@ -1,6 +1,16 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const Button = ({ text, size, type }) => {
+const Button = ({ text, size, type, navigateTo }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (navigateTo) {
+      navigate(navigateTo);
+    }
+    // Any other button click functionality can go here
+  };
+
   let sizeClass = "text-base px-5 py-3";
 
   // Adjust the sizeClass based on the size prop
@@ -15,6 +25,7 @@ const Button = ({ text, size, type }) => {
       <button
         type="submit"
         className={`text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 font-medium rounded-lg ${sizeClass} text-center inline-flex items-center dark:bg-purple-600 dark:hover:bg-purple-700`}
+        onClick={handleClick}
       >
         {text}
       </button>
@@ -24,6 +35,7 @@ const Button = ({ text, size, type }) => {
       <button
         type="button"
         className={`text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 font-medium rounded-lg ${sizeClass} text-center inline-flex items-center dark:bg-purple-600 dark:hover:bg-purple-700`}
+        onClick={handleClick}
       >
         {text}
         <svg

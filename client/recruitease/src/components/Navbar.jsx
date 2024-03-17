@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { logo } from "../assets";
 import Button from "./Button";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -10,7 +11,7 @@ const Navbar = () => {
           href="https://flowbite.com/"
           className="flex items-center space-x-3 rtl:space-x-reverse"
         >
-          <img src={logo} className="h-7" alt="Flowbite Logo" />
+          <img src={logo} className="h-7" alt="RecruitEase Logo" />
         </a>
 
         <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
@@ -48,7 +49,12 @@ const Navbar = () => {
           >
             Log In
           </button> */}
-          <Button text="Log In" size="small" type="submit" />
+          <Button
+            text="Log In"
+            size="small"
+            type="submit"
+            navigateTo="/dashboard"
+          />
           <button
             data-collapse-toggle="navbar-cta"
             type="button"

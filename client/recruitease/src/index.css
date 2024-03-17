@@ -31,11 +31,15 @@
 }
 
 .animation-fade-in {
-    animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.3s ease-in;
 }
 
 .animation-fade-out {
-    animation: fadeOut 0.5s ease-out;
+    animation: fadeOut 0.3s ease-out;
+}
+
+.animation-sliding-img-down-3 {
+    animation: sliding-img-down-3 0.2s linear 1;
 }
 
 .bg-blue-gradient {
@@ -121,6 +125,16 @@
 
     100% {
         -webkit-transform: translateY(0);
+        transform: translateY(0);
+    }
+}
+
+@keyframes sliding-img-down-3 {
+    0% {
+        transform: translateY(-3%);
+    }
+
+    100% {
         transform: translateY(0);
     }
 }
