@@ -8,6 +8,7 @@ import JobForm from "./JobForm";
 import Dashboard from "./Dashboard";
 import DashNavbar from "./DashNavbar";
 import Home from "./Home";
+import Talents from "./Talents";
 
 export {
   Button,
@@ -20,4 +21,5 @@ export {
   Dashboard,
   DashNavbar,
   Home,
+  Talents,
 };

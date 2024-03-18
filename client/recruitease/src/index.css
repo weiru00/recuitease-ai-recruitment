@@ -85,6 +85,29 @@
     animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
+/* Base styles for smaller screens */
+.content {
+    margin: 10px 50px 10px;
+    /* Narrower margin for small screens */
+}
+
+/* Medium screens */
+@media (min-width: 768px) {
+    .content {
+        margin: 10px 50px 10px;
+        /* Slightly wider margin for medium screens */
+    }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+    .content {
+        margin: 10px 200px 10px 350px;
+        /* Even wider margin for large screens */
+    }
+}
+
+
 @keyframes fadeIn {
     from {
         opacity: 0;

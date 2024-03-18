@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import styles from "./style";
 // import "../dist/output.css";
-import { Dashboard, Home, JobPostings } from "./components";
+import { Dashboard, Home, JobPostings, Talents } from "./components";
 // import { Button, Navbar } from "flowbite-react";
 
 const App = () => {
@@ -35,6 +35,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
+        <Route path="/talents" element={<Talents />} />
         {/* <Route path="*" element={<NotFound />} />  */}
       </Routes>
     </div>

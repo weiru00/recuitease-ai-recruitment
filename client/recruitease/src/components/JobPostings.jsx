@@ -65,7 +65,7 @@ const JobPostings = () => {
         <DashNavbar />
 
         <Sidebar />
-        <main className="p-2 md:px-10 md:ml-64 h-auto pt-24">
+        <main className="p-2 md:px-10 md:ml-72 md:mr-36 h-auto pt-24">
           <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
             <div className="flex items-center">
               <h5 className="text-xl font-bold dark:text-white">Posted Jobs</h5>
