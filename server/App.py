@@ -72,6 +72,19 @@ def update_job(job_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
 
+@app.route("/delete-job/<job_id>", methods=['DELETE'])
+def delete_job(job_id):
+    try:
+        # Attempt to delete the job document from Firestore
+        job_ref = db.collection('jobListings').document(job_id)
+        job_ref.delete()
+
+        # If deletion was successful, send a success response
+        return jsonify({"success": True, "message": "Job deleted successfully"}), 200
+    except Exception as e:
+        # If an error occurs, send an error response
+        return jsonify({"success": False, "error": str(e)}), 500
+    
 @app.route("/members")
 def members():
     return {"members": ["Member1", "Member2"]}

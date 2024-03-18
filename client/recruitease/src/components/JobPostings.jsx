@@ -40,6 +40,25 @@ const JobPostings = () => {
       .catch((error) => console.error("There was an error!", error));
   }, [updateTrigger]);
 
+  const handleDeleteJob = (jobId) => {
+    fetch(`/api/delete-job/${jobId}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Job Deleted Successfully!");
+          triggerUpdate(); // Refresh job listings after deletion
+          closeForm();
+        } else {
+          alert("Failed to Delete Job");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <div>
       <div className="antialiased bg-white dark:bg-gray-900">
@@ -208,6 +227,7 @@ const JobPostings = () => {
         }}
         mode={formMode}
         jobData={selectedJob}
+        onDelete={handleDeleteJob}
       />
     </div>
   );
