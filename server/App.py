@@ -36,7 +36,9 @@ def get_jobs():
     job_list = []
 
     for job in job_listings:
-        job_list.append(job.to_dict())
+        job_data = job.to_dict()
+        job_data['id'] = job.id  # Add the document ID to the dictionary
+        job_list.append(job_data)
                
     return jsonify(job_list)
 
@@ -54,7 +56,7 @@ def create_job():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
     
-@app.route("/update-job/<job_id>", methods=['POST'])
+@app.route("/update-job/<job_id>", methods=['PUT'])
 def update_job(job_id):
     try:
         # Extract job details from the request body

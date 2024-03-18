@@ -8,19 +8,37 @@ import { apple, bitcoin, discord, vk } from "../assets";
 
 const JobPostings = () => {
   const [isFormOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState("create"); // 'create' or 'update'
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [updateTrigger, setUpdateTrigger] = useState(false);
 
-  const toggleForm = () => {
-    setFormOpen(!isFormOpen);
+  const openCreateForm = () => {
+    setFormMode("Create");
+    setSelectedJob(null); // Ensure no job data is passed into the form for creation
+    setFormOpen(true);
   };
 
-  const [jobs, setJobs] = useState([]);
+  const openUpdateForm = (job) => {
+    setFormMode("Update");
+    setSelectedJob(job); // Pass the selected job data into the form for editing
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+  };
+
+  const triggerUpdate = () => {
+    setUpdateTrigger(!updateTrigger); // refresh the job listings
+  };
 
   useEffect(() => {
     fetch("api/joblistings")
       .then((res) => res.json())
       .then((data) => setJobs(data))
       .catch((error) => console.error("There was an error!", error));
-  }, []);
+  }, [updateTrigger]);
 
   return (
     <div>
@@ -34,11 +52,10 @@ const JobPostings = () => {
               <h5 className="text-xl font-bold dark:text-white">Posted Jobs</h5>
             </div>
             <div>
-              {/* <Button text="Create Job" size="small" type="submit" /> */}
               <button
                 type="button"
-                class="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-                onClick={toggleForm}
+                className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+                onClick={openCreateForm}
               >
                 Create New Job
               </button>
@@ -120,7 +137,7 @@ const JobPostings = () => {
               </div>
 
               {/* Salary Range */}
-              <form className="max-w-sm mx-auto mb-6">
+              <form className="mx-auto mb-6">
                 <h6 className="text-md font-bold mb-2 dark:text-white">
                   Salary
                 </h6>
@@ -143,11 +160,12 @@ const JobPostings = () => {
             </div>
 
             {/* Jobs Section */}
-            <a href="#" className="col-span-4 overflow-auto">
+            <div href="#" className="col-span-4 overflow-auto">
               {jobs.map((job) => (
                 <div
                   key={job.id}
                   className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mb-3"
+                  onClick={() => openUpdateForm(job)}
                 >
                   <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
                     <div className="col-span-2 grid justify-items-center content-center">
@@ -160,36 +178,37 @@ const JobPostings = () => {
                         </h5>
                       </a>
 
-                      <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                        <li class="me-2">
-                          <p class="text-black font-bold inline-block pr-8 py-2">
+                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                        <li>
+                          <p className="text-black font-bold inline-block pr-8 py-2">
                             Meta
                           </p>
-                          <p class="inline-block pr-8 py-2">{job.type}</p>
-                          <p class="text-purple-600 inline-block pr-8 py-2">
+                          <p className="inline-block pr-8 py-2">{job.type}</p>
+                          <p className="text-purple-600 inline-block pr-8 py-2">
                             RM5,000
                           </p>
-                          <p class="inline-block pr-8 py-2">{job.postedAt}</p>
+                          <p className="inline-block pr-8 py-2">
+                            {job.postedAt}
+                          </p>
                         </li>
                       </ul>
                     </div>
                   </div>
                 </div>
               ))}
-            </a>
+            </div>
           </div>
         </main>
-
-        {/* <h2>Job Listings</h2>
-        <ul>
-          {jobs.map((job, index) => (
-            <li key={index}>
-              {job.title} - {job.description}
-            </li>
-          ))}
-        </ul> */}
       </div>
-      <JobForm isOpen={isFormOpen} isClose={toggleForm} />
+      <JobForm
+        isOpen={isFormOpen}
+        isClose={() => {
+          closeForm();
+          triggerUpdate(); // Call triggerUpdate after closing the form to refresh the job listings
+        }}
+        mode={formMode}
+        jobData={selectedJob}
+      />
     </div>
   );
 };

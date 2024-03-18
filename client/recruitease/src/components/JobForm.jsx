@@ -1,35 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "./Button";
 import styles from "../style";
 
-const JobForm = ({ isOpen, isClose }) => {
+const JobForm = ({ isOpen, isClose, mode, jobData }) => {
   if (!isOpen) return null;
 
-  const initialState = {
-    title: "",
-    desc: "",
-    type: "",
-    qualitifcation: "",
-    recruiterID: "",
-    postedAt: "",
-  };
+  const initialState =
+    mode === "Update" && jobData
+      ? { ...jobData }
+      : {
+          title: "",
+          desc: "",
+          type: "",
+          qualification: "",
+          recruiterID: "",
+          postedAt: "",
+        };
 
   const [job, setJob] = useState(initialState);
+
+  // Reset the form state when the mode changes
+  useEffect(() => {
+    setJob(initialState);
+  }, [mode, jobData]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const jobData = {
-      title: job.title,
-      desc: job.desc,
-      type: job.type,
-      qualitifcation: job.qualitifcation,
-      recruiterID: job.recruiterID,
-      postedAt: job.postedAt,
-    };
+    // Construct the jobData for submission
+    const jobData = { ...job };
 
-    fetch("/api/create-job", {
-      method: "POST",
+    // Determine the API endpoint and method based on the mode
+    const apiEndpoint =
+      mode === "Update" ? `/api/update-job/${job.id}` : "/api/create-job";
+    const method = mode === "Update" ? "PUT" : "POST";
+
+    fetch(apiEndpoint, {
+      method: method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -38,11 +45,18 @@ const JobForm = ({ isOpen, isClose }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          alert("Job Created Successfully!");
+          alert(
+            `Job ${mode === "Update" ? "Updated" : "Created"} Successfully!`
+          );
           // Reset form
           setJob(initialState);
+          isClose(); // Close form
         } else {
-          alert("Failed to Create Job: " + data.error);
+          alert(
+            `Failed to ${mode === "Update" ? "Update" : "Create"} Job: ${
+              data.error
+            }`
+          );
         }
       })
       .catch((error) => {
@@ -67,7 +81,7 @@ const JobForm = ({ isOpen, isClose }) => {
                 {/* <!-- Modal header --> */}
                 <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Add New Job
+                    {mode} Job
                   </h3>
                   <button
                     onClick={isClose}
@@ -188,7 +202,7 @@ const JobForm = ({ isOpen, isClose }) => {
                       ></textarea>
                     </div>
                   </div>
-                  <Button text="Create Job" size="small" type="submit" />
+                  <Button text={mode} size="small" type="submit" />
                 </form>
               </div>
             </div>
