@@ -80,10 +80,43 @@
     box-shadow: 0px 20px 100px -10px rgba(66, 71, 91, 0.1);
 }
 
-.sidebar {
+/* .sidebar {
     -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
     animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+} */
+
+/* Sidebar hidden by default on small screens */
+.sidebar {
+    position: fixed;
+    width: 250px;
+    left: -250px;
+    -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+
 }
+
+.sidebar.open {
+    left: 0;
+}
+
+/* Toggle button hidden on larger screens */
+.sidebar-toggle {
+    display: none;
+    /* Additional styling for your toggle button */
+}
+
+/* Show the toggle button on small screens */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: block;
+        /* Positioning the button, you can adjust as needed */
+        position: fixed;
+        z-index: 50;
+        top: 70px;
+        left: 30px;
+    }
+}
+
 
 /* Base styles for smaller screens */
 .content {

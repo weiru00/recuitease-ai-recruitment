@@ -1,10 +1,11 @@
 import React from "react";
+import "flowbite";
 import { logo, option } from "../assets";
 
 const DashNavbar = () => {
   return (
     <div>
-      <nav className="bg-white border-b border-gray-200 px-8 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
+      <nav className="bg-white border-b border-gray-200 px-8 py-2.5 dark:bg-gray-800 dark:border-gray-700  left-0 right-0 top-0 z-50">
         <div className="flex flex-wrap justify-between items-center">
           <div className="flex justify-start items-center">
             <a
@@ -42,7 +43,7 @@ const DashNavbar = () => {
             </button>
             {/* <!-- Dropdown menu --> */}
             <div
-              className="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
+              className="hidden z-50 my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
               id="dropdown"
             >
               <div className="py-3 px-4">

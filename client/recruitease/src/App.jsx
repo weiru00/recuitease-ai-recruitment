@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import "flowbite";
 import styles from "./style";
 // import "../dist/output.css";
 import { Dashboard, Home, JobPostings, Talents } from "./components";
