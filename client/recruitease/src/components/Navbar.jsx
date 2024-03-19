@@ -53,7 +53,7 @@ const Navbar = () => {
             text="Log In"
             size="small"
             type="submit"
-            navigateTo="/dashboard"
+            navigateTo="/login"
           />
           <button
             data-collapse-toggle="navbar-cta"

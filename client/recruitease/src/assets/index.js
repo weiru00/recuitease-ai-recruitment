@@ -5,5 +5,7 @@ import apple from "./apple.svg";
 import bitcoin from "./bitcoin.svg";
 import discord from "./discord.svg";
 import vk from "./vk.svg";
+import google from "./google.svg";
+import login from "./login.svg";
 
-export { logo, hero, option, apple, bitcoin, discord, vk };
+export { logo, hero, option, apple, bitcoin, discord, vk, google, login };

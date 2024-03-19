@@ -9,6 +9,8 @@ import Dashboard from "./Dashboard";
 import DashNavbar from "./DashNavbar";
 import Home from "./Home";
 import Talents from "./Talents";
+import Login from "./Login";
+import Signup from "./Signup";
 
 export {
   Button,
@@ -22,4 +24,6 @@ export {
   DashNavbar,
   Home,
   Talents,
+  Login,
+  Signup,
 };

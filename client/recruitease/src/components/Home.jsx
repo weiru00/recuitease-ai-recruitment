@@ -21,7 +21,7 @@ const Home = () => {
       <div className={`bg-white ${styles.paddingX} ${styles.flexCenter}`}>
         <div className={`${styles.boxWidth}`}>
           <Features />
-          <JobPostings />
+          {/* <JobPostings /> */}
 
           <Footer />
         </div>

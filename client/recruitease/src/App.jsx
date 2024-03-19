@@ -3,7 +3,14 @@ import { Routes, Route } from "react-router-dom";
 import "flowbite";
 import styles from "./style";
 // import "../dist/output.css";
-import { Dashboard, Home, JobPostings, Talents } from "./components";
+import {
+  Dashboard,
+  Home,
+  JobPostings,
+  Talents,
+  Login,
+  Signup,
+} from "./components";
 // import { Button, Navbar } from "flowbite-react";
 
 const App = () => {
@@ -34,6 +41,8 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
         <Route path="/talents" element={<Talents />} />
