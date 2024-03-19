@@ -29,7 +29,7 @@ const Login = () => {
                     className="w-full justify-center text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 me-2 mb-2"
                   >
                     <img src={google} className="h-4 w-4 me-2" />
-                    Sign Up with Google
+                    Log In with Google
                   </button>
                 </div>
                 <div className="relative flex items-center">
@@ -100,7 +100,7 @@ const Login = () => {
                   type="submit"
                   className="w-full text-white bg-purple-600 hover:bg-purple-700 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
                 >
-                  Sign in
+                  Log in
                 </button>
               </form>
             </div>
