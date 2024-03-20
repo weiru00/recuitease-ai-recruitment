@@ -7,6 +7,8 @@ import DashNavbar from "./DashNavbar";
 import Home from "./Home";
 import Login from "./Login";
 import Signup from "./Signup";
+import PrivateRoute from "./PrivateRoute";
+import Onboarding from "./Onboarding";
 
 export {
   Button,
@@ -18,4 +20,6 @@ export {
   Home,
   Login,
   Signup,
+  PrivateRoute,
+  Onboarding,
 };

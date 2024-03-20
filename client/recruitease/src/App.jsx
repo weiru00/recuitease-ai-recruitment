@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import "flowbite";
 import styles from "./style";
 // import "../dist/output.css";
-import { Home, Login, Signup } from "./components";
+import { Home, Login, Signup, PrivateRoute, Onboarding } from "./components";
 import { ApplicantDashboard } from "./components/applicant";
 import {
   JobPostings,
@@ -44,6 +44,7 @@ const App = () => {
         <Route path="/applicant-dashboard" element={<ApplicantDashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
         <Route path="/talents" element={<Talents />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         {/* <Route path="*" element={<NotFound />} />  */}
       </Routes>
     </div>

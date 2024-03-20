@@ -1,9 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { logo } from "../../assets";
+import { getAuth, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import "flowbite";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        // Sign-out successful.
+        navigate("/login");
+      })
+      .catch((error) => {
+        // An error happened.
+        console.error("Logout Error:", error);
+      });
+  };
   return (
     <div>
       <button
@@ -141,6 +157,7 @@ const Sidebar = () => {
           <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
             <li>
               <a
+                onClick={handleLogout}
                 href="#"
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-purple-100 dark:hover:bg-gray-700 dark:text-white group"
               >
