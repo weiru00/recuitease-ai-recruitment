@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Button from "./Button";
-import styles from "../style";
+import Button from "../Button";
+import styles from "../../style";
 
 const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
   if (!isOpen) return null;

@@ -1,10 +1,10 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import DashNavbar from "./DashNavbar";
+import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import JobForm from "./JobForm";
-import Button from "./Button";
-import { apple, bitcoin, discord, vk } from "../assets";
+import Button from "../Button";
+import { apple, bitcoin, discord, vk } from "../../assets";
 
 const JobPostings = () => {
   const [isFormOpen, setFormOpen] = useState(false);

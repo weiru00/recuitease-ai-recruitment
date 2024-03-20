@@ -1,7 +1,8 @@
 import React from "react";
 import "flowbite";
 import styles from "../style";
-import { Navbar, Hero, Features, JobPostings, Footer } from "./index";
+import { Navbar, Hero, Features, Footer } from "./index";
+import { JobPostings } from "../components/recruiter";
 
 const Home = () => {
   return (

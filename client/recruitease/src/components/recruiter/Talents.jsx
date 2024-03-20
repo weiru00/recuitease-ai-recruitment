@@ -1,5 +1,5 @@
 import React from "react";
-import DashNavbar from "./DashNavbar";
+import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 
 const Talents = () => {

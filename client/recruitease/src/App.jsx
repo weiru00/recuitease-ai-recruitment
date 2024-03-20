@@ -1,18 +1,14 @@
-import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import "flowbite";
 import styles from "./style";
 // import "../dist/output.css";
+import { Home, Login, Signup } from "./components";
+import { ApplicantDashboard } from "./components/applicant";
 import {
-  RecruiterDashboard,
-  Home,
   JobPostings,
+  RecruiterDashboard,
   Talents,
-  Login,
-  Signup,
-  ApplicantDashboard,
-} from "./components";
-// import { Button, Navbar } from "flowbite-react";
+} from "./components/recruiter";
 
 const App = () => {
   // const [isModalOpen, setModalOpen] = useState(false);
