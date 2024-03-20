@@ -1,8 +1,57 @@
-import React from "react";
+import { useState } from "react";
 import { logo, google, login } from "../assets";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import auth from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const idToken = await userCredential.user.getIdToken(true); // Get the ID token
+      // setIdToken(token);
+      // Send the ID token to your Flask backend for verification
+      const response = await fetch("/api/verifyToken", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not verify ID token");
+      }
+
+      setUserRole(data.role);
+      if (data.role === "applicant") {
+        navigate("/applicant-dashboard");
+      } else if (data.role === "recruiter") {
+        navigate("/recruiter-dashboard");
+      } else {
+        console.error("User role is undefined or not set correctly.");
+      }
+    } catch (error) {
+      setError(error.message);
+      alert(error);
+    }
+  };
+
   return (
     <div>
       <section className="bg-purple-50 dark:bg-gray-900">
@@ -22,7 +71,7 @@ const Login = () => {
                   Sign up
                 </Link>
               </p>
-              <form className="space-y-4 md:space-y-6" action="#">
+              <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <button
                     type="button"
@@ -48,9 +97,10 @@ const Login = () => {
                     type="email"
                     name="email"
                     id="email"
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="name@company.com"
-                    required=""
+                    required={true}
                   />
                 </div>
                 <div>
@@ -64,9 +114,10 @@ const Login = () => {
                     type="password"
                     name="password"
                     id="password"
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    required=""
+                    required={true}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -109,6 +160,7 @@ const Login = () => {
             src={login}
             className="w-1/3 hidden md:block max-w-full h-auto"
           />
+          {/* {idToken && <DashboardRedirect idToken={idToken} />} */}
         </div>
       </section>
     </div>

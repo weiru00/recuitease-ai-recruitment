@@ -4,12 +4,13 @@ import "flowbite";
 import styles from "./style";
 // import "../dist/output.css";
 import {
-  Dashboard,
+  RecruiterDashboard,
   Home,
   JobPostings,
   Talents,
   Login,
   Signup,
+  ApplicantDashboard,
 } from "./components";
 // import { Button, Navbar } from "flowbite-react";
 
@@ -43,7 +44,8 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
+        <Route path="/applicant-dashboard" element={<ApplicantDashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
         <Route path="/talents" element={<Talents />} />
         {/* <Route path="*" element={<NotFound />} />  */}
