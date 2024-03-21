@@ -65,27 +65,6 @@ def save_user_data(uid, user_data):
     
 @app.route('/verifyToken', methods=['POST'])
 def verify_token():
-    # data = request.get_json()
-    # id_token = data.get('idToken')
-
-    # try:
-    #     # Verify the ID token while checking if the token is revoked
-    #     decoded_token = auth.verify_id_token(id_token, check_revoked=True)
-
-    #     # Get the user's UID from the decoded token
-    #     uid = decoded_token['uid']
-
-    #     # Optional: Retrieve user records or perform additional checks
-    #     user = auth.get_user(uid)
-
-    #     # Optional: Implement your additional logic here
-
-    #     return jsonify({'success': True, 'uid': uid}), 200
-    # except auth.RevokedIdTokenError:
-    #     # Token has been revoked. Inform the user to reauthenticate or sign out the user.
-    #     return jsonify({'error': 'ID token has been revoked'}), 401
-    # except Exception as e:
-    #     return jsonify({'error': str(e)}), 500
     data = request.get_json()
     id_token = data.get('idToken')
 

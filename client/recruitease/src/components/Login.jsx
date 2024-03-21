@@ -9,7 +9,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,30 +21,24 @@ const Login = () => {
         password
       );
       const idToken = await userCredential.user.getIdToken(true); // Get the ID token
-      // setIdToken(token);
-      // Send the ID token to your Flask backend for verification
+      const uid = userCredential.user.uid;
+
       const response = await fetch("/api/verifyToken", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not verify ID token");
-      }
-
-      setUserRole(data.role);
-      if (data.role === "applicant") {
-        navigate("/applicant-dashboard");
-      } else if (data.role === "recruiter") {
-        navigate("/recruiter-dashboard");
-      } else {
-        console.error("User role is undefined or not set correctly.");
-      }
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Redirect based on the user role and include uid in the URL
+            navigate(`/${data.role}-dashboard?uid=${uid}`);
+          } else {
+            throw new Error(data.error || "Failed to verify ID token");
+          }
+        });
     } catch (error) {
       setError(error.message);
       alert(error);
