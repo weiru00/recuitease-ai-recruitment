@@ -43,7 +43,7 @@ const Signup = () => {
       setConfirmPassword("");
       setError(null); // Clear any previous error messages
 
-      navigate("/onboarding");
+      navigate(`/onboarding?uid=${data.uid}`);
     } catch (error) {
       setError(error.message);
       alert("Registration failed:", error);

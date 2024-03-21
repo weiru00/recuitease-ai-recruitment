@@ -109,6 +109,24 @@ def verify_token():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+@app.route('/update-user', methods=['POST'])
+def update_user():
+    try:
+        data = request.json
+        uid = data.get('uid')
+        user_data = data.get('userData')
+
+        if not uid or not user_data:
+            return jsonify({'error': 'Missing UID or user data'}), 400
+
+        user_ref = db.collection('users').document(uid)
+        user_ref.update(user_data)
+        
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
     job_listings = db.collection('jobListings').stream()

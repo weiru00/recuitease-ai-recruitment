@@ -9,6 +9,7 @@ import Login from "./Login";
 import Signup from "./Signup";
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
+import OnboardingConfirmation from "./OnboardingConfirmation";
 
 export {
   Button,
@@ -22,4 +23,5 @@ export {
   Signup,
   PrivateRoute,
   Onboarding,
+  OnboardingConfirmation,
 };
