@@ -1,12 +1,19 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "../DashNavbar";
+import { ApplicantSidebar } from "../applicant";
 import Sidebar from "./Sidebar";
 import JobForm from "./JobForm";
+import { useLocation } from "react-router-dom";
 import Button from "../Button";
 import { apple, bitcoin, discord, vk } from "../../assets";
 
 const JobPostings = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const uid = queryParams.get("uid");
+  const role = queryParams.get("role");
+
   const [isFormOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState("create"); // 'create' or 'update'
   const [selectedJob, setSelectedJob] = useState(null);
@@ -33,12 +40,37 @@ const JobPostings = () => {
     setUpdateTrigger(!updateTrigger); // refresh the job listings
   };
 
+  // useEffect(() => {
+  //   fetch("api/joblistings")
+  //     .then((res) => res.json())
+  //     .then((data) => setJobs(data))
+  //     .catch((error) => console.error("There was an error!", error));
+  // }, [updateTrigger]);
+
   useEffect(() => {
-    fetch("api/joblistings")
-      .then((res) => res.json())
-      .then((data) => setJobs(data))
-      .catch((error) => console.error("There was an error!", error));
-  }, [updateTrigger]);
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`api/joblistings?role=${role}&uid=${uid}`);
+        const jobList = await response.json();
+        setJobs(jobList);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      }
+    };
+
+    fetchJobs();
+  }, [role, uid]);
+
+  const handleJobAction = (job, action) => {
+    if (action === "update") {
+      setFormMode("Update");
+      setSelectedJob(job);
+      setFormOpen(true);
+    } else if (action === "apply") {
+      // Implement the apply logic here
+      console.log(`Applying for job: ${job.id}`);
+    }
+  };
 
   const handleDeleteJob = (jobId) => {
     fetch(`/api/delete-job/${jobId}`, {
@@ -64,21 +96,23 @@ const JobPostings = () => {
       <div className="antialiased bg-white dark:bg-gray-900">
         <DashNavbar />
 
-        <Sidebar />
+        {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
             <div className="flex items-center">
               <h5 className="text-xl font-bold dark:text-white">Posted Jobs</h5>
             </div>
-            <div>
-              <button
-                type="button"
-                className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-                onClick={openCreateForm}
-              >
-                Create New Job
-              </button>
-            </div>
+            {role === "recruiter" && (
+              <div>
+                <button
+                  type="button"
+                  className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+                  onClick={openCreateForm}
+                >
+                  Create New Job
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6">
@@ -179,6 +213,7 @@ const JobPostings = () => {
             </div>
 
             {/* Jobs Section */}
+
             <div href="#" className="col-span-4 overflow-auto">
               {jobs.map((job) => (
                 <div

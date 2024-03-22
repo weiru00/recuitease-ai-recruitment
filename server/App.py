@@ -108,14 +108,33 @@ def update_user():
     
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
-    job_listings = db.collection('jobListings').stream()
+    # job_listings = db.collection('jobListings').stream()
+    # job_list = []
+
+    # for job in job_listings:
+    #     job_data = job.to_dict()
+    #     job_data['id'] = job.id  # Add the document ID to the dictionary
+    #     job_list.append(job_data)
+               
+    # return jsonify(job_list)
+    role = request.args.get('role')
+    uid = request.args.get('uid')
     job_list = []
+
+    if role == 'applicant':
+        # Fetch all jobs for applicants
+        job_listings = db.collection('jobListings').stream()
+    elif role == 'recruiter':
+        # Fetch only jobs posted by the logged-in recruiter
+        job_listings = db.collection('jobListings').where('recruiterID', '==', uid).stream()
+    else:
+        return jsonify({'error': 'Invalid role'}), 400
 
     for job in job_listings:
         job_data = job.to_dict()
         job_data['id'] = job.id  # Add the document ID to the dictionary
         job_list.append(job_data)
-               
+
     return jsonify(job_list)
 
 @app.route('/user-data', methods=['GET'])

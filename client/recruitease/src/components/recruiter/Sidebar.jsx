@@ -105,7 +105,7 @@ const Sidebar = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to={`/${userData.role}-dashboard?uid=${userId}`}
+                  to={`/${userData.role}-dashboard?uid=${userId}&role=${userData.role}`}
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
                 >
                   <svg
@@ -123,7 +123,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to={`/jobpostings?uid=${userId}`}
+                  to={`/jobpostings?uid=${userId}&role=${userData.role}`}
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
                 >
                   <svg
@@ -144,7 +144,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <Link
-                  to={`/talents?uid=${userId}`}
+                  to={`/talents?uid=${userId}&role=${userData.role}`}
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
                 >
                   <svg

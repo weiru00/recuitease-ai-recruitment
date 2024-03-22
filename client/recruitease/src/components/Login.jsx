@@ -34,7 +34,7 @@ const Login = () => {
         .then((data) => {
           if (data.success) {
             // Redirect based on the user role and include uid in the URL
-            navigate(`/${data.role}-dashboard?uid=${uid}`);
+            navigate(`/${data.role}-dashboard?uid=${uid}&role=${data.role}`);
           } else {
             throw new Error(data.error || "Failed to verify ID token");
           }
