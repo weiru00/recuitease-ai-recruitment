@@ -40,11 +40,11 @@ const RecruiterDashboard = () => {
 
   if (!userData) {
     return (
-      <div class="text-center">
+      <div className="text-center">
         <div role="status">
           <svg
             aria-hidden="true"
-            class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+            className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
             viewBox="0 0 100 101"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -58,7 +58,7 @@ const RecruiterDashboard = () => {
               fill="currentFill"
             />
           </svg>
-          <span class="sr-only">Loading...</span>
+          <span className="sr-only">Loading...</span>
         </div>
       </div>
     );
@@ -74,7 +74,7 @@ const RecruiterDashboard = () => {
         <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-8 py-6">
           <div className="flex items-center">
             <h5 className="text-xl font-bold dark:text-white">
-              Welcome Back, {userId}
+              Welcome Back, {userData.firstName}
             </h5>
           </div>
           <div>
