@@ -1,7 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
-import JobDescription from "./JobDescription";
 import { ApplicantSidebar } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
@@ -267,7 +266,6 @@ const JobPostings = () => {
         jobData={selectedJob}
         onDelete={handleDeleteJob}
       />
-      {/* <JobDescription jobData={selectedJob} /> */}
     </div>
   );
 };

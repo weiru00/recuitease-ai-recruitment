@@ -70,11 +70,11 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
       });
   };
 
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      onDelete(jobId);
-    }
-  };
+  // const handleDelete = () => {
+  //   if (window.confirm("Are you sure you want to delete this job?")) {
+  //     onDelete(jobId);
+  //   }
+  // };
   return (
     <React.Fragment>
       {/* Overlay */}
@@ -236,7 +236,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
                       </svg>
                       {mode}
                     </button>
-                    {mode === "Update" && (
+                    {/* {mode === "Update" && (
                       <button
                         type="button"
                         className="inline-flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
@@ -257,7 +257,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
                         </svg>
                         Delete
                       </button>
-                    )}
+                    )} */}
                   </div>
                 </form>
               </div>
