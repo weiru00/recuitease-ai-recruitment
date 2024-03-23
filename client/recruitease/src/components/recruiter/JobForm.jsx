@@ -9,6 +9,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
+  const jobId = queryParams.get("jobId");
 
   const initialState =
     mode === "Update" && jobData
@@ -37,7 +38,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
 
     // Determine the API endpoint and method based on the mode
     const apiEndpoint =
-      mode === "Update" ? `/api/update-job/${job.id}` : "/api/create-job";
+      mode === "Update" ? `/api/update-job/${jobId}` : "/api/create-job";
     const method = mode === "Update" ? "PUT" : "POST";
 
     fetch(apiEndpoint, {
@@ -71,7 +72,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
 
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this job?")) {
-      onDelete(jobData.id);
+      onDelete(jobId);
     }
   };
   return (

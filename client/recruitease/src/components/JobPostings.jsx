@@ -1,12 +1,13 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import DashNavbar from "../DashNavbar";
-import { ApplicantSidebar } from "../applicant";
-import Sidebar from "./Sidebar";
-import JobForm from "./JobForm";
-import { useLocation } from "react-router-dom";
-import Button from "../Button";
-import { apple, bitcoin, discord, vk } from "../../assets";
+import DashNavbar from "./DashNavbar";
+import JobDescription from "./JobDescription";
+import { ApplicantSidebar } from "./applicant";
+import { Sidebar, JobForm } from "./recruiter";
+// import JobForm from "./recruiter/JobForm";
+import { useLocation, Link } from "react-router-dom";
+import Button from "./Button";
+import { apple, bitcoin, discord, vk } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
@@ -26,11 +27,11 @@ const JobPostings = () => {
     setFormOpen(true);
   };
 
-  const openUpdateForm = (job) => {
-    setFormMode("Update");
-    setSelectedJob(job); // Pass the selected job data into the form for editing
-    setFormOpen(true);
-  };
+  // const openUpdateForm = (job) => {
+  //   setFormMode("Update");
+  //   setSelectedJob(job); // Pass the selected job data into the form for editing
+  //   setFormOpen(true);
+  // };
 
   const closeForm = () => {
     setFormOpen(false);
@@ -59,18 +60,18 @@ const JobPostings = () => {
     };
 
     fetchJobs();
-  }, [role, uid]);
+  }, [role, uid, updateTrigger]);
 
-  const handleJobAction = (job, action) => {
-    if (action === "update") {
-      setFormMode("Update");
-      setSelectedJob(job);
-      setFormOpen(true);
-    } else if (action === "apply") {
-      // Implement the apply logic here
-      console.log(`Applying for job: ${job.id}`);
-    }
-  };
+  // const handleJobAction = (job, action) => {
+  //   if (action === "update") {
+  //     setFormMode("Update");
+  //     setSelectedJob(job);
+  //     setFormOpen(true);
+  //   } else if (action === "apply") {
+  //     // Implement the apply logic here
+  //     console.log(`Applying for job: ${job.id}`);
+  //   }
+  // };
 
   const handleDeleteJob = (jobId) => {
     fetch(`/api/delete-job/${jobId}`, {
@@ -216,10 +217,11 @@ const JobPostings = () => {
 
             <div href="#" className="col-span-4 overflow-auto">
               {jobs.map((job) => (
-                <div
+                <Link
                   key={job.id}
                   className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mb-3"
-                  onClick={() => openUpdateForm(job)}
+                  // onClick={() => openUpdateForm(job)}
+                  to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                 >
                   <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
                     <div className="col-span-2 grid justify-items-center content-center">
@@ -248,7 +250,7 @@ const JobPostings = () => {
                       </ul>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -264,6 +266,7 @@ const JobPostings = () => {
         jobData={selectedJob}
         onDelete={handleDeleteJob}
       />
+      {/* <JobDescription jobData={selectedJob} /> */}
     </div>
   );
 };

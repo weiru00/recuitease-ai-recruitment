@@ -10,6 +10,8 @@ import Signup from "./Signup";
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
 import OnboardingConfirmation from "./OnboardingConfirmation";
+import JobPostings from "./JobPostings";
+import JobDescription from "./JobDescription";
 
 export {
   Button,
@@ -24,4 +26,6 @@ export {
   PrivateRoute,
   Onboarding,
   OnboardingConfirmation,
+  JobPostings,
+  JobDescription,
 };

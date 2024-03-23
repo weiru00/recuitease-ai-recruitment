@@ -137,6 +137,23 @@ def get_jobs():
 
     return jsonify(job_list)
 
+@app.route('/job-details/<job_id>', methods=['GET'])
+def get_job_details(job_id):
+    try:
+        # Attempt to retrieve the job document from Firestore using the job_id
+        job_ref = db.collection('jobListings').document(job_id)
+        job_doc = job_ref.get()
+
+        if job_doc.exists:
+            # If the document exists, return its data
+            return jsonify(job_doc.to_dict()), 200
+        else:
+            # If the document does not exist, return a 404 error
+            return jsonify({'error': 'Job not found'}), 404
+    except Exception as e:
+        # If there's an error in the process, return a 500 error with the error message
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/user-data', methods=['GET'])
 def get_user_data():
     user_id = request.args.get('uid')

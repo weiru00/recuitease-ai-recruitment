@@ -1,13 +1,7 @@
-import JobPostings from "./JobPostings";
 import JobForm from "./JobForm";
 import RecruiterDashboard from "./RecruiterDashboard";
 import Talents from "./Talents";
 import OnboardingRecruiter from "./OnboardingRecruiter";
+import Sidebar from "./Sidebar";
 
-export {
-  JobPostings,
-  JobForm,
-  RecruiterDashboard,
-  Talents,
-  OnboardingRecruiter,
-};
+export { JobForm, RecruiterDashboard, Talents, OnboardingRecruiter, Sidebar };

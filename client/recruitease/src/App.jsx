@@ -9,13 +9,14 @@ import {
   PrivateRoute,
   Onboarding,
   OnboardingConfirmation,
+  JobPostings,
+  JobDescription,
 } from "./components";
 import {
   ApplicantDashboard,
   OnboardingApplicant,
 } from "./components/applicant";
 import {
-  JobPostings,
   RecruiterDashboard,
   Talents,
   OnboardingRecruiter,
@@ -62,6 +63,8 @@ const App = () => {
           path="/onboarding-successful"
           element={<OnboardingConfirmation />}
         />
+        <Route path="/jobdescription" element={<JobDescription />} />
+
         {/* <Route path="*" element={<NotFound />} />  */}
       </Routes>
     </div>
