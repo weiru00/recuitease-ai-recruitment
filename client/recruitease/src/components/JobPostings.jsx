@@ -5,12 +5,13 @@ import JobDescription from "./JobDescription";
 import { ApplicantSidebar } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { apple, bitcoin, discord, vk } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
   const role = queryParams.get("role");
@@ -219,11 +220,11 @@ const JobPostings = () => {
               {jobs.map((job) => (
                 <Link
                   key={job.id}
-                  className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mb-3"
+                  className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
                   // onClick={() => openUpdateForm(job)}
                   to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                 >
-                  <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                  <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
                     <div className="col-span-2 grid justify-items-center content-center">
                       <img className="rounded-t-lg" src={discord} alt="" />
                     </div>
