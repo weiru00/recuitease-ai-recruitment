@@ -17,9 +17,12 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
       : {
           title: "",
           desc: "",
+          req: "",
           type: "",
           qualification: "",
           postedAt: "",
+          jobMode: "",
+          salary: "",
           recruiterID: uid,
         };
 
@@ -94,7 +97,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
         tabIndex="-1"
         aria-hidden="true"
         className="overflow-y-auto overflow-x-hidden fixed right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
-        style={{ top: "5rem" }}
+        style={{ top: "2rem" }}
       >
         <div className={` ${styles.paddingX} ${styles.flexCenter}`}>
           <div className="xl:max-w-[1000px] w-8/12">
@@ -164,9 +167,9 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                         placeholder="E.g: 2 years experience"
                         required=""
-                        value={job.qualitifcation}
+                        value={job.qualification}
                         onChange={(e) =>
-                          setJob({ ...job, qualitifcation: e.target.value })
+                          setJob({ ...job, qualification: e.target.value })
                         }
                       ></input>
                     </div>
@@ -183,6 +186,10 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                         id="salary"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                         placeholder="$2999"
+                        value={job.salary}
+                        onChange={(e) =>
+                          setJob({ ...job, salary: e.target.value })
+                        }
                         required=""
                       ></input>
                     </div>
@@ -206,6 +213,27 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                         <option value="Internship">Internship</option>
                       </select>
                     </div>
+                    <div>
+                      <label
+                        htmlFor="jobMode"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Mode
+                      </label>
+                      <select
+                        id="jobMode"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                        value={job.jobMode}
+                        onChange={(e) =>
+                          setJob({ ...job, jobMode: e.target.value })
+                        }
+                      >
+                        <option defaultValue="">Select Job Mode</option>
+                        <option value="Remote">Remote</option>
+                        <option value="On-site">On-site</option>
+                        <option value="Hybrid">Hybrid</option>
+                      </select>
+                    </div>
                     <div className="sm:col-span-2 mb-3">
                       <label
                         htmlFor="description"
@@ -215,12 +243,30 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                       </label>
                       <textarea
                         id="description"
-                        rows="4"
+                        rows="6"
                         className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                         placeholder="Write job description here"
                         value={job.desc}
                         onChange={(e) =>
                           setJob({ ...job, desc: e.target.value })
+                        }
+                      ></textarea>
+                    </div>
+                    <div className="sm:col-span-2 mb-3">
+                      <label
+                        htmlFor="requirements"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Requirements
+                      </label>
+                      <textarea
+                        id="requirements"
+                        rows="6"
+                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                        placeholder="Write job requirements here"
+                        value={job.req}
+                        onChange={(e) =>
+                          setJob({ ...job, req: e.target.value })
                         }
                       ></textarea>
                     </div>
