@@ -264,7 +264,7 @@ const JobPostings = () => {
         }}
         mode={formMode}
         jobData={selectedJob}
-        onDelete={handleDeleteJob}
+        // onDelete={handleDeleteJob}
       />
     </div>
   );

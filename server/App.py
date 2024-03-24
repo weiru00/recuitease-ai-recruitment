@@ -168,7 +168,6 @@ def get_user_data():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
 @app.route("/create-job", methods=['POST'])
 def create_job():
     try:

@@ -3,7 +3,7 @@ import Button from "../Button";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "../../style";
 
-const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
+const JobForm = ({ isOpen, isClose, mode, jobData }) => {
   if (!isOpen) return null;
 
   const location = useLocation();
@@ -34,7 +34,18 @@ const JobForm = ({ isOpen, isClose, mode, jobData, onDelete }) => {
     event.preventDefault();
 
     // Construct the jobData for submission
-    const jobData = { ...job };
+    let jobData = { ...job };
+
+    if (mode === "Create") {
+      jobData = {
+        ...jobData,
+        postedAt: new Date().toLocaleDateString("en-US", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+      };
+    }
 
     // Determine the API endpoint and method based on the mode
     const apiEndpoint =
