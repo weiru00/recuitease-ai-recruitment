@@ -3,7 +3,7 @@ import Button from "../Button";
 import { useNavigate, useLocation } from "react-router-dom";
 import styles from "../../style";
 
-const JobForm = ({ isOpen, isClose, mode, jobData }) => {
+const ApplicationForm = ({ isOpen, isClose }) => {
   if (!isOpen) return null;
 
   const location = useLocation();
@@ -11,84 +11,84 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
   const uid = queryParams.get("uid");
   const jobId = queryParams.get("jobId");
 
-  const initialState =
-    mode === "Update" && jobData
-      ? { ...jobData }
-      : {
-          title: "",
-          desc: "",
-          req: "",
-          type: "",
-          qualification: "",
-          postedAt: "",
-          jobMode: "",
-          salary: "",
-          recruiterID: uid,
-        };
+  const [userFirstName, setuserFirstName] = useState("");
+  const [userLastName, setuserLastName] = useState("");
+  const [formData, setFormData] = useState({});
+  const [resume, setResume] = useState(null);
 
-  const [job, setJob] = useState(initialState);
-
-  // Reset the form state when the mode changes
   useEffect(() => {
-    setJob(initialState);
-  }, [mode, jobData]);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    // Construct the jobData for submission
-    let jobData = { ...job };
-
-    if (mode === "Create") {
-      jobData = {
-        ...jobData,
-        postedAt: new Date().toLocaleDateString("en-US", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }),
-      };
-    }
-
-    // Determine the API endpoint and method based on the mode
-    const apiEndpoint =
-      mode === "Update" ? `/api/update-job/${jobId}` : "/api/create-job";
-    const method = mode === "Update" ? "PUT" : "POST";
-
-    fetch(apiEndpoint, {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(jobData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert(
-            `Job ${mode === "Update" ? "Updated" : "Created"} Successfully!`
-          );
-          // Reset form
-          setJob(initialState);
-          isClose(); // Close form
-        } else {
-          alert(
-            `Failed to ${mode === "Update" ? "Update" : "Create"} Job: ${
-              data.error
-            }`
-          );
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch(`/api/user-data?uid=${uid}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch user details");
         }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+        const userDetails = await response.json();
+        setuserFirstName(userDetails.firstName); // Assume the response contains a 'name' field
+        setuserLastName(userDetails.lastName); // Assume the response contains a 'name' field
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
+  }, [uid]);
+
+  // const handleFileChange = (e) => {
+  //   setResume(e.target.files[0]);
+  // };
+
+  const [fileName, setFileName] = useState("");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setResume(file);
+      setFileName(file.name);
+    }
   };
 
-  // const handleDelete = () => {
-  //   if (window.confirm("Are you sure you want to delete this job?")) {
-  //     onDelete(jobId);
-  //   }
-  // };
+  const removeFile = () => {
+    setResume(null);
+    setFileName("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
+    data.append("resume", resume);
+    data.append("applicantID", uid); // Include the applicant's UID
+    data.append("jobID", jobId); // Include the Job ID
+
+    try {
+      const response = await fetch("/api/apply-job", {
+        method: "POST",
+        body: data,
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const text = await response.text();
+      const result = text ? JSON.parse(text) : {};
+      alert("Application successful!");
+      isClose();
+    } catch (error) {
+      console.error("Error submitting application:", error);
+    }
+
+    //   const result = await response.json();
+
+    //   // Handle response...
+    // } catch (error) {
+    //   console.error("Error submitting application:", error);
+    // }
+  };
+
   return (
     <React.Fragment>
       {/* Overlay */}
@@ -107,7 +107,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                 {/* <!-- Modal header --> */}
                 <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {mode} Job
+                    Apply Job
                   </h3>
                   <button
                     onClick={isClose}
@@ -132,143 +132,122 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                 </div>
                 {/* <!-- Modal body --> */}
                 <form onSubmit={handleSubmit}>
-                  <div className="grid gap-4 mb-4 sm:grid-cols-2">
+                  <div className="grid gap-4 mb-4 sm:grid-cols-1">
                     <div>
                       <label
-                        htmlFor="title"
+                        htmlFor="firstName"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        Job Title
+                        First Name
                       </label>
                       <input
                         type="text"
-                        name="title"
-                        id="title"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="E.g: Software Engineer"
-                        required={true}
-                        value={job.title}
-                        onChange={(e) =>
-                          setJob({ ...job, title: e.target.value })
-                        }
+                        name="firstName"
+                        id="firstName"
+                        className="bg-gray-50 border border-gray-300 text-gray-500 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                        disabled={true}
+                        value={userFirstName}
+                        // onChange={(e) =>
+                        //   setApplication({
+                        //     ...application,
+                        //     firstName: e.target.value,
+                        //   })
+                        // }
                       ></input>
                     </div>
                     <div>
                       <label
-                        htmlFor="qualification"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        htmlFor="lastName"
+                        className="block mb-2 text-sm font-medium text-gray-500 dark:text-white"
                       >
-                        Qualification
+                        Last Name
                       </label>
                       <input
                         type="text"
-                        name="qualification"
-                        id="qualification"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="E.g: 2 years experience"
-                        required=""
-                        value={job.qualification}
-                        onChange={(e) =>
-                          setJob({ ...job, qualification: e.target.value })
-                        }
+                        name="lastName"
+                        id="lastName"
+                        className="bg-gray-50 border border-gray-300 text-gray-500 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                        disabled={true}
+                        value={userLastName}
+                        // onChange={(e) =>
+                        //   setApplication({
+                        //     ...application,
+                        //     lastName: e.target.value,
+                        //   })
+                        // }
                       ></input>
                     </div>
                     <div>
                       <label
-                        htmlFor="salary"
+                        htmlFor="dropzone-file"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        Salary Range
+                        Upload Resume
                       </label>
-                      <input
-                        type="number"
-                        name="salary"
-                        id="salary"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="$2999"
-                        value={job.salary}
-                        onChange={(e) =>
-                          setJob({ ...job, salary: e.target.value })
-                        }
-                        required=""
-                      ></input>
-                    </div>
-                    <div>
                       <label
-                        htmlFor="type"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        htmlFor="dropzone-file"
+                        className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
                       >
-                        Type
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg
+                            className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 20 16"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>{" "}
+                            or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            PDF Only
+                          </p>
+                        </div>
+                        <input
+                          id="dropzone-file"
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={handleFileChange}
+                          required={true}
+                        />
                       </label>
-                      <select
-                        id="type"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        value={job.type}
-                        onChange={(e) =>
-                          setJob({ ...job, type: e.target.value })
-                        }
-                      >
-                        <option defaultValue="">Select Job Type</option>
-                        <option value="Full-Time">Full-Time</option>
-                        <option value="Internship">Internship</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="jobMode"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Mode
-                      </label>
-                      <select
-                        id="jobMode"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        value={job.jobMode}
-                        onChange={(e) =>
-                          setJob({ ...job, jobMode: e.target.value })
-                        }
-                      >
-                        <option defaultValue="">Select Job Mode</option>
-                        <option value="Remote">Remote</option>
-                        <option value="On-site">On-site</option>
-                        <option value="Hybrid">Hybrid</option>
-                      </select>
-                    </div>
-                    <div className="sm:col-span-2 mb-3">
-                      <label
-                        htmlFor="description"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Description
-                      </label>
-                      <textarea
-                        id="description"
-                        rows="6"
-                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="Write job description here"
-                        value={job.desc}
-                        onChange={(e) =>
-                          setJob({ ...job, desc: e.target.value })
-                        }
-                      ></textarea>
-                    </div>
-                    <div className="sm:col-span-2 mb-3">
-                      <label
-                        htmlFor="requirements"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Requirements
-                      </label>
-                      <textarea
-                        id="requirements"
-                        rows="6"
-                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="Write job requirements here"
-                        value={job.req}
-                        onChange={(e) =>
-                          setJob({ ...job, req: e.target.value })
-                        }
-                      ></textarea>
+                      {fileName && (
+                        <div className="mt-4 flex justify-between items-center bg-gray-100 p-2 rounded-md">
+                          <span className="text-sm font-medium text-gray-900">
+                            {fileName}
+                          </span>
+                          <button
+                            type="button"
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={removeFile}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              ></path>
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -291,30 +270,8 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                           clipRule="evenodd"
                         ></path>
                       </svg>
-                      {mode}
+                      Apply Job
                     </button>
-                    {/* {mode === "Update" && (
-                      <button
-                        type="button"
-                        className="inline-flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
-                        onClick={handleDelete}
-                      >
-                        <svg
-                          aria-hidden="true"
-                          className="w-5 h-5 mr-1.5 -ml-1"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                            clipRule="evenodd"
-                          ></path>
-                        </svg>
-                        Delete
-                      </button>
-                    )} */}
                   </div>
                 </form>
               </div>
@@ -326,4 +283,4 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
   );
 };
 
-export default JobForm;
+export default ApplicationForm;

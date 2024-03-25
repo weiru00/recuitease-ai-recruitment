@@ -1,11 +1,13 @@
 import firebase_admin
-from firebase_admin import credentials, auth
-from firebase_admin import firestore
+from firebase_admin import credentials, auth, firestore, storage
 from flask import request
+from werkzeug.utils import secure_filename
 
 # Use a relative or absolute path to your Firebase Admin SDK JSON file
 cred = credentials.Certificate('recruitease-6b088-firebase-adminsdk-kar6k-61a0f2350b.json')
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+        'storageBucket': 'recruitease-6b088.appspot.com'
+    })
 
 # Now you can use Firestore
 db = firestore.client()
@@ -16,20 +18,6 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-
-# @app.route("/jobs", methods=['GET'])
-# def get_jobs():
-#     doc_ref = db.collection('jobListings').stream()
-
-#     doc = doc_ref.get()
-#     if doc.exists:
-#         doc_data = doc.to_dict()
-#         print(f"Document data: {doc_data}")
-#         return jsonify(doc_data)  # Convert the document to a dict and return as JSON
-#     else:
-#         print("No such document!")
-#         return jsonify({"error": "Document not found"}), 404  # Return a 404 error if the document doesn't exist
-
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -108,15 +96,7 @@ def update_user():
     
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
-    # job_listings = db.collection('jobListings').stream()
-    # job_list = []
 
-    # for job in job_listings:
-    #     job_data = job.to_dict()
-    #     job_data['id'] = job.id  # Add the document ID to the dictionary
-    #     job_list.append(job_data)
-               
-    # return jsonify(job_list)
     role = request.args.get('role')
     uid = request.args.get('uid')
     job_list = []
@@ -211,9 +191,74 @@ def delete_job(job_id):
         # If an error occurs, send an error response
         return jsonify({"success": False, "error": str(e)}), 500
     
-@app.route("/members")
-def members():
-    return {"members": ["Member1", "Member2"]}
+# @app.route("/apply-job", methods=['POST'])
+# def apply_job():
+#     try:
+#         # Get form data
+#         app_data = request.form.to_dict()
+#         resume_file = request.files['resume']
+
+#         if resume_file and resume_file.filename.endswith('.pdf'):
+#             filename = secure_filename(resume_file.filename)
+#             # Create a Blob in Firebase Storage
+#             bucket = storage.bucket()
+#             blob = bucket.blob('resume/' + filename)
+#             blob.upload_from_string(
+#                 resume_file.read(), content_type=resume_file.content_type
+#             )
+#             # Make the blob publicly viewable
+#             blob.make_public()
+#             resume_url = blob.public_url
+
+#             # Add resume URL to application data
+#             app_data['resume'] = resume_url
+#             app_ref = db.collection('applications').add(app_data)
+
+#             return jsonify({"success": True, "id": app_ref[1].id, "resumeUrl": resume_url}), 201
+#         else:
+#             return jsonify({"success": False, "error": "Invalid file format"}), 400
+
+#     except Exception as e:
+#         return jsonify({"success": False, "error": str(e)}), 500
+
+from datetime import datetime
+
+@app.route("/apply-job", methods=['POST'])
+def apply_job():
+    try:
+        # Get form data
+        app_data = request.form.to_dict()
+        resume_file = request.files['resume']
+        uid = request.form['applicantID']  # Applicant's UID
+        jobId = request.form['jobID']  # Job ID
+
+        if resume_file and resume_file.filename.endswith('.pdf'):
+            filename = secure_filename(resume_file.filename)
+            # Upload the resume to Firebase Storage
+            bucket = storage.bucket()
+            blob = bucket.blob(f'resumes/{uid}/{filename}')
+            blob.upload_from_string(
+                resume_file.read(), content_type=resume_file.content_type
+            )
+            blob.make_public()
+            resume_url = blob.public_url
+
+            # Add additional data to application data
+            app_data.update({
+                'resume': resume_url,
+                'appliedAt': datetime.utcnow().isoformat(),
+                'applicantID': uid,
+                'jobID': jobId
+            })
+
+            app_ref = db.collection('applications').add(app_data)
+
+            return jsonify({"success": True, "id": app_ref[1].id, "resumeUrl": resume_url}), 201
+        else:
+            return jsonify({"success": False, "error": "Invalid file format"}), 400
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

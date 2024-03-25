@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
-import { ApplicantSidebar } from "./applicant";
+import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,6 +24,10 @@ const JobDescription = () => {
   const openUpdateForm = (job) => {
     setFormMode("Update");
     setSelectedJob(job); // Pass the selected job data into the form for editing
+    setFormOpen(true);
+  };
+
+  const openApplicationForm = () => {
     setFormOpen(true);
   };
 
@@ -146,7 +150,7 @@ const JobDescription = () => {
                 <button
                   type="button"
                   className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-                  onClick={() => openUpdateForm(jobDetails)}
+                  onClick={() => openApplicationForm(jobDetails)}
                 >
                   Apply Job
                 </button>
@@ -300,16 +304,25 @@ const JobDescription = () => {
           </div>
         </main>
       </div>
-      <JobForm
-        isOpen={isFormOpen}
-        isClose={() => {
-          closeForm();
-          triggerUpdate(); // Call triggerUpdate after closing the form to refresh the job listings
-        }}
-        mode={formMode}
-        jobData={selectedJob}
-        onDelete={handleDeleteJob}
-      />
+      {role === "recruiter" ? (
+        <JobForm
+          isOpen={isFormOpen}
+          isClose={() => {
+            closeForm();
+            triggerUpdate(); // Call triggerUpdate after closing the form to refresh the job listings
+          }}
+          mode={formMode}
+          jobData={selectedJob}
+          // onDelete={handleDeleteJob}
+        />
+      ) : (
+        <ApplicationForm
+          isOpen={isFormOpen}
+          isClose={() => {
+            closeForm();
+          }}
+        />
+      )}
     </div>
   );
 };
