@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
-import { ApplicantSidebar } from "./applicant";
+import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
 import { useLocation, Link, useNavigate } from "react-router-dom";
@@ -73,24 +73,24 @@ const JobPostings = () => {
   //   }
   // };
 
-  const handleDeleteJob = (jobId) => {
-    fetch(`/api/delete-job/${jobId}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert("Job Deleted Successfully!");
-          triggerUpdate(); // Refresh job listings after deletion
-          closeForm();
-        } else {
-          alert("Failed to Delete Job");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+  // const handleDeleteJob = (jobId) => {
+  //   fetch(`/api/delete-job/${jobId}`, {
+  //     method: "DELETE",
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       if (data.success) {
+  //         alert("Job Deleted Successfully!");
+  //         triggerUpdate(); // Refresh job listings after deletion
+  //         closeForm();
+  //       } else {
+  //         alert("Failed to Delete Job");
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error:", error);
+  //     });
+  // };
 
   return (
     <div>
@@ -101,7 +101,15 @@ const JobPostings = () => {
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
             <div className="flex items-center">
-              <h5 className="text-xl font-bold dark:text-white">Posted Jobs</h5>
+              {role === "recruiter" ? (
+                <h5 className="text-xl font-bold dark:text-white">
+                  Posted Jobs
+                </h5>
+              ) : (
+                <h5 className="text-xl font-bold dark:text-white">
+                  Browse All Jobs
+                </h5>
+              )}
             </div>
             {role === "recruiter" && (
               <div>

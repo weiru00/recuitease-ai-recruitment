@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "../Button";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styles from "../../style";
 
 const JobForm = ({ isOpen, isClose, mode, jobData }) => {

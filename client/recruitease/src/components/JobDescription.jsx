@@ -4,10 +4,11 @@ import DashNavbar from "./DashNavbar";
 import { ApplicantSidebar } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { apple, bitcoin, discord, vk } from "../assets";
 
 const JobDescription = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
@@ -52,6 +53,8 @@ const JobDescription = () => {
           throw new Error(data.error || "Failed to delete job.");
 
         alert("Job Deleted Successfully!");
+        navigate(`/jobpostings?uid=${uid}&role=${role}`);
+
         // Redirect or perform another action after successful deletion
       } catch (error) {
         console.error("Error:", error);
