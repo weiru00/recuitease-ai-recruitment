@@ -2,19 +2,28 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore, storage
 from flask import request
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
-# Use a relative or absolute path to your Firebase Admin SDK JSON file
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+import re
+import io
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from pypdf import PdfReader
+
 cred = credentials.Certificate('recruitease-6b088-firebase-adminsdk-kar6k-61a0f2350b.json')
 firebase_admin.initialize_app(cred, {
         'storageBucket': 'recruitease-6b088.appspot.com'
     })
 
-# Now you can use Firestore
 db = firestore.client()
-
-
-from flask import Flask, jsonify
-from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
@@ -44,7 +53,6 @@ def register():
     
 def save_user_data(uid, user_data):
     try:
-        # The document ID will be the user's UID
         user_ref = db.collection('users').document(uid)
         user_ref.set(user_data)
         print(f'User data for {uid} saved successfully.')
@@ -60,7 +68,6 @@ def verify_token():
         decoded_token = auth.verify_id_token(id_token, check_revoked=True)
         uid = decoded_token['uid']
 
-        # Retrieve user document from Firestore
         user_ref = db.collection('users').document(uid)
         user_doc = user_ref.get()
 
@@ -185,7 +192,6 @@ def get_jobs():
 @app.route('/job-details/<job_id>', methods=['GET'])
 def get_job_details(job_id):
     try:
-        # Attempt to retrieve the job document from Firestore using the job_id
         job_ref = db.collection('jobListings').document(job_id)
         job_doc = job_ref.get()
 
@@ -216,13 +222,9 @@ def get_user_data():
 @app.route("/create-job", methods=['POST'])
 def create_job():
     try:
-        # Extract job details from the request body
         job_data = request.json
-
-        # Add a new document to the jobListings collection
         job_ref = db.collection('jobListings').add(job_data)
 
-        # Respond with success message and the new job ID
         return jsonify({"success": True, "id": job_ref[1].id}), 201
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
@@ -230,13 +232,9 @@ def create_job():
 @app.route("/update-job/<job_id>", methods=['PUT'])
 def update_job(job_id):
     try:
-        # Extract job details from the request body
         job_data = request.json
-
-        # Reference to the specific job document
         job_ref = db.collection('jobListings').document(job_id)
 
-        # Update the job document with new data
         job_ref.update(job_data)
 
         return jsonify({"success": True, "message": "Job updated successfully."}), 200
@@ -246,17 +244,14 @@ def update_job(job_id):
 @app.route("/delete-job/<job_id>", methods=['DELETE'])
 def delete_job(job_id):
     try:
-        # Attempt to delete the job document from Firestore
         job_ref = db.collection('jobListings').document(job_id)
         job_ref.delete()
 
-        # If deletion was successful, send a success response
         return jsonify({"success": True, "message": "Job deleted successfully"}), 200
     except Exception as e:
-        # If an error occurs, send an error response
         return jsonify({"success": False, "error": str(e)}), 500
     
-from datetime import datetime
+# Resume-Job Matching Score
 
 @app.route("/apply-job", methods=['POST'])
 def apply_job():
@@ -277,13 +272,22 @@ def apply_job():
             )
             blob.make_public()
             resume_url = blob.public_url
+            
+            # Preprocess the resume text
+            resume_text = fetch_pdf_text(blob.name)
+            
+            job_desc_text = get_job_description(jobId)
+            
+            score = calculate_similarity_scores(resume_text, job_desc_text)
+            print("Score ", score)
 
             # Add additional data to application data
             app_data.update({
                 'resume': resume_url,
                 'appliedAt': datetime.utcnow().isoformat(),
                 'applicantID': uid,
-                'jobID': jobId
+                'jobID': jobId,
+                'score':score,
             })
 
             app_ref = db.collection('applications').add(app_data)
@@ -294,6 +298,119 @@ def apply_job():
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+# Function to fetch and preprocess text from a PDF in Firebase Storage
+def fetch_pdf_text(file_path):
+    try:
+        # bucket = storage.bucket('recruitease-6b088.appspot.com')
+        bucket = storage.bucket()
+        blob = bucket.blob(file_path)
+    #     print("blob:",blob)
+        pdf_bytes = blob.download_as_bytes()
+
+        pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
+        text = ''
+        for page in pdf_reader.pages:
+            text += page.extract_text() + ' '
+        return preprocess_text(text)
+
+    except Exception as e:
+        print(f"Error fetching PDF text: {e}")
+        return ""
+
+def preprocess_text(text):
+    text = text.lower()
+    text = re.sub(r'\d+', '', text)
+    text = re.sub(r'[^\w\s]', '', text)
+    tokens = word_tokenize(text)
+    tokens = [word for word in tokens if word not in stopwords.words('english')]
+    return ' '.join(tokens)
+
+def fetch_resumes_for_job(job_id):
+    applications_ref = db.collection('applications')
+    query = applications_ref.where('jobID', '==', job_id)
+    results = query.stream()
+
+    resumes = []
+    for doc in results:
+        application = doc.to_dict()
+        resume_url = application.get('resume')
+#         resume_url = resume_url.replace(f"gs://{bucket.name}/", "")
+
+        if resume_url:
+            try:
+                resume_content = fetch_pdf_text(resume_url)
+                resumes.append(resume_content)
+            except Exception as e:
+                print(f"Error fetching resume content for application {doc.id}: {e}")
+        else:
+            print(f"No resume found for application {doc.id}")
+
+    return resumes
+
+# def get_job_description(job_id):
+#     doc_ref = db.collection('jobListings').document(job_id)
+#     doc = doc_ref.get()
+    
+#     job_desc = []
+#     if doc.exists:
+#         doc_data = doc.to_dict()
+#         # Concatenate multiple fields to form the full job description
+#         full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
+#         full_description = preprocess_text(full_description)
+#         job_desc.append(full_description)
+#         return job_desc
+#     else:
+#         print("No such job listing document!")
+#         return ""
+
+def get_job_description(job_id):
+    doc_ref = db.collection('jobListings').document(job_id)
+    doc = doc_ref.get()
+    
+    if doc.exists:
+        doc_data = doc.to_dict()
+        # Concatenate multiple fields to form the full job description
+        full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
+        # Preprocess the full job description to a clean string
+        full_description = preprocess_text(full_description)
+        return full_description  # Return the string directly
+    else:
+        print("No such job listing document!")
+        return ""
+    
+def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
+    try:
+        vectorizer = TfidfVectorizer()
+
+        # for job_index, preprocessed_job_desc in enumerate(preprocessed_job_descs, start=1):
+        #     scores = []
+        # Combine the current job description with all resumes
+        documents = [preprocessed_job_descs , preprocessed_resumes]
+        tfidf_matrix = vectorizer.fit_transform(documents)
+        
+        cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+        similarity_score = cos_sim[0, 0]
+
+        return round(similarity_score * 100, 2)
+    
+    except Exception as e:
+        # Log the error
+        print(f"Error calculating similarity scores: {e}")
+        # # First document is the job description, the rest are resumes
+        # for resume_index, _ in enumerate(preprocessed_resumes, start=1):
+        #     cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[resume_index:resume_index+1])
+        #     similarity_score = cos_sim[0, 0]  # Score between job desc and this resume
+        #     scores.append((resume_index, similarity_score))
+        
+        # # Sort scores in descending order
+        # scores.sort(key=lambda x: x[1], reverse=True)
+
+        # print(f"Ranking for Job Posting {job_index}:")
+        # for rank, (resume_index, score) in enumerate(scores, start=1):
+        #     print(f"{rank}. Resume {resume_index} - Score: {score}")
+        # print("\n")  # New line for readability between job postings
+
 
 if __name__ == '__main__':
     app.run(debug=True)

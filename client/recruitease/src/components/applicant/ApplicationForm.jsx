@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "../Button";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styles from "../../style";
 
 const ApplicationForm = ({ isOpen, isClose }) => {
@@ -33,10 +33,6 @@ const ApplicationForm = ({ isOpen, isClose }) => {
 
     fetchUserDetails();
   }, [uid]);
-
-  // const handleFileChange = (e) => {
-  //   setResume(e.target.files[0]);
-  // };
 
   const [fileName, setFileName] = useState("");
 
@@ -80,13 +76,6 @@ const ApplicationForm = ({ isOpen, isClose }) => {
     } catch (error) {
       console.error("Error submitting application:", error);
     }
-
-    //   const result = await response.json();
-
-    //   // Handle response...
-    // } catch (error) {
-    //   console.error("Error submitting application:", error);
-    // }
   };
 
   return (
