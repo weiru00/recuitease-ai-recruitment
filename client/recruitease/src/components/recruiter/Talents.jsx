@@ -16,6 +16,10 @@ const Talents = () => {
     .filter((app) => app.score > 9)
     .sort((a, b) => b.score - a.score);
 
+  const sortedByTimeApplications = [...applications].sort(
+    (a, b) => new Date(a.appliedAt) - new Date(b.appliedAt)
+  );
+
   // const sortedApplications = applications.sort((a, b) => b.score - a.score);
 
   useEffect(() => {
@@ -252,7 +256,7 @@ const Talents = () => {
             </button>
           </form>
           <div href="#" className="col-span-4 overflow-auto">
-            {applications.map((app) => (
+            {sortedByTimeApplications.map((app) => (
               <div
                 key={app.applicationID}
                 className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
