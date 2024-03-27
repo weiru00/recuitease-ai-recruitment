@@ -250,6 +250,52 @@ def delete_job(job_id):
         return jsonify({"success": True, "message": "Job deleted successfully"}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/get-applications', methods=['GET'])
+def get_applications():
+    try:
+        recruiter_id = request.args.get('recruiterID')  # Get recruiterID from query string
+        if not recruiter_id:
+            return jsonify({"error": "Missing recruiterID parameter"}), 400
+
+        # Fetch all job IDs posted by the recruiter
+        jobs_ref = db.collection('jobListings').where('recruiterID', '==', recruiter_id)
+        jobs = jobs_ref.stream()
+
+        applications = []
+        # For each job, fetch applications
+        for job in jobs:
+            job_id = job.id
+            job_data = job.to_dict()  # Get job data
+            job_title = job_data.get('title', 'Unknown Job Title')
+            
+            apps_ref = db.collection('applications').where('jobID', '==', job_id)
+            apps = apps_ref.stream()
+
+            for app in apps:
+                app_data = app.to_dict()
+                app_data['applicationID'] = app.id  # Include the application ID in the data
+                app_data['jobTitle'] = job_title
+                
+                # Fetch applicant details
+                applicant_id = app_data.get('applicantID')
+                if applicant_id:
+                    user_ref = db.collection('users').document(applicant_id)
+                    user_doc = user_ref.get()
+                    if user_doc.exists:
+                        user_data = user_doc.to_dict()
+                        app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
+                        # Include any other applicant details you need
+                        app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
+                        app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
+
+                
+                applications.append(app_data)
+
+        return jsonify({"success": True, "applications": applications}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
     
 # Resume-Job Matching Score
 
@@ -287,6 +333,7 @@ def apply_job():
                 'appliedAt': datetime.utcnow().isoformat(),
                 'applicantID': uid,
                 'jobID': jobId,
+                'status':"Applied",
                 'score':score,
             })
 
@@ -379,6 +426,7 @@ def get_job_description(job_id):
         print("No such job listing document!")
         return ""
     
+# For recruiter
 def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
     try:
         vectorizer = TfidfVectorizer()
@@ -410,6 +458,22 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
         # for rank, (resume_index, score) in enumerate(scores, start=1):
         #     print(f"{rank}. Resume {resume_index} - Score: {score}")
         # print("\n")  # New line for readability between job postings
+
+# For Applicant to find best matching jobs
+def calculate_similarity_for_resume(preprocessed_resumes, preprocessed_job_descs):
+    vectorizer = TfidfVectorizer()
+
+    scores = []
+    for job_desc in preprocessed_job_descs:
+        # Combine resume and job description
+        documents = [preprocessed_resumes, preprocessed_job_descs]
+        tfidf_matrix = vectorizer.fit_transform(documents)
+        # Calculate similarity
+        cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+        similarity_score = cos_sim[0, 0]
+        scores.append(similarity_score)
+
+    return scores
 
 
 if __name__ == '__main__':

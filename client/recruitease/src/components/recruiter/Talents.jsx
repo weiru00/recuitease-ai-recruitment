@@ -1,8 +1,49 @@
 import React from "react";
 import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const Talents = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const recruiterID = queryParams.get("uid");
+  const [loading, setLoading] = useState(true);
+
+  const [applications, setApplications] = useState([]);
+
+  const topTalents = applications
+    .filter((app) => app.score > 9)
+    .sort((a, b) => b.score - a.score);
+
+  // const sortedApplications = applications.sort((a, b) => b.score - a.score);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/get-applications?recruiterID=${recruiterID}`
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setApplications(data.applications);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [recruiterID]);
+
+  if (loading) {
+    return <div>Loading applications...</div>;
+  }
+
   return (
     <div className="antialiased bg-white dark:bg-gray-900">
       <DashNavbar />
@@ -99,48 +140,55 @@ const Talents = () => {
             </button>
           </form>
           <div href="#" className="col-span-4 overflow-auto">
-            {/* {jobs.map((job) => ( */}
-            <div
-              // key={job.id}
-              className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
-              // onClick={() => openUpdateForm(job)}
-            >
-              <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                <div className="col-span-2 grid justify-items-center content-center">
-                  <img
-                    className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                    src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                    alt="Bonnie Avatar"
-                  ></img>
-                </div>
-                <div className="px-2 py-3 col-span-6">
-                  <a href="#">
-                    <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-                      {/* {job.title} */}
-                      Jennie Law
-                    </h5>
-                  </a>
+            {topTalents.map((app) => (
+              <div
+                key={app.applicationID}
+                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
+                // onClick={() => openUpdateForm(job)}
+              >
+                <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                  <div className="col-span-2 grid justify-items-center content-center">
+                    <img
+                      className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                      // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
+                      src={app.applicantPic}
+                      alt="Profile Pic"
+                    ></img>
+                  </div>
+                  <div className="px-2 py-3 col-span-6">
+                    <a href="#">
+                      <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+                        {app.applicantFName}
+                        {/* Jennie Law */}
+                      </h5>
+                    </a>
 
-                  <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                    <li>
-                      <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                        Data Engineer
-                      </span>
+                    <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                      <li>
+                        <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                          {app.jobTitle}
+                          {/* Data Engineer */}
+                        </span>
 
-                      <p className="inline-block pr-8 py-2 text-xs">
-                        8/12/2023
-                      </p>
-                    </li>
-                  </ul>
-                </div>
-                <div className="col-span-2 grid justify-items-center content-center">
-                  <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                    90%
-                  </span>
+                        <p className="inline-block pr-8 py-2 text-xs">
+                          {new Intl.DateTimeFormat("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          }).format(new Date(app.appliedAt))}
+                          {/* 8/12/2023 */}
+                        </p>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="col-span-2 grid justify-items-center content-center">
+                    <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                      {app.score}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* ))} */}
+            ))}
           </div>
         </div>
 
@@ -204,48 +252,55 @@ const Talents = () => {
             </button>
           </form>
           <div href="#" className="col-span-4 overflow-auto">
-            {/* {jobs.map((job) => ( */}
-            <div
-              // key={job.id}
-              className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
-              // onClick={() => openUpdateForm(job)}
-            >
-              <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                <div className="col-span-2 grid justify-items-center content-center">
-                  <img
-                    className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                    src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                    alt="Bonnie Avatar"
-                  ></img>
-                </div>
-                <div className="px-2 py-3 col-span-6">
-                  <a href="#">
-                    <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-                      {/* {job.title} */}
-                      Jennie Law
-                    </h5>
-                  </a>
+            {applications.map((app) => (
+              <div
+                key={app.applicationID}
+                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
+                // onClick={() => openUpdateForm(job)}
+              >
+                <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                  <div className="col-span-2 grid justify-items-center content-center">
+                    <img
+                      className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                      // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
+                      src={app.applicantPic}
+                      alt="Profile Pic"
+                    ></img>
+                  </div>
+                  <div className="px-2 py-3 col-span-6">
+                    <a href="#">
+                      <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+                        {app.applicantFName}
+                        {/* Jennie Law */}
+                      </h5>
+                    </a>
 
-                  <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                    <li>
-                      <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                        Data Engineer
-                      </span>
+                    <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                      <li>
+                        <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                          {app.jobTitle}
+                          {/* Data Engineer */}
+                        </span>
 
-                      <p className="inline-block pr-8 py-2 text-xs">
-                        8/12/2023
-                      </p>
-                    </li>
-                  </ul>
-                </div>
-                <div className="col-span-2 grid justify-items-center content-center">
-                  <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                    60%
-                  </span>
+                        <p className="inline-block pr-8 py-2 text-xs">
+                          {new Intl.DateTimeFormat("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          }).format(new Date(app.appliedAt))}
+                          {/* 8/12/2023 */}
+                        </p>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="col-span-2 grid justify-items-center content-center">
+                    <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                      {app.score}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* ))} */}
+            ))}
           </div>
         </div>
       </main>
