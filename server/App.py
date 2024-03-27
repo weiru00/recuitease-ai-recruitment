@@ -76,8 +76,8 @@ def verify_token():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@app.route('/update-user', methods=['POST'])
-def update_user():
+@app.route('/update-user-role', methods=['POST'])
+def update_user_role():
     try:
         data = request.json
         uid = data.get('uid')
@@ -85,7 +85,7 @@ def update_user():
 
         if not uid or not user_data:
             return jsonify({'error': 'Missing UID or user data'}), 400
-
+            
         user_ref = db.collection('users').document(uid)
         user_ref.update(user_data)
         
@@ -93,6 +93,71 @@ def update_user():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/update-user', methods=['POST'])
+def update_user():
+    try:
+        uid = request.form['uid']
+        user_data = {
+            'firstName': request.form['firstName'],
+            'lastName': request.form['lastName'],
+            'gender': request.form['gender'],
+            'race': request.form['race'],
+        }
+
+        if not uid or not user_data:
+            return jsonify({'error': 'Missing UID or user data'}), 400
+
+        # Handle file upload
+        profile_pic = request.files['profilePic']
+        if profile_pic:
+            filename = secure_filename(profile_pic.filename)
+            blob = storage.bucket().blob(f'profile_pictures/{uid}')
+            blob.upload_from_string(profile_pic.read(), content_type=profile_pic.content_type)
+            # Get the URL of the uploaded file
+            user_data['profilePicUrl'] = blob.public_url
+            
+        user_ref = db.collection('users').document(uid)
+        user_ref.update(user_data)
+        
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/update-company', methods=['POST'])
+def update_company():
+    try:
+        uid = request.form['uid']
+        user_data = {
+            'companyName': request.form['companyName'],
+            'website': request.form['website'],
+            'companySize': request.form['companySize'],
+            'companyDescription': request.form['companyDescription'],
+            'firstName': request.form['firstName'],
+            'lastName': request.form['lastName'],
+        }
+
+        if not uid or not user_data:
+            return jsonify({'error': 'Missing UID or user data'}), 400
+
+        # Handle file upload
+        company_logo = request.files['companyLogo']
+        if company_logo:
+            filename = secure_filename(company_logo.filename)
+            blob = storage.bucket().blob(f'company_logo/{uid}')
+            blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
+            # Get the URL of the uploaded file
+            user_data['companyLogoUrl'] = blob.public_url
+            
+        user_ref = db.collection('users').document(uid)
+        user_ref.update(user_data)
+        
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
     
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
@@ -191,36 +256,6 @@ def delete_job(job_id):
         # If an error occurs, send an error response
         return jsonify({"success": False, "error": str(e)}), 500
     
-# @app.route("/apply-job", methods=['POST'])
-# def apply_job():
-#     try:
-#         # Get form data
-#         app_data = request.form.to_dict()
-#         resume_file = request.files['resume']
-
-#         if resume_file and resume_file.filename.endswith('.pdf'):
-#             filename = secure_filename(resume_file.filename)
-#             # Create a Blob in Firebase Storage
-#             bucket = storage.bucket()
-#             blob = bucket.blob('resume/' + filename)
-#             blob.upload_from_string(
-#                 resume_file.read(), content_type=resume_file.content_type
-#             )
-#             # Make the blob publicly viewable
-#             blob.make_public()
-#             resume_url = blob.public_url
-
-#             # Add resume URL to application data
-#             app_data['resume'] = resume_url
-#             app_ref = db.collection('applications').add(app_data)
-
-#             return jsonify({"success": True, "id": app_ref[1].id, "resumeUrl": resume_url}), 201
-#         else:
-#             return jsonify({"success": False, "error": "Invalid file format"}), 400
-
-#     except Exception as e:
-#         return jsonify({"success": False, "error": str(e)}), 500
-
 from datetime import datetime
 
 @app.route("/apply-job", methods=['POST'])

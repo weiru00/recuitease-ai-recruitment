@@ -25,31 +25,34 @@ const OnboardingRecruiter = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const userData = {
-      companyName,
-      website,
-      companySize,
-      companyDescription,
-      firstName,
-      lastName,
-    };
+    // const userData = {
+    //   companyName,
+    //   website,
+    //   companySize,
+    //   companyDescription,
+    //   firstName,
+    //   lastName,
+    // };
+    const formData = new FormData();
+    formData.append("uid", uid);
+    formData.append("companyName", companyName);
+    formData.append("website", website);
+    formData.append("companySize", companySize);
+    formData.append("companyDescription", companyDescription);
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+
+    if (companyLogo) formData.append("companyLogo", companyLogo);
 
     try {
-      const response = await fetch("/api/update-user", {
+      const response = await fetch("/api/update-company", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uid: uid,
-          userData: userData,
-        }),
+        body: formData,
       });
 
       const data = await response.json();
       if (data.success) {
         console.log("User data updated successfully");
-        // Redirect to the next page or dashboard after successful update
         navigate("/onboarding-successful");
       } else {
         console.error("Failed to update user data");

@@ -12,7 +12,7 @@ const Onboarding = () => {
 
   const updateUserRole = async (role) => {
     try {
-      const response = await fetch("/api/update-user", {
+      const response = await fetch("/api/update-user-role", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -110,8 +110,9 @@ const Sidebar = () => {
         <div className="mt-14 text-center text-gray-500 dark:text-gray-400">
           <img
             className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-            alt="Bonnie Avatar"
+            // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
+            src={userData.profilePicUrl}
+            alt="Profile Picture"
           ></img>
           <h3 className="mb-10 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
             {userData.firstName}

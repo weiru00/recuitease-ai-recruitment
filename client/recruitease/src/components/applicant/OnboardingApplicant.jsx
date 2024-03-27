@@ -30,30 +30,24 @@ const OnboardingApplicant = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const userData = {
-      gender,
-      race,
-      resume,
-      firstName,
-      lastName,
-    };
+    const formData = new FormData();
+    formData.append("uid", uid);
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+    formData.append("gender", gender);
+    formData.append("race", race);
+    if (profilePic) formData.append("profilePic", profilePic);
+    // if (resume) formData.append("resume", resume);
 
     try {
       const response = await fetch("/api/update-user", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uid: uid,
-          userData: userData,
-        }),
+        body: formData,
       });
 
       const data = await response.json();
       if (data.success) {
         console.log("User data updated successfully");
-        // Redirect to the next page or dashboard after successful update
         navigate("/onboarding-successful");
       } else {
         console.error("Failed to update user data");
@@ -124,6 +118,7 @@ const OnboardingApplicant = () => {
                       aria-describedby="file_input_help"
                       id="file_input"
                       type="file"
+                      accept=".jpg, .png"
                       onChange={handleLogoChange}
                     />
                   </div>
