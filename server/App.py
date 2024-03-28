@@ -562,7 +562,7 @@ def find_matching_jobs(preprocessed_resume, top_n):
     top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
 
     # Select top matching jobs from Firestore data
-    matched_jobs = [matched_jobs[index] for index, score in top_matches]
+    matched_jobs = [(matched_jobs[index], score) for index, score in top_matches]
 
     return matched_jobs
 
