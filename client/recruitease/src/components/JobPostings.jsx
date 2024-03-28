@@ -350,7 +350,7 @@ const JobPostings = () => {
 
             <div href="#" className="col-span-4 overflow-auto">
               {role === "applicant" && (
-                <div className="items-center ">
+                <div className="items-center border-2 rounded-lg border-purple-50 px-4 py-1 mb-2 ">
                   {viewMatchedJobs ? (
                     <div className="flex justify-between">
                       <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
