@@ -6,7 +6,7 @@ import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { apple, bitcoin, discord, vk } from "../assets";
+import { apple, dashboard, discord, vk } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
@@ -20,6 +20,7 @@ const JobPostings = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [updateTrigger, setUpdateTrigger] = useState(false);
+  const [resume, setResume] = useState(null);
 
   const openCreateForm = () => {
     setFormMode("Create");
@@ -39,6 +40,21 @@ const JobPostings = () => {
 
   const triggerUpdate = () => {
     setUpdateTrigger(!updateTrigger); // refresh the job listings
+  };
+
+  const [fileName, setFileName] = useState("");
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setResume(file);
+      setFileName(file.name);
+    }
+  };
+
+  const removeFile = () => {
+    setResume(null);
+    setFileName("");
   };
 
   // useEffect(() => {
@@ -99,7 +115,120 @@ const JobPostings = () => {
 
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-          <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
+          {role === "applicant" ? (
+            <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-auto mb-4 mx-6 px-10 py-6 z-30">
+              <div className="items-center ">
+                <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
+                  Browse Jobs
+                </h5>
+                <div>
+                  <span
+                    id="badge-dismiss-purple"
+                    className="inline-flex items-center py-2 me-2 text-md font-medium text-gray-500 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
+                  >
+                    Upload your resume and let us find your perfect job match
+                    instantly! ✨
+                  </span>
+                </div>
+              </div>
+              <div className="bg-white shadow-md rounded-lg p-6 w-1/3 h-auto">
+                <form>
+                  <div className="h-full items-center justify-center w-full">
+                    <label
+                      htmlFor="dropzone-file"
+                      className="flex flex-col items-center justify-center w-full h-auto border-2 border-purple-200 border-dashed rounded-xl cursor-pointer bg-white dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-purple-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg
+                          className="w-8 h-8 mb-4 text-purple-600 dark:text-gray-400"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 20 16"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                          />
+                        </svg>
+                        <p className="text-center mb-2 text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span>{" "}
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          PDF only
+                        </p>
+                      </div>
+                      <input
+                        id="dropzone-file"
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={handleFileChange}
+                        required={true}
+                      />
+                    </label>
+                    {fileName && (
+                      <div className="mt-4 flex justify-between items-center bg-gray-100 p-2 rounded-md">
+                        <span className="text-sm font-medium text-gray-900">
+                          {fileName}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-gray-500 hover:text-gray-700"
+                          onClick={removeFile}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            ></path>
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="mt-3 flex w-full items-center rounded-lg bg-purple-600 px-4 py-1 text-center justify-center hover:bg-purple-800"
+                  >
+                    <span className="text-md text-white font-medium">
+                      Submit
+                    </span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          ) : (
+            // Recruiter's view
+            <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
+              <div className="items-center ">
+                <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
+                  Posted Jobs
+                </h5>
+                <div>
+                  <button
+                    type="button"
+                    className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+                    onClick={openCreateForm}
+                  >
+                    Create New Job
+                  </button>
+                </div>
+              </div>
+              <img className="flex z-[5] h-60" src={dashboard}></img>
+            </div>
+          )}
+          {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
             <div className="flex items-center">
               {role === "recruiter" ? (
                 <h5 className="text-xl font-bold dark:text-white">
@@ -122,9 +251,9 @@ const JobPostings = () => {
                 </button>
               </div>
             )}
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6">
+          <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6 pt-6">
             {/* Filter and Seacrh Section */}
             <div className="col-span-2 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto px-5 py-4">
               {/* Search bar */}

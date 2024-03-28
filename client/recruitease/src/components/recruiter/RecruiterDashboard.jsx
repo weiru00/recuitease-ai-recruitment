@@ -5,6 +5,7 @@ import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { dashboard } from "../../assets";
 
 const RecruiterDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -71,7 +72,7 @@ const RecruiterDashboard = () => {
       <Sidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-8 py-6">
+        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-8 py-6">
           <div className="flex items-center">
             <h5 className="text-xl font-bold dark:text-white">
               Welcome Back, {userData.firstName}
@@ -102,6 +103,22 @@ const RecruiterDashboard = () => {
               </a>
             </span>
           </div>
+        </div> */}
+        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
+          <div className="items-center ">
+            <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
+              Welcome Back, {userData.firstName}
+            </h5>
+            <div>
+              <span
+                id="badge-dismiss-purple"
+                className="inline-flex items-centerpy-1 me-2 text-md font-medium text-purple-800 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
+              >
+                Land your dream job! ✨
+              </span>
+            </div>
+          </div>
+          <img className="flex z-[5] h-60" src={dashboard}></img>
         </div>
         <div className="bg-white rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
           <div className="flex items-center">

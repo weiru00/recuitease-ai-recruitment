@@ -7,5 +7,19 @@ import discord from "./discord.svg";
 import vk from "./vk.svg";
 import google from "./google.svg";
 import login from "./login.svg";
+import dashboard from "./dashboard.svg";
+import bg from "./bg.png";
 
-export { logo, hero, option, apple, bitcoin, discord, vk, google, login };
+export {
+  logo,
+  hero,
+  option,
+  apple,
+  bitcoin,
+  discord,
+  vk,
+  google,
+  login,
+  dashboard,
+  bg,
+};
