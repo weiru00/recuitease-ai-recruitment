@@ -6,7 +6,7 @@ import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { apple, dashboard, discord, vk } from "../assets";
+import { apple, dashboard, discord, user } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
@@ -368,8 +368,8 @@ const JobPostings = () => {
                           <div className="col-span-2 grid justify-items-center content-center">
                             <img
                               className="rounded-t-lg"
-                              src={discord}
-                              alt=""
+                              src="{job.companyLogoUrl} || {user}"
+                              alt="logo"
                             />
                           </div>
                           <div className="px-4 py-3 col-span-8">

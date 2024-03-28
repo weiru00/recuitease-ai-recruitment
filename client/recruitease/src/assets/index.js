@@ -9,6 +9,7 @@ import google from "./google.svg";
 import login from "./login.svg";
 import dashboard from "./dashboard.svg";
 import bg from "./bg.png";
+import user from "./user.svg";
 
 export {
   logo,
@@ -22,4 +23,5 @@ export {
   login,
   dashboard,
   bg,
+  user,
 };

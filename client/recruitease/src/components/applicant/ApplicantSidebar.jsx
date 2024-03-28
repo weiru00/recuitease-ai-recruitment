@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { logo } from "../../assets";
+import { logo, user } from "../../assets";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import "flowbite";
@@ -111,7 +111,7 @@ const Sidebar = () => {
           <img
             className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
             // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-            src={userData.profilePicUrl}
+            src={userData.profilePicUrl || user}
             alt="Profile Picture"
           ></img>
           <h3 className="mb-10 text-xl font-bold tracking-tight text-gray-900 dark:text-white">

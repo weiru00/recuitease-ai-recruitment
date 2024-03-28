@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { logo } from "../../assets";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { user } from "../../assets";
+
 import "flowbite";
 
 const Sidebar = () => {
@@ -91,8 +93,8 @@ const Sidebar = () => {
             <img
               className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
               // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-              src={userData.companyLogoUrl}
-              alt="Bonnie Avatar"
+              src={userData.companyLogoUrl || user}
+              alt="logo"
             ></img>
             <h3 className="mb-1 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
               {userData.companyName}
