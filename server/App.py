@@ -330,8 +330,8 @@ def track_applications():
                     job_details = job_doc.to_dict()
                     # Extract required job details
                     application['jobTitle'] = job_details.get('title')
-                    application['jobType'] = job_details.get('type')
-                    application['jobMode'] = job_details.get('mode')
+                    application['salary'] = job_details.get('salary')
+                    application['jobMode'] = job_details.get('jobMode')
                     
                     # get company name
                     recruiter_id = job_details.get('recruiterID')

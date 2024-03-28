@@ -386,7 +386,7 @@ const JobPostings = () => {
                           <div className="col-span-2 grid justify-items-center content-center">
                             <img
                               className="rounded-t-lg"
-                              src="{job.companyLogoUrl} || {user}"
+                              src={job.companyLogoUrl || user}
                               alt="logo"
                             />
                           </div>
