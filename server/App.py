@@ -9,6 +9,7 @@ from flask_cors import CORS
 
 import re
 import io
+import os
 import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -346,6 +347,47 @@ def apply_job():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/match-jobs', methods=['POST'])
+def match_jobs():
+    # if 'resume' not in request.files:
+    #     return jsonify({"error": "No resume file"}), 400
+
+
+    resume_file = request.files['resume']
+    uid = request.form['applicantID']
+    if resume_file and resume_file.filename.endswith('.pdf'):
+
+        filename = secure_filename(resume_file.filename)
+        
+        bucket = storage.bucket()
+        blob = bucket.blob(f'tempResumes/{uid}/{filename}')
+        blob.upload_from_string(
+            resume_file.read(), content_type=resume_file.content_type
+        )
+        blob.make_public()
+        resume_url = blob.public_url
+        
+        # Preprocess the resume text
+        resume_text = fetch_pdf_text(blob.name)
+        
+        # # Save resume to a temporary file if needed
+        # temp_path = os.path.join('temp', filename)
+        # resume_file.save(temp_path)
+
+        # # Preprocessing
+        # resume_text = fetch_pdf_text(temp_path)
+        
+        # job_desc_text = get_job_description(jobId)
+
+        # Remove the temporary file
+        # os.remove(temp_path)
+
+        # Retrieve jobs from Firestore and match
+        matched_jobs = find_matching_jobs(resume_text, top_n=2)
+        print("matched jobs: ", matched_jobs)
+
+        return jsonify(matched_jobs)
+
 # Function to fetch and preprocess text from a PDF in Firebase Storage
 def fetch_pdf_text(file_path):
     try:
@@ -395,7 +437,7 @@ def fetch_resumes_for_job(job_id):
 
     return resumes
 
-# def get_job_description(job_id):
+# def get_job_description_list(job_id):
 #     doc_ref = db.collection('jobListings').document(job_id)
 #     doc = doc_ref.get()
     
@@ -460,20 +502,69 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
         # print("\n")  # New line for readability between job postings
 
 # For Applicant to find best matching jobs
-def calculate_similarity_for_resume(preprocessed_resumes, preprocessed_job_descs):
+# def calculate_similarity_for_resume(preprocessed_resumes, preprocessed_job_descs):
+#     vectorizer = TfidfVectorizer()
+
+#     scores = []
+#     for job_desc in preprocessed_job_descs:
+#         # Combine resume and job description
+#         documents = [preprocessed_resumes, preprocessed_job_descs]
+#         tfidf_matrix = vectorizer.fit_transform(documents)
+#         # Calculate similarity
+#         cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+#         similarity_score = cos_sim[0, 0]
+#         scores.append(similarity_score)
+
+#     return scores
+
+def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
     vectorizer = TfidfVectorizer()
+    
+    # Combine the resume with all job descriptions
+    documents = [preprocessed_resume] + preprocessed_job_descs
+    tfidf_matrix = vectorizer.fit_transform(documents)
+    
+    # Calculate similarity of the resume to each job description
+    # The first vector in tfidf_matrix is the resume, the rest are job descriptions
+    cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
+    
+    # Get similarity scores for all jobs
+    similarity_scores = cos_sim.flatten()
+    
+    # Get indices of top_n matching jobs
+    top_matching_indices = similarity_scores.argsort()[-top_n:][::-1]
+    
+    # Prepare the results
+    top_matches = [(index, similarity_scores[index]) for index in top_matching_indices]
+    
+    return top_matches
 
-    scores = []
-    for job_desc in preprocessed_job_descs:
-        # Combine resume and job description
-        documents = [preprocessed_resumes, preprocessed_job_descs]
-        tfidf_matrix = vectorizer.fit_transform(documents)
-        # Calculate similarity
-        cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-        similarity_score = cos_sim[0, 0]
-        scores.append(similarity_score)
+def find_matching_jobs(preprocessed_resume, top_n):
+    jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
+    docs = jobs_collection.stream()
 
-    return scores
+    preprocessed_job_desc = []
+    matched_jobs = []
+    
+    for doc in docs:
+        job = doc.to_dict()
+        # job_desc = job.get('title', 'desc', 'qualification', 'req')
+        full_description = " ".join([job[field] for field in ['title', 'desc', 'qualification', 'req']])
+        full_description = preprocess_text(full_description)
+        preprocessed_job_desc.append(full_description)
+
+        matched_jobs.append(job)
+        # # Here you should implement your matching logic
+        # # For simplicity, we're just checking if a keyword from the resume appears in the job description
+        # if any(keyword.lower() in job_desc.lower() for keyword in preprocessed_resume.split()):
+        #     matched_jobs.append(job)
+        # Calculate top matching jobs
+    top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
+
+    # Select top matching jobs from Firestore data
+    matched_jobs = [matched_jobs[index] for index, score in top_matches]
+
+    return matched_jobs
 
 
 if __name__ == '__main__':

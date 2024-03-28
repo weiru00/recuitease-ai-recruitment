@@ -18,9 +18,11 @@ const JobPostings = () => {
   const [isFormOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState("create"); // 'create' or 'update'
   const [selectedJob, setSelectedJob] = useState(null);
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([]); // All jobs
   const [updateTrigger, setUpdateTrigger] = useState(false);
   const [resume, setResume] = useState(null);
+  const [matchedJobs, setMatchedJobs] = useState([]); // Holds matched jobs after resume upload
+  const [viewMatchedJobs, setViewMatchedJobs] = useState(false); // Flag to toggle view
 
   const openCreateForm = () => {
     setFormMode("Create");
@@ -57,6 +59,25 @@ const JobPostings = () => {
     setFileName("");
   };
 
+  const fetchMatchingJobs = async () => {
+    const formData = new FormData();
+    formData.append("resume", resume);
+    formData.append("applicantID", uid);
+
+    try {
+      const response = await fetch("/api/match-jobs", {
+        method: "POST",
+        body: formData,
+      });
+
+      const matchingJobs = await response.json();
+      setMatchedJobs(matchingJobs); // Update matched jobs
+      setViewMatchedJobs(true); // Automatically switch to viewing matched jobs
+    } catch (error) {
+      console.error("Error fetching matching jobs:", error);
+    }
+  };
+
   // useEffect(() => {
   //   fetch("api/joblistings")
   //     .then((res) => res.json())
@@ -78,35 +99,10 @@ const JobPostings = () => {
     fetchJobs();
   }, [role, uid, updateTrigger]);
 
-  // const handleJobAction = (job, action) => {
-  //   if (action === "update") {
-  //     setFormMode("Update");
-  //     setSelectedJob(job);
-  //     setFormOpen(true);
-  //   } else if (action === "apply") {
-  //     // Implement the apply logic here
-  //     console.log(`Applying for job: ${job.id}`);
-  //   }
-  // };
-
-  // const handleDeleteJob = (jobId) => {
-  //   fetch(`/api/delete-job/${jobId}`, {
-  //     method: "DELETE",
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       if (data.success) {
-  //         alert("Job Deleted Successfully!");
-  //         triggerUpdate(); // Refresh job listings after deletion
-  //         closeForm();
-  //       } else {
-  //         alert("Failed to Delete Job");
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error:", error);
-  //     });
-  // };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await fetchMatchingJobs();
+  };
 
   return (
     <div>
@@ -132,7 +128,7 @@ const JobPostings = () => {
                 </div>
               </div>
               <div className="bg-white shadow-md rounded-lg p-6 w-1/3 h-auto">
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="h-full items-center justify-center w-full">
                     <label
                       htmlFor="dropzone-file"
@@ -353,7 +349,13 @@ const JobPostings = () => {
             {/* Jobs Section */}
 
             <div href="#" className="col-span-4 overflow-auto">
-              {jobs.map((job) => (
+              {role === "applicant" && (
+                <button onClick={() => setViewMatchedJobs(!viewMatchedJobs)}>
+                  {viewMatchedJobs ? "View All Jobs" : "View Matched Jobs"}
+                </button>
+              )}
+
+              {(viewMatchedJobs ? matchedJobs : jobs).map((job) => (
                 <Link
                   key={job.id}
                   className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
