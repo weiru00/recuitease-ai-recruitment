@@ -15,6 +15,7 @@ import {
 import {
   ApplicantDashboard,
   OnboardingApplicant,
+  TrackApplication,
 } from "./components/applicant";
 import {
   RecruiterDashboard,
@@ -64,6 +65,7 @@ const App = () => {
           element={<OnboardingConfirmation />}
         />
         <Route path="/jobdescription" element={<JobDescription />} />
+        <Route path="/track-applications" element={<TrackApplication />} />
 
         {/* <Route path="*" element={<NotFound />} />  */}
       </Routes>

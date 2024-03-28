@@ -307,6 +307,69 @@ def get_applications():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/track-applications', methods=['GET'])
+def track_applications():
+    applicantID = request.args.get('uid')
+    if not applicantID:
+        return jsonify({'error': 'Missing uid parameter'}), 400
+
+    try:
+        applications_ref = db.collection('applications')
+        query_ref = applications_ref.where('applicantID', '==', applicantID).stream()
+
+        applications = []
+        for doc in query_ref:
+            application = doc.to_dict()
+            application['id'] = doc.id  # Include the application ID
+
+            # Fetch job details based on jobID in the application
+            jobID = application.get('jobID')
+            if jobID:
+                job_doc = db.collection('jobListings').document(jobID).get()
+                if job_doc.exists:
+                    job_details = job_doc.to_dict()
+                    # Extract required job details
+                    application['jobTitle'] = job_details.get('title')
+                    application['jobType'] = job_details.get('type')
+                    application['jobMode'] = job_details.get('mode')
+                    
+                    # get company name
+                    recruiter_id = job_details.get('recruiterID')
+                    user_doc = db.collection('users').document(recruiter_id).get()
+                    if user_doc.exists:
+                        user_details = user_doc.to_dict()
+                        application['companyName'] = user_details.get('companyName')
+                        
+                    else:
+                        application['companyName'] = 'Unavailable company name'
+                else:
+                    application['jobTitle'] = 'Job no longer exists'
+                    application['jobType'] = 'Unavailable'
+                    application['jobMode'] = 'Unavailable'
+
+            applications.append(application)
+
+        return jsonify(applications), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+   
+# @app.route('/track-applications', methods=['GET'])
+# def track_applications():
+#     applicantID = request.args.get('uid')
+#     if not applicantID:
+#         return jsonify({'error': 'Missing uid parameter'}), 400
+    
+#     try:
+#         applications_ref = db.collection('applications')
+#         query_ref = applications_ref.where('applicantID', '==', applicantID).stream()
+
+#         applications = [doc.to_dict() for doc in query_ref]
+
+#         # Instead of returning an error, return an empty list
+#         return jsonify(applications), 200
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
     
 # Resume-Job Matching Score
 
