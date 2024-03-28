@@ -405,46 +405,48 @@ const JobPostings = () => {
                       </Link>
                     ))
                   : jobs.map((job) => (
-                      <Link
-                        key={job.id}
-                        className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
-                        // onClick={() => openUpdateForm(job)}
-                        to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
-                      >
-                        <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
-                          <div className="col-span-2 grid justify-items-center content-center">
-                            <img
-                              className="rounded-t-lg"
-                              src={discord}
-                              alt=""
-                            />
-                          </div>
-                          <div className="px-4 py-3 col-span-8">
-                            <a href="#">
-                              <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
-                                {job.title}
-                              </h5>
-                            </a>
+                      <div className="py-1">
+                        <Link
+                          key={job.id}
+                          className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 my-3"
+                          // onClick={() => openUpdateForm(job)}
+                          to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
+                        >
+                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                            <div className="col-span-2 grid justify-items-center content-center">
+                              <img
+                                className="mx-auto my-3 w-16 h-16 rounded-full"
+                                src={job.companyLogoUrl}
+                                alt="Logo"
+                              />
+                            </div>
+                            <div className="px-4 py-3 col-span-8">
+                              <a href="#">
+                                <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
+                                  {job.title}
+                                </h5>
+                              </a>
 
-                            <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                              <li>
-                                <p className="text-black font-bold inline-block pr-8 py-2">
-                                  Meta
-                                </p>
-                                <p className="inline-block pr-8 py-2">
-                                  {job.type}
-                                </p>
-                                <p className="text-purple-600 inline-block pr-8 py-2">
-                                  RM5,000
-                                </p>
-                                <p className="inline-block pr-8 py-2">
-                                  {job.postedAt}
-                                </p>
-                              </li>
-                            </ul>
+                              <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                                <li>
+                                  <p className="text-black font-bold inline-block pr-8 py-2">
+                                    {job.companyName}
+                                  </p>
+                                  <p className="inline-block pr-8 py-2">
+                                    {job.type}
+                                  </p>
+                                  <p className="text-purple-600 inline-block pr-8 py-2">
+                                    RM{job.salary}
+                                  </p>
+                                  <p className="inline-block pr-8 py-2">
+                                    {job.postedAt}
+                                  </p>
+                                </li>
+                              </ul>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
+                        </Link>
+                      </div>
                     ))}
               </div>
               {/* ori below */}

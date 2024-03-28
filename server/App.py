@@ -66,7 +66,7 @@ def verify_token():
     id_token = data.get('idToken')
 
     try:
-        decoded_token = auth.verify_id_token(id_token, check_revoked=True)
+        decoded_token = auth.verify_id_token(id_token, check_revoked=True, clock_skew_seconds=60)
         uid = decoded_token['uid']
 
         user_ref = db.collection('users').document(uid)
@@ -186,7 +186,17 @@ def get_jobs():
     for job in job_listings:
         job_data = job.to_dict()
         job_data['id'] = job.id  # Add the document ID to the dictionary
+        recruiter_doc = db.collection('users').document(job_data['recruiterID']).get()
+        if recruiter_doc.exists:
+            recruiter_data = recruiter_doc.to_dict()
+            job_data['companyName'] = recruiter_data.get('companyName', 'Unknown Company')
+            job_data['companyLogoUrl'] = recruiter_data.get('companyLogoUrl', 'Unavailable Logo')
+            print(recruiter_data.get('companyLogoUrl', 'Unavailable Logo')) 
+        else:
+            job_data['companyName'] = 'Unknown Company'  # Default value in case recruiter document is not found
+        
         job_list.append(job_data)
+        
 
     return jsonify(job_list)
 
