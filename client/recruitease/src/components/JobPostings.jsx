@@ -350,9 +350,27 @@ const JobPostings = () => {
 
             <div href="#" className="col-span-4 overflow-auto">
               {role === "applicant" && (
-                <button onClick={() => setViewMatchedJobs(!viewMatchedJobs)}>
-                  {viewMatchedJobs ? "View All Jobs" : "View Matched Jobs"}
-                </button>
+                <div className="items-center ">
+                  {viewMatchedJobs ? (
+                    <div className="flex justify-between">
+                      <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
+                        Top Matching Jobs
+                      </h5>
+                      <button
+                        className="text-sm font-normal text-purple-600 hover:underline"
+                        onClick={() => setViewMatchedJobs(!viewMatchedJobs)}
+                      >
+                        {viewMatchedJobs
+                          ? "View All Jobs"
+                          : "View Matched Jobs"}
+                      </button>
+                    </div>
+                  ) : (
+                    <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
+                      All Jobs
+                    </h5>
+                  )}
+                </div>
               )}
               {/* new */}
               <div>
