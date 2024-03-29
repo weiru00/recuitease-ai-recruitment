@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 import DashNavbar from "../DashNavbar";
 import ApplicantSidebar from "./ApplicantSidebar";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { track } from "../../assets";
-import styles from "../../style";
 import StepIndicator from "../StepIndicator";
 
 const AccordionItem = ({ application }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const currentStatus = "reviewed";
+  const currentStatus = application.status;
+  const prevStatus = application.prevStatus;
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
@@ -62,7 +61,10 @@ const AccordionItem = ({ application }) => {
 
       {isOpen && (
         <div className="p-5">
-          <StepIndicator currentStatus={currentStatus} />
+          <StepIndicator
+            currentStatus={currentStatus}
+            prevStatus={prevStatus}
+          />
           {/* You can add more detailed content here */}
         </div>
       )}

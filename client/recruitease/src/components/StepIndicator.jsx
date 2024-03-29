@@ -1,13 +1,15 @@
 import React from "react";
 
-const StepIndicator = ({ currentStatus }) => {
+const StepIndicator = ({ currentStatus, prevStatus }) => {
   const steps = [
     {
       name: "Applied",
-      status: "applied",
+      status: "Applied",
       icon: (isActiveOrCompleted) => (
         <svg
-          className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400"
+          className={`w-3.5 h-3.5 ${
+            isActiveOrCompleted ? "text-purple-600" : "text-gray-500"
+          }`}
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
@@ -24,8 +26,8 @@ const StepIndicator = ({ currentStatus }) => {
       ),
     },
     {
-      name: "Reviewed",
-      status: "reviewed",
+      name: "Review",
+      status: "Review",
       icon: (isActiveOrCompleted) => (
         <svg
           className={`w-3.5 h-3.5 ${
@@ -42,7 +44,7 @@ const StepIndicator = ({ currentStatus }) => {
     },
     {
       name: "Interview",
-      status: "interview",
+      status: "Interview",
       icon: (isActiveOrCompleted) => (
         <svg
           className={`w-3.5 h-3.5 ${
@@ -67,7 +69,7 @@ const StepIndicator = ({ currentStatus }) => {
     },
     {
       name: "Onboard",
-      status: "onboard",
+      status: "Onboard",
       icon: (isActiveOrCompleted) => (
         <svg
           className={`w-3.5 h-3.5 ${
@@ -82,17 +84,65 @@ const StepIndicator = ({ currentStatus }) => {
         </svg>
       ),
     },
+    {
+      name: "Rejected",
+      status: "Reject",
+      icon: (isActiveOrCompleted) => (
+        <svg
+          className="w-6 h-6 text-purple-500 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fillRule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ),
+      conditionallyRender: true,
+    },
   ];
 
   // Determine the index of the current status in the steps array
   const currentStatusIndex = steps.findIndex(
     (step) => step.status === currentStatus
   );
+  const isRejected = currentStatus === "Reject";
+  const rejectionIndex = isRejected
+    ? steps.findIndex((step) => step.status === prevStatus)
+    : null;
 
   return (
     <ol className="flex justify-center space-x-4">
       {steps.map((step, index) => {
-        const isActiveOrCompleted = index <= currentStatusIndex;
+        // Determine if the step is active or completed
+        // const isActiveOrCompleted =
+        //   index <= currentStatusIndex ||
+        //   (isRejected && step.status === "Reject");
+
+        // // If the current status is "Reject", only show the "Rejected" step
+        // if (isRejected && step.status !== "Reject") {
+        //   return null;
+        // }
+
+        // For all other statuses, hide the "Rejected" step
+        if (!isRejected && step.conditionallyRender) {
+          return null;
+        }
+
+        const isActiveOrCompleted = isRejected
+          ? index <= rejectionIndex || step.status === "Reject"
+          : index <= currentStatusIndex;
+
+        // Skip rendering future steps after the rejection step if rejected.
+        if (isRejected && index > rejectionIndex && step.status !== "Reject") {
+          return null;
+        }
 
         return (
           <li key={step.name} className="flex items-center">
@@ -110,10 +160,10 @@ const StepIndicator = ({ currentStatus }) => {
             >
               <h3 className="text-sm font-medium">{step.name}</h3>
             </div>
-            {index < steps.length - 1 && (
+            {index < steps.length - 2 && (
               <div
                 className={`my-2 ml-4 w-10 h-1 ${
-                  isActiveOrCompleted
+                  isActiveOrCompleted && step.status !== "Reject"
                     ? "bg-purple-200 text-purple-500"
                     : "bg-gray-200"
                 }`}
@@ -124,6 +174,51 @@ const StepIndicator = ({ currentStatus }) => {
       })}
     </ol>
   );
+  // return (
+  //   <ol className="flex justify-center space-x-4">
+  //     {steps.map((step, index) => {
+  //       // const isActiveOrCompleted = index <= currentStatusIndex;
+
+  //       const shouldDisplayStep = !isRejected || step.status === "reject";
+
+  //       const isActiveOrCompleted = isRejected
+  //         ? step.status === "reject"
+  //         : index <= currentStatusIndex;
+
+  //       if (step.conditionallyRender && !shouldDisplayStep) {
+  //         return null; // Skip rendering this step if it's conditionally rendered and should not be displayed
+  //       }
+
+  //       return (
+  //         <li key={step.name} className="flex items-center">
+  //           <span
+  //             className={`flex items-center justify-center w-8 h-8 rounded-full text-white ${
+  //               isActiveOrCompleted ? "bg-purple-200" : "bg-gray-200"
+  //             } ring-4 ring-white`}
+  //           >
+  //             {step.icon(isActiveOrCompleted)}
+  //           </span>
+  //           <div
+  //             className={`ml-2 ${
+  //               isActiveOrCompleted ? "text-gray-900" : "text-gray-400"
+  //             }`}
+  //           >
+  //             <h3 className="text-sm font-medium">{step.name}</h3>
+  //           </div>
+  //           {index < steps.length - 1 && (
+  //             <div
+  //               className={`my-2 ml-4 w-10 h-1 ${
+  //                 isActiveOrCompleted
+  //                   ? "bg-purple-200 text-purple-500"
+  //                   : "bg-gray-200"
+  //               }`}
+  //             ></div>
+  //           )}
+  //         </li>
+  //       );
+  //     })}
+  //   </ol>
+  // );
 };
 
 export default StepIndicator;
