@@ -8,6 +8,7 @@ import StepIndicator from "../StepIndicator";
 
 const AccordionItem = ({ application }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const currentStatus = application.status;
   const prevStatus = application.prevStatus;
 
@@ -82,6 +83,7 @@ const TrackApplication = () => {
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const currentStatus = applications.status;
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -112,6 +114,13 @@ const TrackApplication = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const activeApplications = applications.filter(
+    (app) => app.currentStatus !== "Reject"
+  );
+  const pastApplications = applications.filter(
+    (app) => app.currentStatus === "Reject"
+  );
+
   return (
     <div className="antialiased bg-white dark:bg-gray-900">
       <DashNavbar />
@@ -137,95 +146,56 @@ const TrackApplication = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-6 mt-8 mb-6 mx-6">
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+          {/* <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
             {applications.length > 0 ? (
               applications.map((application) => (
                 <AccordionItem key={application.id} application={application} />
-                // <div
-                //   key={application.id}
-                //   id="accordion-collapse"
-                //   data-accordion="collapse"
-                // >
-                //   <h2 id="accordion-collapse-heading-1">
-                //     <button
-                //       type="button"
-                //       className="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3"
-                //       data-accordion-target="#accordion-collapse-body-1"
-                //       aria-expanded="true"
-                //       aria-controls="accordion-collapse-body-1"
-                //     >
-                //       <span className="text-lg text-gray-800 font-semibold">
-                //         {application.jobTitle}
-                //       </span>
-
-                //       <svg
-                //         data-accordion-icon
-                //         className="w-3 h-3 rotate-180 shrink-0"
-                //         aria-hidden="true"
-                //         xmlns="http://www.w3.org/2000/svg"
-                //         fill="none"
-                //         viewBox="0 0 10 6"
-                //       >
-                //         <path
-                //           stroke="currentColor"
-                //           strokeLinecap="round"
-                //           strokeLinejoin="round"
-                //           strokeWidth="2"
-                //           d="M9 5 5 1 1 5"
-                //         />
-                //       </svg>
-                //     </button>
-                // <ul className="flex flex-wrap text-sm font-medium text-center px-5 pb-3 text-gray-500 dark:text-gray-400">
-                //   <li>
-                //     <p className="text-black font-bold inline-block pr-8 py-2">
-                //       {application.companyName}
-                //     </p>
-                //     <p className="inline-block pr-8 py-2">
-                //       {application.jobMode}
-                //     </p>
-                //     <p className="text-purple-600 inline-block pr-8 py-2">
-                //       RM{application.salary}
-                //     </p>
-                //     <p className="inline-block pr-8 py-2">
-                //       {new Intl.DateTimeFormat("en-US", {
-                //         year: "numeric",
-                //         month: "long",
-                //         day: "2-digit",
-                //       }).format(new Date(application.appliedAt))}
-                //     </p>
-                //   </li>
-                // </ul>
-                //   </h2>
-                //   <div
-                //     id="accordion-collapse-body-1"
-                //     className="hidden"
-                //     aria-labelledby="accordion-collapse-heading-1"
-                //   >
-                //     <div className="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
-                //       <p className="mb-2 text-gray-500 dark:text-gray-400">
-                //         Flowbite is an open-source library of interactive
-                //         components built on top of Tailwind CSS including
-                //         buttons, dropdowns, modals, navbars, and more.
-                //       </p>
-                //       <p className="text-gray-500 dark:text-gray-400">
-                //         Check out this guide to learn how to{" "}
-                //         <a
-                //           href="/docs/getting-started/introduction/"
-                //           className="text-blue-600 dark:text-blue-500 hover:underline"
-                //         >
-                //           get started
-                //         </a>{" "}
-                //         and start developing websites even faster with
-                //         components on top of Tailwind CSS.
-                //       </p>
-                //     </div>
-                //   </div>
-                // </div>
               ))
             ) : (
               <p>No applications found.</p>
             )}
-          </div>
+          </div> */}
+          {/* Section for Active Applications */}
+          <section>
+            <h5 className="text-xl font-bold dark:text-white mb-4 px-8">
+              Active Applications
+            </h5>
+            <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+              {activeApplications.length > 0 ? (
+                activeApplications.map((application) => (
+                  <AccordionItem
+                    key={application.id}
+                    application={application}
+                  />
+                ))
+              ) : (
+                <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
+                  No active applications found.
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Section for Past Applications */}
+          <section className="mt-8">
+            <h5 className="text-xl font-bold dark:text-white mb-4 px-8">
+              Past Applications
+            </h5>
+            <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+              {pastApplications.length > 0 ? (
+                pastApplications.map((application) => (
+                  <AccordionItem
+                    key={application.id}
+                    application={application}
+                  />
+                ))
+              ) : (
+                <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
+                  No past applications found.
+                </p>
+              )}
+            </div>
+          </section>
         </div>
       </main>
     </div>
