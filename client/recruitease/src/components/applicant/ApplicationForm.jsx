@@ -59,6 +59,7 @@ const ApplicationForm = ({ isOpen, isClose }) => {
     data.append("resume", resume);
     data.append("applicantID", uid); // Include the applicant's UID
     data.append("jobID", jobId); // Include the Job ID
+    data.append("status", "Applied");
 
     try {
       const response = await fetch("/api/apply-job", {

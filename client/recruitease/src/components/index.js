@@ -12,6 +12,7 @@ import Onboarding from "./Onboarding";
 import OnboardingConfirmation from "./OnboardingConfirmation";
 import JobPostings from "./JobPostings";
 import JobDescription from "./JobDescription";
+import StepIndicator from "./StepIndicator";
 
 export {
   Button,
@@ -28,4 +29,5 @@ export {
   OnboardingConfirmation,
   JobPostings,
   JobDescription,
+  StepIndicator,
 };

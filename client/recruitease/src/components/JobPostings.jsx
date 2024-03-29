@@ -397,19 +397,21 @@ const JobPostings = () => {
                               </h5>
                             </a>
 
-                            <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                            <ul className="flex flex-wrap text-sm font-medium text-center justify-between text-gray-500 dark:text-gray-400">
                               <li>
-                                <p className="text-black font-bold inline-block pr-8 py-2">
-                                  Meta
+                                <p className="inline-block pr-8 py-2">
+                                  {job.companyName}
                                 </p>
                                 <p className="inline-block pr-8 py-2">
                                   {job.type}
                                 </p>
                                 <p className="text-purple-600 inline-block pr-8 py-2">
-                                  RM5,000
+                                  RM{job.salary}
                                 </p>
-                                <p className="inline-block pr-8 py-2">
-                                  {job.postedAt}
+                              </li>
+                              <li>
+                                <p className="text-gray-400 font-normal inline-block pr-8 py-2">
+                                  Posted At: {job.postedAt}
                                 </p>
                               </li>
                             </ul>
@@ -445,9 +447,9 @@ const JobPostings = () => {
                                 </h5>
                               </a>
 
-                              <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                              <ul className="flex flex-wrap text-sm font-medium text-center justify-between text-gray-500 dark:text-gray-400">
                                 <li>
-                                  <p className="text-black font-bold inline-block pr-8 py-2">
+                                  <p className="inline-block pr-8 py-2">
                                     {job.companyName}
                                   </p>
                                   <p className="inline-block pr-8 py-2">
@@ -456,8 +458,10 @@ const JobPostings = () => {
                                   <p className="text-purple-600 inline-block pr-8 py-2">
                                     RM{job.salary}
                                   </p>
-                                  <p className="inline-block pr-8 py-2">
-                                    {job.postedAt}
+                                </li>
+                                <li>
+                                  <p className="text-gray-400 font-normal inline-block pr-8 py-2">
+                                    Posted At: {job.postedAt}
                                   </p>
                                 </li>
                               </ul>
