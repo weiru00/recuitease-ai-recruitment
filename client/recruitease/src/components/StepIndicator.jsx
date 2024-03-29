@@ -5,7 +5,7 @@ const StepIndicator = ({ currentStatus }) => {
     {
       name: "Applied",
       status: "applied",
-      icon: (
+      icon: (isActiveOrCompleted) => (
         <svg
           className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400"
           aria-hidden="true"
