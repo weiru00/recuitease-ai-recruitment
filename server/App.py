@@ -367,7 +367,18 @@ def update_application_status():
 
         # Update the status in Firestore
         application_ref = db.collection('applications').document(application_id)
-        application_ref.update({'status': new_status})
+        # Fetch the current document to get the existing status
+        doc = application_ref.get()
+        if doc.exists:
+            current_app = doc.to_dict()
+            current_status = current_app.get('status', None)
+
+            # Update the document with the new status and store the previous status
+            application_ref.update({
+                'prevStatus': current_status,  # Store the current status as previous
+                'status': new_status  # Update to the new status
+            })
+        # application_ref.update({'status': new_status})
 
         return jsonify({'message': 'Application status updated successfully'}), 200
     except Exception as e:

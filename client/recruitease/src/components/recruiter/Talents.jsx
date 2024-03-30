@@ -126,13 +126,28 @@ const Talents = () => {
         throw new Error(data.error || "Could not update application status");
       }
 
-      setStatus(data.currentStatus);
+      // setStatus(data.currentStatus);
+
+      // setApplications(
+      //   applications.map((app) => {
+      //     if (app.applicationID === applicationID) {
+      //       // Update the application with the new status
+      //       return { ...app, status: newStatus };
+      //     }
+      //     return app;
+      //   })
+      // );
 
       setApplications(
         applications.map((app) => {
           if (app.applicationID === applicationID) {
-            // Update the application with the new status
-            return { ...app, status: newStatus };
+            // Store the current status as previousStatus before updating
+            const updatedApp = {
+              ...app,
+              prevStatus: app.status, // Storing the current status as previousStatus
+              status: newStatus, // Updating to the new status
+            };
+            return updatedApp;
           }
           return app;
         })
