@@ -35,13 +35,15 @@ def register():
         data = request.json
         email = data.get('email')
         password = data.get('password')
-        user_data = data.get('userData')
+        user_data = data.get('userData', {})
 
         if not email or not password:
             return jsonify({'error': 'Missing email or password'}), 400
 
         user = auth.create_user(email=email, password=password)
         uid = user.uid
+        
+        user_data['email'] = email
         
         save_user_data(uid, user_data)
         
@@ -117,8 +119,8 @@ def update_user():
             return jsonify({'error': 'Missing UID or user data'}), 400
 
         # Handle file upload
-        profile_pic = request.files['profilePic']
-        if profile_pic:
+        profile_pic = request.files.get('profilePic')
+        if profile_pic and profile_pic.filename != '':
             filename = secure_filename(profile_pic.filename)
             blob = storage.bucket().blob(f'profile_pictures/{uid}')
             blob.upload_from_string(profile_pic.read(), content_type=profile_pic.content_type)
@@ -150,8 +152,8 @@ def update_company():
             return jsonify({'error': 'Missing UID or user data'}), 400
 
         # Handle file upload
-        company_logo = request.files['companyLogo']
-        if company_logo:
+        company_logo = request.files.get('companyLogo')
+        if company_logo and company_logo.filename != '':
             filename = secure_filename(company_logo.filename)
             blob = storage.bucket().blob(f'company_logo/{uid}')
             blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
@@ -213,7 +215,6 @@ def get_job_details(job_id):
             # If the document does not exist, return a 404 error
             return jsonify({'error': 'Job not found'}), 404
     except Exception as e:
-        # If there's an error in the process, return a 500 error with the error message
         return jsonify({'error': str(e)}), 500
 
 @app.route('/user-data', methods=['GET'])
@@ -221,7 +222,6 @@ def get_user_data():
     user_id = request.args.get('uid')
 
     try:
-        # Fetch user-specific data from Firestore using user_id
         user_docs = db.collection('users').document(user_id).get()
         if user_docs.exists:
             return jsonify(user_docs.to_dict()), 200
@@ -296,7 +296,6 @@ def get_applications():
                     if user_doc.exists:
                         user_data = user_doc.to_dict()
                         app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
-                        # Include any other applicant details you need
                         app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
                         app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
 
@@ -355,16 +354,30 @@ def track_applications():
 
 @app.route('/update-application-status', methods=['POST'])
 def update_application_status():
+    recruiter_id = request.args.get('uid')
+    print("recruiter: ", recruiter_id)
+
     try:
         # Extract application ID and new status from the request body
         data = request.get_json()
         application_id = data.get('applicationID')
         new_status = data.get('status')
+        subject = "Application Status Update"  # Default subject
+        message_text = "Your application status has been updated."  # Default message
 
         # Validate input
         if not application_id or not new_status:
             return jsonify({'error': 'Missing applicationId or status'}), 400
 
+        # Retrieve sender's (recruiter's) email from Firestore
+        recruiter_ref = db.collection('users').document(recruiter_id)
+        recruiter_doc = recruiter_ref.get()
+        if recruiter_doc.exists:
+            recruiter_data = recruiter_doc.to_dict()
+            sender_email = recruiter_data.get('email', None)
+        else:
+            return jsonify({'error': 'Recruiter not found'}), 404
+        
         # Update the status in Firestore
         application_ref = db.collection('applications').document(application_id)
         # Fetch the current document to get the existing status
@@ -372,37 +385,44 @@ def update_application_status():
         if doc.exists:
             current_app = doc.to_dict()
             current_status = current_app.get('status', None)
+            applicant_id = current_app.get('applicantID', None)
 
+            # Retrieve applicant's email from Firestore
+            applicant_ref = db.collection('users').document(applicant_id)
+            applicant_doc = applicant_ref.get()
+            if applicant_doc.exists:
+                applicant_data = applicant_doc.to_dict()
+                applicant_email = applicant_data.get('email', None)
+            else:
+                return jsonify({'error': 'Applicant not found'}), 404
+            
             # Update the document with the new status and store the previous status
             application_ref.update({
                 'prevStatus': current_status,  # Store the current status as previous
                 'status': new_status  # Update to the new status
             })
-        # application_ref.update({'status': new_status})
+        
+                # Based on the new status, customize the email message
+            if new_status == "Hire":
+                subject = "Congratulations on your successful application!"
+                message_text = "We are pleased to inform you that you have been hired."
+            elif new_status == "Reject":
+                subject = "Application Status Update"
+                message_text = "We regret to inform you that your application has not been successful."
+            # Add more conditions based on your status types
 
-        return jsonify({'message': 'Application status updated successfully'}), 200
+            # Send the email
+            send_email(sender_email, applicant_email, subject, message_text)
+
+            return jsonify({'message': 'Application status updated successfully'}), 200
+        else:
+            return jsonify({'error': 'Application not found'}), 404
+    
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-   
-# @app.route('/track-applications', methods=['GET'])
-# def track_applications():
-#     applicantID = request.args.get('uid')
-#     if not applicantID:
-#         return jsonify({'error': 'Missing uid parameter'}), 400
     
-#     try:
-#         applications_ref = db.collection('applications')
-#         query_ref = applications_ref.where('applicantID', '==', applicantID).stream()
-
-#         applications = [doc.to_dict() for doc in query_ref]
-
-#         # Instead of returning an error, return an empty list
-#         return jsonify(applications), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
     
-# Resume-Job Matching Score
+################### Resume-Job Matching Score ###################
 
 @app.route("/apply-job", methods=['POST'])
 def apply_job():
@@ -453,10 +473,7 @@ def apply_job():
 
 @app.route('/match-jobs', methods=['POST'])
 def match_jobs():
-    # if 'resume' not in request.files:
-    #     return jsonify({"error": "No resume file"}), 400
-
-
+    
     resume_file = request.files['resume']
     uid = request.form['applicantID']
     if resume_file and resume_file.filename.endswith('.pdf'):
@@ -474,18 +491,6 @@ def match_jobs():
         # Preprocess the resume text
         resume_text = fetch_pdf_text(blob.name)
         
-        # # Save resume to a temporary file if needed
-        # temp_path = os.path.join('temp', filename)
-        # resume_file.save(temp_path)
-
-        # # Preprocessing
-        # resume_text = fetch_pdf_text(temp_path)
-        
-        # job_desc_text = get_job_description(jobId)
-
-        # Remove the temporary file
-        # os.remove(temp_path)
-
         # Retrieve jobs from Firestore and match
         matched_jobs = find_matching_jobs(resume_text, top_n=2)
         print("matched jobs: ", matched_jobs)
@@ -495,10 +500,8 @@ def match_jobs():
 # Function to fetch and preprocess text from a PDF in Firebase Storage
 def fetch_pdf_text(file_path):
     try:
-        # bucket = storage.bucket('recruitease-6b088.appspot.com')
         bucket = storage.bucket()
         blob = bucket.blob(file_path)
-    #     print("blob:",blob)
         pdf_bytes = blob.download_as_bytes()
 
         pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
@@ -528,7 +531,6 @@ def fetch_resumes_for_job(job_id):
     for doc in results:
         application = doc.to_dict()
         resume_url = application.get('resume')
-#         resume_url = resume_url.replace(f"gs://{bucket.name}/", "")
 
         if resume_url:
             try:
@@ -541,29 +543,12 @@ def fetch_resumes_for_job(job_id):
 
     return resumes
 
-# def get_job_description_list(job_id):
-#     doc_ref = db.collection('jobListings').document(job_id)
-#     doc = doc_ref.get()
-    
-#     job_desc = []
-#     if doc.exists:
-#         doc_data = doc.to_dict()
-#         # Concatenate multiple fields to form the full job description
-#         full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
-#         full_description = preprocess_text(full_description)
-#         job_desc.append(full_description)
-#         return job_desc
-#     else:
-#         print("No such job listing document!")
-#         return ""
-
 def get_job_description(job_id):
     doc_ref = db.collection('jobListings').document(job_id)
     doc = doc_ref.get()
     
     if doc.exists:
         doc_data = doc.to_dict()
-        # Concatenate multiple fields to form the full job description
         full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
         # Preprocess the full job description to a clean string
         full_description = preprocess_text(full_description)
@@ -577,8 +562,6 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
     try:
         vectorizer = TfidfVectorizer()
 
-        # for job_index, preprocessed_job_desc in enumerate(preprocessed_job_descs, start=1):
-        #     scores = []
         # Combine the current job description with all resumes
         documents = [preprocessed_job_descs , preprocessed_resumes]
         tfidf_matrix = vectorizer.fit_transform(documents)
@@ -589,37 +572,8 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
         return round(similarity_score * 100, 2)
     
     except Exception as e:
-        # Log the error
         print(f"Error calculating similarity scores: {e}")
-        # # First document is the job description, the rest are resumes
-        # for resume_index, _ in enumerate(preprocessed_resumes, start=1):
-        #     cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[resume_index:resume_index+1])
-        #     similarity_score = cos_sim[0, 0]  # Score between job desc and this resume
-        #     scores.append((resume_index, similarity_score))
-        
-        # # Sort scores in descending order
-        # scores.sort(key=lambda x: x[1], reverse=True)
 
-        # print(f"Ranking for Job Posting {job_index}:")
-        # for rank, (resume_index, score) in enumerate(scores, start=1):
-        #     print(f"{rank}. Resume {resume_index} - Score: {score}")
-        # print("\n")  # New line for readability between job postings
-
-# For Applicant to find best matching jobs
-# def calculate_similarity_for_resume(preprocessed_resumes, preprocessed_job_descs):
-#     vectorizer = TfidfVectorizer()
-
-#     scores = []
-#     for job_desc in preprocessed_job_descs:
-#         # Combine resume and job description
-#         documents = [preprocessed_resumes, preprocessed_job_descs]
-#         tfidf_matrix = vectorizer.fit_transform(documents)
-#         # Calculate similarity
-#         cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-#         similarity_score = cos_sim[0, 0]
-#         scores.append(similarity_score)
-
-#     return scores
 
 def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
     vectorizer = TfidfVectorizer()
@@ -628,7 +582,6 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
     documents = [preprocessed_resume] + preprocessed_job_descs
     tfidf_matrix = vectorizer.fit_transform(documents)
     
-    # Calculate similarity of the resume to each job description
     # The first vector in tfidf_matrix is the resume, the rest are job descriptions
     cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
     
@@ -652,16 +605,12 @@ def find_matching_jobs(preprocessed_resume, top_n):
     
     for doc in docs:
         job = doc.to_dict()
-        # job_desc = job.get('title', 'desc', 'qualification', 'req')
         full_description = " ".join([job[field] for field in ['title', 'desc', 'qualification', 'req']])
         full_description = preprocess_text(full_description)
         preprocessed_job_desc.append(full_description)
 
         matched_jobs.append(job)
-        # # Here you should implement your matching logic
-        # # For simplicity, we're just checking if a keyword from the resume appears in the job description
-        # if any(keyword.lower() in job_desc.lower() for keyword in preprocessed_resume.split()):
-        #     matched_jobs.append(job)
+        
         # Calculate top matching jobs
     top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
 
@@ -669,6 +618,46 @@ def find_matching_jobs(preprocessed_resume, top_n):
     matched_jobs = [(matched_jobs[index], score) for index, score in top_matches]
 
     return matched_jobs
+
+
+
+################### SENDING EMAIL ###################
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from email.mime.text import MIMEText
+import base64
+
+# The SCOPES define the permissions the application needs. For sending emails, you'll at least need https://www.googleapis.com/auth/gmail.send
+SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+
+CLIENT_SECRET_FILE = 'client_secret_680498181349-q0e8rjgtafgb55djrn21k64m16fhoht4.apps.googleusercontent.com.json'
+
+def get_gmail_service():
+    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
+    credentials = flow.run_local_server(port=0)
+    service = build('gmail', 'v1', credentials=credentials)
+    return service
+
+def create_message(sender, to, subject, message_text):
+    message = MIMEText(message_text)
+    message['to'] = to
+    message['from'] = sender
+    message['subject'] = subject
+    return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+
+def send_message(service, user_id, message):
+    try:
+        message = (service.users().messages().send(userId=user_id, body=message).execute())
+        print('Message Id: %s' % message['id'])
+        return message
+    except Exception as error:
+        print(f'An error occurred: {error}')
+
+def send_email(sender, to, subject, message_text):
+    gmail_service = get_gmail_service()
+    email_message = create_message(sender, to, subject, message_text)
+    send_message(gmail_service, 'me', email_message)
 
 
 if __name__ == '__main__':

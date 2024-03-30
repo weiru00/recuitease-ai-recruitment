@@ -112,13 +112,16 @@ const Talents = () => {
 
   const updateApplicationStatus = async (applicationID, newStatus) => {
     try {
-      const response = await fetch("api/update-application-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ applicationID, status: newStatus }),
-      });
+      const response = await fetch(
+        `api/update-application-status?uid=${recruiterID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ applicationID, status: newStatus }),
+        }
+      );
 
       const data = await response.json();
 
