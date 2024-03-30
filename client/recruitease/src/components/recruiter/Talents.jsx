@@ -3,7 +3,7 @@ import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { user, option } from "../../assets";
+import { user, option, talents } from "../../assets";
 
 const Talents = () => {
   const location = useLocation();
@@ -98,7 +98,7 @@ const Talents = () => {
 
       <Sidebar />
       <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
+        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
           <div className="flex items-center">
             <h5 className="text-xl font-bold dark:text-white">Find Talents</h5>
           </div>
@@ -127,9 +127,25 @@ const Talents = () => {
               </a>
             </span>
           </div>
+        </div> */}
+        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-8 mx-6 px-10 py-6 z-40">
+          <div className="items-center ">
+            <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
+              Find Talents
+            </h5>
+            <div>
+              <span
+                id="badge-dismiss-purple"
+                className="inline-flex items-center py-2 me-2 text-md font-medium text-gray-500 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
+              >
+                Search for the best fit from all fields! ✨
+              </span>
+            </div>
+          </div>
+          <img className="flex z-[5] h-60" src={talents}></img>
         </div>
         {/* Top Talents */}
-        <div className="grid grid-cols-1 justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
+        <div className="grid grid-cols-1 justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-14 px-5 py-4">
           <div className="flex items-center">
             <h5 className="text-lg font-semibold dark:text-white">
               Top Talents
@@ -329,9 +345,9 @@ const Talents = () => {
                                 viewBox="0 0 24 24"
                               >
                                 <path
-                                  fill-rule="evenodd"
+                                  fillRule="evenodd"
                                   d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                  clip-rule="evenodd"
+                                  clipRule="evenodd"
                                 />
                               </svg>
                               Hire
@@ -580,9 +596,9 @@ const Talents = () => {
                                 viewBox="0 0 24 24"
                               >
                                 <path
-                                  fill-rule="evenodd"
+                                  fillRule="evenodd"
                                   d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                  clip-rule="evenodd"
+                                  clipRule="evenodd"
                                 />
                               </svg>
                               Hire

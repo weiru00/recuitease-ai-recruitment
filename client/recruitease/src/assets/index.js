@@ -11,6 +11,7 @@ import dashboard from "./dashboard.svg";
 import bg from "./bg.png";
 import user from "./user.svg";
 import track from "./track.svg";
+import talents from "./talents.svg";
 
 export {
   logo,
@@ -26,4 +27,5 @@ export {
   bg,
   user,
   track,
+  talents,
 };
