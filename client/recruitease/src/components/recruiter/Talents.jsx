@@ -3,23 +3,33 @@ import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { user } from "../../assets";
+import { user, option } from "../../assets";
 
 const Talents = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const recruiterID = queryParams.get("uid");
-  const [loading, setLoading] = useState(true);
 
+  const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
+
+  const [showDropdown, setShowDropdown] = useState({});
+  const toggleDropdown = (appId) => {
+    setShowDropdown((prev) => ({
+      ...prev,
+      [appId]: !prev[appId],
+    }));
+  };
 
   const topTalents = applications
     .filter((app) => app.score > 9)
     .sort((a, b) => b.score - a.score);
 
-  const sortedByTimeApplications = [...applications].sort(
-    (a, b) => new Date(a.appliedAt) - new Date(b.appliedAt)
-  );
+  const topTalentIds = topTalents.map((app) => app.applicationID);
+
+  const sortedByTimeApplications = applications
+    .filter((app) => !topTalentIds.includes(app.applicationID)) // Exclude top talents
+    .sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
 
   // const sortedApplications = applications.sort((a, b) => b.score - a.score);
 
@@ -44,6 +54,17 @@ const Talents = () => {
 
     fetchApplications();
   }, [recruiterID]);
+
+  const updateApplicationStatus = (applicationId, resumeUrl) => {
+    setApplications((prevApplications) =>
+      prevApplications.map((application) =>
+        application.id === applicationId
+          ? { ...application, status: "Review" }
+          : application
+      )
+    );
+    window.open(resumeUrl, "_blank");
+  };
 
   if (loading) {
     return (
@@ -166,18 +187,16 @@ const Talents = () => {
               <span className="sr-only">Search</span>
             </button>
           </form>
-          <div href="#" className="col-span-4 overflow-auto">
+          <div href="#" className="col-span-4">
             {topTalents.map((app) => (
               <div
                 key={app.applicationID}
-                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
-                // onClick={() => openUpdateForm(job)}
+                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
               >
                 <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
                   <div className="col-span-2 grid justify-items-center content-center">
                     <img
                       className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                      // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
                       src={app.applicantPic || user}
                       alt="Profile Pic"
                     ></img>
@@ -186,7 +205,6 @@ const Talents = () => {
                     <a href="#">
                       <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                         {app.applicantFName}
-                        {/* Jennie Law */}
                       </h5>
                     </a>
 
@@ -194,7 +212,6 @@ const Talents = () => {
                       <li>
                         <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
                           {app.jobTitle}
-                          {/* Data Engineer */}
                         </span>
 
                         <p className="inline-block pr-8 py-2 text-xs">
@@ -203,7 +220,6 @@ const Talents = () => {
                             month: "long",
                             day: "2-digit",
                           }).format(new Date(app.appliedAt))}
-                          {/* 8/12/2023 */}
                         </p>
                       </li>
                     </ul>
@@ -212,6 +228,143 @@ const Talents = () => {
                     <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
                       {app.score}%
                     </span>
+                  </div>
+                  <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                    <button
+                      onClick={() =>
+                        updateApplicationStatus(app.applicationID, app.resume)
+                      }
+                      // onClick={() => window.open(app.resume, "_blank")}
+                      // to="/talents"
+                      className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                    >
+                      <svg
+                        className="w-5 h-5 me-2 text-purple-600"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                        />
+                      </svg>
+                      View Resume
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(app.applicationID)}
+                      // data-dropdown-toggle="apps-dropdown"
+                      className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    >
+                      <span className="sr-only">View status</span>
+                      {/* <!-- Icon --> */}
+                      <img src={option} className="h-6" alt="icon" />
+                      <div
+                        className={`${
+                          showDropdown[app.applicationID]
+                            ? "opacity-100 visible"
+                            : "opacity-0 invisible"
+                        } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                        style={{
+                          top: showDropdown[app.applicationID]?.top || 0,
+                          left: showDropdown[app.applicationID]?.left || 0,
+                          zIndex: 9999,
+                        }}
+                        id="dropdown"
+                      >
+                        <div className="py-3 px-4">
+                          <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+                            Edit Hiring Status
+                          </span>
+                        </div>
+                        {/* Dropdown menu items */}
+                        <ul
+                          className="py-1 text-gray-700 dark:text-gray-300"
+                          aria-labelledby="dropdown"
+                        >
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.2"
+                                  d="M7.556 8.5h8m-8 3.5H12m7.111-7H4.89a.896.896 0 0 0-.629.256.868.868 0 0 0-.26.619v9.25c0 .232.094.455.26.619A.896.896 0 0 0 4.89 16H9l3 4 3-4h4.111a.896.896 0 0 0 .629-.256.868.868 0 0 0 .26-.619v-9.25a.868.868 0 0 0-.26-.619.896.896 0 0 0-.63-.256Z"
+                                />
+                              </svg>
+                              Schedule Interview
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Hire
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-red-700 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.2"
+                                  d="M6 18 17.94 6M18 18 6.06 6"
+                                />
+                              </svg>
+                              Decline
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -278,11 +431,11 @@ const Talents = () => {
               <span className="sr-only">Search</span>
             </button>
           </form>
-          <div href="#" className="col-span-4 overflow-auto">
+          <div href="#" className="col-span-4">
             {sortedByTimeApplications.map((app) => (
               <div
                 key={app.applicationID}
-                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 hover:border-purple-400 h-auto min-h-20 mt-4"
+                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
                 // onClick={() => openUpdateForm(job)}
               >
                 <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
@@ -290,14 +443,12 @@ const Talents = () => {
                     {app.applicantPic ? (
                       <img
                         className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                        // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
                         src={app.applicantPic}
                         alt="Profile Pic"
                       />
                     ) : (
                       <img
                         className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                        // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
                         src={user}
                         alt="Profile Pic"
                       ></img>
@@ -307,7 +458,6 @@ const Talents = () => {
                     <a href="#">
                       <h5 className="mb-1 text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                         {app.applicantFName}
-                        {/* Jennie Law */}
                       </h5>
                     </a>
 
@@ -315,7 +465,6 @@ const Talents = () => {
                       <li>
                         <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
                           {app.jobTitle}
-                          {/* Data Engineer */}
                         </span>
 
                         <p className="inline-block pr-8 py-2 text-xs">
@@ -324,7 +473,6 @@ const Talents = () => {
                             month: "long",
                             day: "2-digit",
                           }).format(new Date(app.appliedAt))}
-                          {/* 8/12/2023 */}
                         </p>
                       </li>
                     </ul>
@@ -333,6 +481,141 @@ const Talents = () => {
                     <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
                       {app.score}%
                     </span>
+                  </div>
+                  <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                    <button
+                      onClick={() =>
+                        updateApplicationStatus(app.applicationID, app.resume)
+                      }
+                      className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                    >
+                      <svg
+                        className="w-5 h-5 me-2 text-purple-600"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                        />
+                      </svg>
+                      View Resume
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleDropdown(app.applicationID)}
+                      data-dropdown-toggle="apps-dropdown"
+                      className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    >
+                      <span className="sr-only">View Status</span>
+                      {/* <!-- Icon --> */}
+                      <img src={option} className="h-6" alt="icon" />
+                      <div
+                        className={`${
+                          showDropdown[app.applicationID]
+                            ? "opacity-100 visible"
+                            : "opacity-0 invisible"
+                        } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                        style={{
+                          top: showDropdown[app.applicationID]?.top || 0,
+                          left: showDropdown[app.applicationID]?.left || 0,
+                          zIndex: 9999,
+                        }}
+                        id="dropdown"
+                      >
+                        <div className="py-3 px-4">
+                          <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+                            Edit Hiring Status
+                          </span>
+                        </div>
+                        {/* Dropdown menu items */}
+                        <ul
+                          className="py-1 text-gray-700 dark:text-gray-300"
+                          aria-labelledby="dropdown"
+                        >
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.2"
+                                  d="M7.556 8.5h8m-8 3.5H12m7.111-7H4.89a.896.896 0 0 0-.629.256.868.868 0 0 0-.26.619v9.25c0 .232.094.455.26.619A.896.896 0 0 0 4.89 16H9l3 4 3-4h4.111a.896.896 0 0 0 .629-.256.868.868 0 0 0 .26-.619v-9.25a.868.868 0 0 0-.26-.619.896.896 0 0 0-.63-.256Z"
+                                />
+                              </svg>
+                              Schedule Interview
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  fill-rule="evenodd"
+                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                  clip-rule="evenodd"
+                                />
+                              </svg>
+                              Hire
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                            >
+                              <svg
+                                className="w-5 h-5 me-2 text-red-700 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="1.2"
+                                  d="M6 18 17.94 6M18 18 6.06 6"
+                                />
+                              </svg>
+                              Decline
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
