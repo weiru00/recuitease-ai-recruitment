@@ -55,7 +55,7 @@ const Talents = () => {
     fetchApplications();
   }, [recruiterID]);
 
-  const updateApplicationStatus = (applicationId, resumeUrl) => {
+  const autoUpdateApplicationStatus = (applicationId, resumeUrl) => {
     setApplications((prevApplications) =>
       prevApplications.map((application) =>
         application.id === applicationId
@@ -64,6 +64,43 @@ const Talents = () => {
       )
     );
     window.open(resumeUrl, "_blank");
+  };
+
+  const updateApplicationStatus = async (applicationID, status) => {
+    try {
+      const response = await fetch("api/update-application-status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ applicationID, status }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not update application status");
+      }
+
+      console.log("Status updated successfully:", data);
+      // You can add code here to update the UI accordingly
+    } catch (error) {
+      console.error("Error updating application status:", error);
+    }
+  };
+
+  const handleStatusChange = (applicationID, newStatus) => {
+    updateApplicationStatus(applicationID, newStatus)
+      .then(() => {
+        // Handle successful status update here, such as updating local state to reflect the change
+        console.log(
+          `Status updated to ${newStatus} for application ${applicationID}`
+        );
+      })
+      .catch((error) => {
+        // Handle error here
+        console.error("Failed to update application status:", error);
+      });
   };
 
   if (loading) {
@@ -248,7 +285,10 @@ const Talents = () => {
                   <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
                     <button
                       onClick={() =>
-                        updateApplicationStatus(app.applicationID, app.resume)
+                        autoUpdateApplicationStatus(
+                          app.applicationID,
+                          app.resume
+                        )
                       }
                       // onClick={() => window.open(app.resume, "_blank")}
                       // to="/talents"
@@ -307,7 +347,12 @@ const Talents = () => {
                         >
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(
+                                  app.applicationID,
+                                  "Interview"
+                                )
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
                             >
                               <svg
@@ -332,7 +377,9 @@ const Talents = () => {
                           </li>
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(app.applicationID, "Onboard")
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                             >
                               <svg
@@ -355,7 +402,9 @@ const Talents = () => {
                           </li>
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(app.applicationID, "Reject")
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                             >
                               <svg
@@ -501,7 +550,10 @@ const Talents = () => {
                   <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
                     <button
                       onClick={() =>
-                        updateApplicationStatus(app.applicationID, app.resume)
+                        autoUpdateApplicationStatus(
+                          app.applicationID,
+                          app.resume
+                        )
                       }
                       className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
                     >
@@ -558,7 +610,12 @@ const Talents = () => {
                         >
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(
+                                  app.applicationID,
+                                  "Interview"
+                                )
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
                             >
                               <svg
@@ -583,7 +640,9 @@ const Talents = () => {
                           </li>
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(app.applicationID, "Onboard")
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                             >
                               <svg
@@ -606,7 +665,9 @@ const Talents = () => {
                           </li>
                           <li>
                             <a
-                              href="#"
+                              onClick={() =>
+                                handleStatusChange(app.applicationID, "Reject")
+                              }
                               className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                             >
                               <svg

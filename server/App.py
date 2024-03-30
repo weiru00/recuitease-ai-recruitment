@@ -352,6 +352,26 @@ def track_applications():
         return jsonify(applications), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/update-application-status', methods=['POST'])
+def update_application_status():
+    try:
+        # Extract application ID and new status from the request body
+        data = request.get_json()
+        application_id = data.get('applicationID')
+        new_status = data.get('status')
+
+        # Validate input
+        if not application_id or not new_status:
+            return jsonify({'error': 'Missing applicationId or status'}), 400
+
+        # Update the status in Firestore
+        application_ref = db.collection('applications').document(application_id)
+        application_ref.update({'status': new_status})
+
+        return jsonify({'message': 'Application status updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
    
 # @app.route('/track-applications', methods=['GET'])
 # def track_applications():
