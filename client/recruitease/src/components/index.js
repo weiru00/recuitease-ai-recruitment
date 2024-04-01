@@ -13,6 +13,8 @@ import OnboardingConfirmation from "./OnboardingConfirmation";
 import JobPostings from "./JobPostings";
 import JobDescription from "./JobDescription";
 import StepIndicator from "./StepIndicator";
+import BarChart from "./BarChart";
+import PieChart from "./PieChart";
 
 export {
   Button,
@@ -30,4 +32,6 @@ export {
   JobPostings,
   JobDescription,
   StepIndicator,
+  BarChart,
+  PieChart,
 };

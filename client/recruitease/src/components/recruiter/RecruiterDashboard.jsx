@@ -6,6 +6,8 @@ import Sidebar from "./Sidebar";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { dashboard } from "../../assets";
+import BarChart from "../BarChart";
+import PieChart from "../PieChart";
 
 const RecruiterDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -72,38 +74,6 @@ const RecruiterDashboard = () => {
       <Sidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-8 py-6">
-          <div className="flex items-center">
-            <h5 className="text-xl font-bold dark:text-white">
-              Welcome Back, {userData.firstName}
-            </h5>
-          </div>
-          <div>
-            <span
-              id="badge-dismiss-purple"
-              className="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-purple-800 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
-            >
-              Great Hiring Day!
-              <a>
-                <svg
-                  className="w-5 h-5 ml-2 text-purple-700 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M15.03 9.684h3.965c.322 0 .64.08.925.232.286.153.532.374.717.645a2.109 2.109 0 0 1 .242 1.883l-2.36 7.201c-.288.814-.48 1.355-1.884 1.355-2.072 0-4.276-.677-6.157-1.256-.472-.145-.924-.284-1.348-.404h-.115V9.478a25.485 25.485 0 0 0 4.238-5.514 1.8 1.8 0 0 1 .901-.83 1.74 1.74 0 0 1 1.21-.048c.396.13.736.397.96.757.225.36.32.788.269 1.211l-1.562 4.63ZM4.177 10H7v8a2 2 0 1 1-4 0v-6.823C3 10.527 3.527 10 4.176 10Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </a>
-            </span>
-          </div>
-        </div> */}
         <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
             <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
@@ -220,10 +190,14 @@ const RecruiterDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-6 mb-6 mx-6">
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+        <div className="grid grid-cols-2 gap-6 mb-6 mx-6">
+          <div className="col-span-1 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
+            <h1>My Sales Data</h1>
+            <BarChart />
+          </div>
+          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
+            <PieChart />
+          </div>
           <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
         </div>
         <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-96 mb-6 mx-6"></div>
