@@ -1,10 +1,10 @@
 import firebase_admin
 from firebase_admin import credentials, auth, firestore, storage
-from flask import request
+from flask import request, Flask, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
-from flask import Flask, jsonify
+from flask_mail import Mail, Message
 from flask_cors import CORS
 
 import re
@@ -28,6 +28,16 @@ db = firestore.client()
 
 app = Flask(__name__)
 CORS(app)
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'recruiteaseofficial@gmail.com'
+app.config['MAIL_PASSWORD'] = 'CHANGE LATER'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -403,16 +413,22 @@ def update_application_status():
             })
         
                 # Based on the new status, customize the email message
-            if new_status == "Hire":
+            if new_status == "Onboard":
                 subject = "Congratulations on your successful application!"
                 message_text = "We are pleased to inform you that you have been hired."
+            elif new_status == "Review":
+                subject = "Application Status Update"
+                message_text = "Your Application is currently under review."
+            elif new_status == "Interview":
+                subject = "Application Status Update"
+                message_text = "You are invited to an interview session."
             elif new_status == "Reject":
                 subject = "Application Status Update"
                 message_text = "We regret to inform you that your application has not been successful."
             # Add more conditions based on your status types
 
             # Send the email
-            send_email(sender_email, applicant_email, subject, message_text)
+            send_email(applicant_email, subject, message_text, sender_email)
 
             return jsonify({'message': 'Application status updated successfully'}), 200
         else:
@@ -619,46 +635,10 @@ def find_matching_jobs(preprocessed_resume, top_n):
 
     return matched_jobs
 
-
-
-################### SENDING EMAIL ###################
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from email.mime.text import MIMEText
-import base64
-
-# The SCOPES define the permissions the application needs. For sending emails, you'll at least need https://www.googleapis.com/auth/gmail.send
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-
-CLIENT_SECRET_FILE = 'client_secret_680498181349-q0e8rjgtafgb55djrn21k64m16fhoht4.apps.googleusercontent.com.json'
-
-def get_gmail_service():
-    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-    credentials = flow.run_local_server(port=0)
-    service = build('gmail', 'v1', credentials=credentials)
-    return service
-
-def create_message(sender, to, subject, message_text):
-    message = MIMEText(message_text)
-    message['to'] = to
-    message['from'] = sender
-    message['subject'] = subject
-    return {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
-
-def send_message(service, user_id, message):
-    try:
-        message = (service.users().messages().send(userId=user_id, body=message).execute())
-        print('Message Id: %s' % message['id'])
-        return message
-    except Exception as error:
-        print(f'An error occurred: {error}')
-
-def send_email(sender, to, subject, message_text):
-    gmail_service = get_gmail_service()
-    email_message = create_message(sender, to, subject, message_text)
-    send_message(gmail_service, 'me', email_message)
-
+def send_email(applicant_email, subject, message_text, cc_email):
+  msg = Message(subject, sender ='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
+  msg.body = message_text
+  mail.send(msg)
 
 if __name__ == '__main__':
     app.run(debug=True)
