@@ -3,16 +3,21 @@ import "flowbite";
 import { useState, useEffect } from "react";
 import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { dashboard } from "../../assets";
 import BarChart from "../BarChart";
 import PieChart from "../PieChart";
 
 const RecruiterDashboard = () => {
+  // const location = useLocation();
+  // const queryParams = new URLSearchParams(location.search);
+  // const recruiterID = queryParams.get("uid");
+
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -27,6 +32,28 @@ const RecruiterDashboard = () => {
     // Clean up the observer when the component unmounts.
     return () => unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    // Fetch data from backend
+    fetch(`/api/get-applications?recruiterID=${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // Assuming you have a PieChart component that accepts 'data' prop in the format:
+        // [{ name: 'Race/Gender', data: Count }, ...]
+        setRaceChartData(
+          data.raceCounts.map((item) => ({ name: item.race, data: item.count }))
+        );
+        setGenderChartData(
+          data.genderCounts.map((item) => ({
+            name: item.gender,
+            data: item.count,
+          }))
+        );
+      })
+      .catch((error) =>
+        console.error("Error fetching application data:", error)
+      );
+  }, []);
 
   useEffect(() => {
     if (userId) {
