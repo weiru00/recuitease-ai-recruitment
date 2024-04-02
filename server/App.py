@@ -11,6 +11,7 @@ import re
 import io
 import os
 import nltk
+import numpy as np
 nltk.download('punkt')
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -272,6 +273,9 @@ def delete_job(job_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+# from collections import Counter
+
 @app.route('/get-applications', methods=['GET'])
 def get_applications():
     try:
@@ -279,6 +283,9 @@ def get_applications():
         if not recruiter_id:
             return jsonify({"error": "Missing recruiterID parameter"}), 400
 
+        # race_counter = Counter()
+        # gender_counter = Counter()
+        
         # Fetch all job IDs posted by the recruiter
         jobs_ref = db.collection('jobListings').where('recruiterID', '==', recruiter_id)
         jobs = jobs_ref.stream()
@@ -308,9 +315,16 @@ def get_applications():
                         app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
                         app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
                         app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
-
-                
+                        # gender = user_data.get('gender', 'Not Stated')
+                        # race = user_data.get('race', 'Not Stated')
+                        
+                        # race_counter[race] = race_counts.get(race, 0) + 1
+                        # gender_counter[gender] = gender_counts.get(gender, 0) + 1    
+                        
                 applications.append(app_data)
+
+        # race_counts = [{"race": race, "count": count} for race, count in race_counter.items()]
+        # gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
 
         return jsonify({"success": True, "applications": applications}), 200
     except Exception as e:
@@ -478,7 +492,7 @@ def apply_job():
             job_desc_text = get_job_description(jobId)
             
             score = calculate_similarity_scores(resume_text, job_desc_text)
-            print("Score ", score)
+            print("Score here", score)
 
             # Add additional data to application data
             app_data.update({
@@ -571,6 +585,9 @@ def fetch_resumes_for_job(job_id):
 
     return resumes
 
+from transformers import AutoTokenizer, AutoModel
+import torch
+
 def get_job_description(job_id):
     doc_ref = db.collection('jobListings').document(job_id)
     doc = doc_ref.get()
@@ -585,44 +602,115 @@ def get_job_description(job_id):
         print("No such job listing document!")
         return ""
     
+def get_embeddings(text, model, tokenizer, device):
+    # Tokenize the input text and prepare input tensors
+    inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding='max_length')
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+
+    # Generate embeddings using the model
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    # Use the mean of the last hidden state as the text embedding
+    embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+    return embeddings
+
 # For recruiter
 def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
     try:
-        vectorizer = TfidfVectorizer()
 
-        # Combine the current job description with all resumes
-        documents = [preprocessed_job_descs , preprocessed_resumes]
-        tfidf_matrix = vectorizer.fit_transform(documents)
-        
-        cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-        similarity_score = cos_sim[0, 0]
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        # Load the tokenizer and model from the Hugging Face library
+        model_name = "bert-base-uncased"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModel.from_pretrained(model_name)
+        model.to(device)
+
+        # Generate embeddings for the job description and the resume
+        job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
+        resume_embedding = get_embeddings(preprocessed_resumes, model, tokenizer, device)
+
+        # Calculate the cosine similarity between the job description and resume embeddings
+        similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
 
         return round(similarity_score * 100, 2)
-    
+
     except Exception as e:
         print(f"Error calculating similarity scores: {e}")
-
-
+    
 def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
-    vectorizer = TfidfVectorizer()
+    try:
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        # Load the tokenizer and model from the Hugging Face library
+        model_name = "bert-base-uncased"
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModel.from_pretrained(model_name)
+        model.to(device)
+
+        # Generate embeddings for the job description and the resume
+        job_desc_embeddings = np.array([get_embeddings(job_desc, model, tokenizer, device) for job_desc in preprocessed_job_descs])
+        resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
+        
+        # Ensure job_desc_embeddings is a 2D array
+        if job_desc_embeddings.ndim > 2:
+            job_desc_embeddings = job_desc_embeddings.mean(axis=1)
+
+        # Calculate the cosine similarity between the job description and resume embeddings
+        similarity_score = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
+        similarity_score = np.around(similarity_score * 100, 2)
+        
+        top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
+
+        # Prepare the results
+        top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
+
+        return top_matches
+
+    except Exception as e:
+        print(f"Error calculating similarity scores: {e}")
+        return []
+
+# For recruiter
+# def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
+#     try:
+#         vectorizer = TfidfVectorizer()
+
+#         # Combine the current job description with all resumes
+#         documents = [preprocessed_job_descs , preprocessed_resumes]
+#         tfidf_matrix = vectorizer.fit_transform(documents)
+        
+#         cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+#         similarity_score = cos_sim[0, 0]
+
+#         return round(similarity_score * 100, 2)
     
-    # Combine the resume with all job descriptions
-    documents = [preprocessed_resume] + preprocessed_job_descs
-    tfidf_matrix = vectorizer.fit_transform(documents)
+#     except Exception as e:
+#         print(f"Error calculating similarity scores: {e}")
+
+
+# def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
+#     vectorizer = TfidfVectorizer()
     
-    # The first vector in tfidf_matrix is the resume, the rest are job descriptions
-    cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
+#     # Combine the resume with all job descriptions
+#     documents = [preprocessed_resume] + preprocessed_job_descs
+#     tfidf_matrix = vectorizer.fit_transform(documents)
     
-    # Get similarity scores for all jobs
-    similarity_scores = cos_sim.flatten()
+#     # The first vector in tfidf_matrix is the resume, the rest are job descriptions
+#     cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
     
-    # Get indices of top_n matching jobs
-    top_matching_indices = similarity_scores.argsort()[-top_n:][::-1]
+#     # Get similarity scores for all jobs
+#     similarity_scores = cos_sim.flatten()
     
-    # Prepare the results
-    top_matches = [(index, similarity_scores[index]) for index in top_matching_indices]
+#     # Get indices of top_n matching jobs
+#     top_matching_indices = similarity_scores.argsort()[-top_n:][::-1]
     
-    return top_matches
+#     # Prepare the results
+#     top_matches = [(index, similarity_scores[index]) for index in top_matching_indices]
+    
+#     return top_matches
 
 def find_matching_jobs(preprocessed_resume, top_n):
     jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
@@ -643,7 +731,7 @@ def find_matching_jobs(preprocessed_resume, top_n):
     top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
 
     # Select top matching jobs from Firestore data
-    matched_jobs = [(matched_jobs[index], score) for index, score in top_matches]
+    matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
 
     return matched_jobs
 
