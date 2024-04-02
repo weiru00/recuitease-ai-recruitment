@@ -5,6 +5,7 @@ import "flowbite";
 const BarChart = () => {
   // Chart options
   const options = {
+    colors: ["#7E3AF2"],
     chart: {
       type: "bar",
       height: 350,
@@ -14,6 +15,8 @@ const BarChart = () => {
         horizontal: false,
         columnWidth: "55%",
         endingShape: "rounded",
+        borderRadius: 10,
+        // color: "#7E3AF2",
       },
     },
     dataLabels: {
