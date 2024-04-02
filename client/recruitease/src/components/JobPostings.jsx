@@ -15,6 +15,7 @@ const JobPostings = () => {
   const uid = queryParams.get("uid");
   const role = queryParams.get("role");
 
+  const [loading, setLoading] = useState(false);
   const [isFormOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState("create"); // 'create' or 'update'
   const [selectedJob, setSelectedJob] = useState(null);
@@ -65,12 +66,14 @@ const JobPostings = () => {
     formData.append("applicantID", uid);
 
     try {
+      setLoading(true);
       const response = await fetch("/api/match-jobs", {
         method: "POST",
         body: formData,
       });
 
       const matchingJobs = await response.json();
+      setLoading(false);
       setMatchedJobs(matchingJobs); // Update matched jobs
       setViewMatchedJobs(true); // Automatically switch to viewing matched jobs
     } catch (error) {
@@ -104,6 +107,32 @@ const JobPostings = () => {
     await fetchMatchingJobs();
   };
 
+  // if (loading) {
+  //   return (
+  //     <div className="text-center">
+  //       <div role="status">
+  //         <svg
+  //           aria-hidden="true"
+  //           className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
+  //           viewBox="0 0 100 101"
+  //           fill="none"
+  //           xmlns="http://www.w3.org/2000/svg"
+  //         >
+  //           <path
+  //             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+  //             fill="currentColor"
+  //           />
+  //           <path
+  //             d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+  //             fill="currentFill"
+  //           />
+  //         </svg>
+  //         <span className="sr-only">Loading...</span>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
   return (
     <div>
       <div className="antialiased bg-white dark:bg-gray-900">
@@ -128,6 +157,31 @@ const JobPostings = () => {
                 </div>
               </div>
               <div className="bg-white shadow-md rounded-lg p-6 w-1/3 h-auto">
+                {loading && (
+                  <div
+                    role="status"
+                    // class="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2"
+                    className="text-center"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
+                      viewBox="0 0 100 101"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                        fill="currentFill"
+                      />
+                    </svg>
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                )}
                 <form onSubmit={handleSubmit}>
                   <div className="h-full items-center justify-center w-full">
                     <label
@@ -224,30 +278,6 @@ const JobPostings = () => {
               <img className="flex z-[5] h-60" src={dashboard}></img>
             </div>
           )}
-          {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
-            <div className="flex items-center">
-              {role === "recruiter" ? (
-                <h5 className="text-xl font-bold dark:text-white">
-                  Posted Jobs
-                </h5>
-              ) : (
-                <h5 className="text-xl font-bold dark:text-white">
-                  Browse All Jobs
-                </h5>
-              )}
-            </div>
-            {role === "recruiter" && (
-              <div>
-                <button
-                  type="button"
-                  className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-                  onClick={openCreateForm}
-                >
-                  Create New Job
-                </button>
-              </div>
-            )}
-          </div> */}
 
           <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6 pt-6">
             {/* Filter and Seacrh Section */}
@@ -389,6 +419,9 @@ const JobPostings = () => {
                               src={job.companyLogoUrl || user}
                               alt="logo"
                             />
+                            <span className="bg-purple-100 text-purple-600 text-sm font-bold me-2 px-2.5 py-0.5 mb-2 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                              {score.toFixed(2)}%
+                            </span>
                           </div>
                           <div className="px-4 py-3 col-span-8">
                             <a href="#">
@@ -416,11 +449,11 @@ const JobPostings = () => {
                               </li>
                             </ul>
                           </div>
-                          <div className="col-span-2 grid justify-items-center content-center">
-                            <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                          {/* <div className="col-span-2 grid justify-items-center content-center">
+                            <span className="bg-purple-100 text-purple-600 text-sm font-bold me-2 px-2.5 py-0.5 mb-2 rounded-full dark:bg-purple-900 dark:text-purple-300">
                               {score.toFixed(2)}%
                             </span>
-                          </div>
+                          </div> */}
                         </div>
                       </Link>
                     ))

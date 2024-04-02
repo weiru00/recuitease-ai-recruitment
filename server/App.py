@@ -534,7 +534,7 @@ def match_jobs():
         resume_text = fetch_pdf_text(blob.name)
         
         # Retrieve jobs from Firestore and match
-        matched_jobs = find_matching_jobs(resume_text, top_n=2)
+        matched_jobs = find_matching_jobs(resume_text, top_n=10)
         print("matched jobs: ", matched_jobs)
 
         return jsonify(matched_jobs)
@@ -639,7 +639,7 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
     except Exception as e:
         print(f"Error calculating similarity scores: {e}")
     
-def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
+def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=10):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
