@@ -2,13 +2,12 @@ import React from "react";
 import ApexCharts from "react-apexcharts";
 import "flowbite";
 
-const PieChart = () => {
-  // Define options as an object
+const PieChart = ({ title, chartData }) => {
   const options = {
-    series: [52.8, 26.8, 20.4],
+    series: chartData.map((data) => data.data),
     colors: ["#7E3AF2", "#AC94FA", "#DCD7FE"],
     chart: {
-      height: 420,
+      height: 400,
       width: "100%",
       type: "pie",
     },
@@ -27,7 +26,7 @@ const PieChart = () => {
         },
       },
     },
-    labels: ["Direct", "Organic search", "Referrals"],
+    labels: chartData.map((data) => data.name),
     dataLabels: {
       enabled: true,
       style: {
@@ -35,18 +34,19 @@ const PieChart = () => {
       },
     },
     legend: {
-      position: "bottom",
+      position: "right",
       fontFamily: "Inter, sans-serif",
     },
   };
 
   return (
     <div className=" w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+      <h1>{title}</h1>
       <ApexCharts
         options={options}
         series={options.series}
         type="pie"
-        height={420}
+        height={400}
       />
     </div>
   );

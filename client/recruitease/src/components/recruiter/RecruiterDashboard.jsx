@@ -6,18 +6,22 @@ import Sidebar from "./Sidebar";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { dashboard } from "../../assets";
-import BarChart from "../BarChart";
-import PieChart from "../PieChart";
+import FunnelChart from "../charts/FunnelChart";
+import PieChart from "../charts/PieChart";
+import DonutChart from "../charts/DonutChart";
 
 const RecruiterDashboard = () => {
-  // const location = useLocation();
-  // const queryParams = new URLSearchParams(location.search);
-  // const recruiterID = queryParams.get("uid");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const recruiterID = queryParams.get("uid");
 
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const [applications, setApplications] = useState([]);
+  const [raceData, setRaceData] = useState([]);
+  const [genderData, setGenderData] = useState([]);
+  const [statusData, setStatusData] = useState([]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -35,25 +39,38 @@ const RecruiterDashboard = () => {
 
   useEffect(() => {
     // Fetch data from backend
-    fetch(`/api/get-applications?recruiterID=${userId}`)
+    fetch(`/api/get-applications?recruiterID=${recruiterID}`)
       .then((res) => res.json())
       .then((data) => {
-        // Assuming you have a PieChart component that accepts 'data' prop in the format:
-        // [{ name: 'Race/Gender', data: Count }, ...]
-        setRaceChartData(
-          data.raceCounts.map((item) => ({ name: item.race, data: item.count }))
-        );
-        setGenderChartData(
-          data.genderCounts.map((item) => ({
-            name: item.gender,
-            data: item.count,
-          }))
-        );
+        if (data.success) {
+          const raceChartData = data.raceCounts.map((raceCount) => ({
+            name: raceCount.race,
+            data: raceCount.count,
+          }));
+
+          const genderChartData = data.genderCounts.map((genderCount) => ({
+            name: genderCount.gender,
+            data: genderCount.count,
+          }));
+
+          const statusChartData = data.statusCounts
+            .filter((statusCount) => statusCount.status !== "Reject")
+            .map((statusCount) => ({
+              name: statusCount.status,
+              data: statusCount.count,
+            }));
+
+          setRaceData(raceChartData);
+          setGenderData(genderChartData);
+          setStatusData(statusChartData);
+        } else {
+          console.error("Failed to fetch application data:", data.error);
+        }
       })
       .catch((error) =>
         console.error("Error fetching application data:", error)
       );
-  }, []);
+  }, [recruiterID]);
 
   useEffect(() => {
     if (userId) {
@@ -93,6 +110,10 @@ const RecruiterDashboard = () => {
       </div>
     );
   }
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return "";
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
 
   return (
     <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -217,15 +238,29 @@ const RecruiterDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-6 mb-6 mx-6">
+        <div className="grid grid-cols-3 gap-6 mb-6 mx-6">
           <div className="col-span-1 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
-            <h1>My Sales Data</h1>
-            <BarChart />
+            {/* <h1>My Sales Data</h1> */}
+            {/* <BarChart /> */}
+            <DonutChart
+              title="Gender Distribution"
+              chartData={genderData}
+              // labels={raceData.name}
+            />
           </div>
           <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
-            <PieChart />
+            <FunnelChart
+              title="Application Distribution"
+              chartData={statusData}
+            />
           </div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
+            <PieChart
+              title="Race Distribution"
+              chartData={raceData}
+              // labels={raceData.name}
+            />
+          </div>
         </div>
         <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-96 mb-6 mx-6"></div>
         <div className="grid grid-cols-2 gap-6 mx-6">

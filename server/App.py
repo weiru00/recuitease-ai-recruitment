@@ -274,7 +274,7 @@ def delete_job(job_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# from collections import Counter
+from collections import Counter
 
 @app.route('/get-applications', methods=['GET'])
 def get_applications():
@@ -283,8 +283,9 @@ def get_applications():
         if not recruiter_id:
             return jsonify({"error": "Missing recruiterID parameter"}), 400
 
-        # race_counter = Counter()
-        # gender_counter = Counter()
+        race_counter = Counter()
+        gender_counter = Counter()
+        status_counter = Counter()
         
         # Fetch all job IDs posted by the recruiter
         jobs_ref = db.collection('jobListings').where('recruiterID', '==', recruiter_id)
@@ -296,6 +297,7 @@ def get_applications():
             job_id = job.id
             job_data = job.to_dict()  # Get job data
             job_title = job_data.get('title', 'Unknown Job Title')
+            # status_counter[job_data.get('status', 'Not Stated')] += 1
             
             apps_ref = db.collection('applications').where('jobID', '==', job_id)
             apps = apps_ref.stream()
@@ -304,6 +306,7 @@ def get_applications():
                 app_data = app.to_dict()
                 app_data['applicationID'] = app.id  # Include the application ID in the data
                 app_data['jobTitle'] = job_title
+                status_counter[app_data.get('status', 'Not Stated')] += 1
                 
                 # Fetch applicant details
                 applicant_id = app_data.get('applicantID')
@@ -315,18 +318,18 @@ def get_applications():
                         app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
                         app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
                         app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
-                        # gender = user_data.get('gender', 'Not Stated')
-                        # race = user_data.get('race', 'Not Stated')
                         
-                        # race_counter[race] = race_counts.get(race, 0) + 1
-                        # gender_counter[gender] = gender_counts.get(gender, 0) + 1    
+                        race_counter[user_data.get('race', 'Not Stated')] += 1
+                        gender_counter[user_data.get('gender', 'Not Stated')] += 1
                         
                 applications.append(app_data)
 
-        # race_counts = [{"race": race, "count": count} for race, count in race_counter.items()]
-        # gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
+        race_counts = [{"race": race, "count": count} for race, count in race_counter.items()]
+        gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
+        status_counts = [{"status": status, "count": count} for status, count in status_counter.items()]
 
-        return jsonify({"success": True, "applications": applications}), 200
+        print(status_counts)
+        return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
