@@ -3,14 +3,12 @@ import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
 import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
-// import JobForm from "./recruiter/JobForm";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import Button from "./Button";
-import { apple, dashboard, discord, user } from "../assets";
+import { dashboard, user } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
   const role = queryParams.get("role");
@@ -24,6 +22,20 @@ const JobPostings = () => {
   const [resume, setResume] = useState(null);
   const [matchedJobs, setMatchedJobs] = useState([]); // Holds matched jobs after resume upload
   const [viewMatchedJobs, setViewMatchedJobs] = useState(false); // Flag to toggle view
+  const [searchQuery, setSearchQuery] = useState("");
+  const [jobType, setJobType] = useState({
+    FullTime: false,
+    Internship: false,
+  });
+  const [salaryRange, setSalaryRange] = useState("");
+  const [filteredJobs, setFilteredJobs] = useState([]);
+
+  const salaryRanges = [
+    { label: "Below RM3,000", min: 0, max: 3000 },
+    { label: "RM3,000 ~ RM5,999", min: 3000, max: 5999 },
+    { label: "RM6,000 ~ RM9,999", min: 6000, max: 9999 },
+    { label: "Above RM10,000", min: 10000, max: Infinity },
+  ];
 
   const openCreateForm = () => {
     setFormMode("Create");
@@ -31,18 +43,12 @@ const JobPostings = () => {
     setFormOpen(true);
   };
 
-  // const openUpdateForm = (job) => {
-  //   setFormMode("Update");
-  //   setSelectedJob(job); // Pass the selected job data into the form for editing
-  //   setFormOpen(true);
-  // };
-
   const closeForm = () => {
     setFormOpen(false);
   };
 
   const triggerUpdate = () => {
-    setUpdateTrigger(!updateTrigger); // refresh the job listings
+    setUpdateTrigger(!updateTrigger);
   };
 
   const [fileName, setFileName] = useState("");
@@ -81,13 +87,6 @@ const JobPostings = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetch("api/joblistings")
-  //     .then((res) => res.json())
-  //     .then((data) => setJobs(data))
-  //     .catch((error) => console.error("There was an error!", error));
-  // }, [updateTrigger]);
-
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -105,6 +104,62 @@ const JobPostings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await fetchMatchingJobs();
+  };
+
+  useEffect(() => {
+    const filtered = jobs.filter((job) => {
+      const searchMatch = job.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      const jobTypeMatch =
+        jobType[job.type.replace("-", "")] ||
+        (!jobType.FullTime && !jobType.Internship);
+
+      const selectedRange = salaryRanges.find(
+        (range) => range.label === salaryRange
+      );
+
+      // Check if job's salary falls within the selected range
+      const salaryMatch = selectedRange
+        ? job.salary >= selectedRange.min && job.salary <= selectedRange.max
+        : true; // If no range is selected, consider all jobs
+
+      // const salaryMatch = job.salary === salaryRange || salaryRange === "";
+
+      return searchMatch && jobTypeMatch && salaryMatch;
+    });
+
+    setFilteredJobs(filtered);
+  }, [searchQuery, jobType, salaryRange, jobs]);
+
+  useEffect(() => {
+    // Filter jobs based on role or other criteria
+    const filterJobs = () => {
+      if (role === "applicant" && viewMatchedJobs) {
+        // For applicants, filter matched jobs
+        const matched = jobs.filter((job) => job.matchScore >= 80); // Assuming matchScore is a property indicating job match
+        setFilteredJobs(matched);
+      } else {
+        // For recruiters or when viewing all jobs, show all jobs
+        setFilteredJobs(jobs);
+      }
+    };
+
+    filterJobs();
+  }, [jobs, role, viewMatchedJobs]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleJobTypeChange = (e) => {
+    const { value, checked } = e.target;
+    setJobType((prev) => ({ ...prev, [value]: checked }));
+  };
+
+  const handleSalaryChange = (e) => {
+    setSalaryRange(e.target.value);
   };
 
   // if (loading) {
@@ -314,7 +369,8 @@ const JobPostings = () => {
                     id="default-search"
                     className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                     placeholder="Search Job"
-                    required
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                   />
                 </div>
               </form>
@@ -327,7 +383,9 @@ const JobPostings = () => {
                 <input
                   id="default-checkbox"
                   type="checkbox"
-                  value="Full-Time"
+                  value="FullTime"
+                  checked={jobType.FullTime}
+                  onChange={handleJobTypeChange}
                   className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 dark:focus:ring-purple-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 ></input>
                 <label
@@ -343,6 +401,8 @@ const JobPostings = () => {
                   id="checked-checkbox"
                   type="checkbox"
                   value="Internship"
+                  checked={jobType.Internship}
+                  onChange={handleJobTypeChange}
                   className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 dark:focus:ring-purple-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 ></input>
                 <label
@@ -365,13 +425,20 @@ const JobPostings = () => {
                 ></label>
                 <select
                   id="salary"
+                  value={salaryRange}
+                  onChange={(e) => setSalaryRange(e.target.value)}
                   className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                 >
                   <option defaultValue>Salary Range</option>
-                  <option value="US">Below RM3,000</option>
-                  <option value="CA">RM3,000 ~ RM5,999</option>
-                  <option value="FR">RM6,000 ~ RM9,999</option>
-                  <option value="DE">Above RM10,000</option>
+                  {salaryRanges.map((range) => (
+                    <option key={range.label} value={range.label}>
+                      {range.label}
+                    </option>
+                  ))}
+                  {/* <option value="Below RM3,000">Below RM3,000</option>
+                  <option value="RM3,000 ~ RM5,999">RM3,000 ~ RM5,999</option>
+                  <option value="RM6,000 ~ RM9,999">RM6,000 ~ RM9,999</option>
+                  <option value="Above RM10,000">Above RM10,000</option> */}
                 </select>
               </form>
             </div>
@@ -457,7 +524,7 @@ const JobPostings = () => {
                         </div>
                       </Link>
                     ))
-                  : jobs.map((job) => (
+                  : filteredJobs.map((job) => (
                       <div className="py-1">
                         <Link
                           key={job.id}
