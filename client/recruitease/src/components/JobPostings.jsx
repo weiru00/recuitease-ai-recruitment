@@ -1,14 +1,14 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
-import { ApplicantSidebar, ApplicationForm } from "./applicant";
+import NoResult from "./NoResult";
+import { ApplicantSidebar } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { dashboard, user } from "../assets";
 
 const JobPostings = () => {
   const location = useLocation();
-  // const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
   const role = queryParams.get("role");
@@ -471,8 +471,9 @@ const JobPostings = () => {
               )}
               {/* new */}
               <div>
-                {viewMatchedJobs
-                  ? matchedJobs.map(([job, score]) => (
+                {viewMatchedJobs ? (
+                  matchedJobs.length > 0 ? (
+                    matchedJobs.map(([job, score]) => (
                       <Link
                         key={job.id}
                         className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
@@ -524,52 +525,88 @@ const JobPostings = () => {
                         </div>
                       </Link>
                     ))
-                  : filteredJobs.map((job) => (
-                      <div className="py-1">
-                        <Link
-                          key={job.id}
-                          className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 my-3"
-                          // onClick={() => openUpdateForm(job)}
-                          to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
-                        >
-                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
-                            <div className="col-span-2 grid justify-items-center content-center">
-                              <img
-                                className="mx-auto my-3 w-16 h-16 rounded-full"
-                                src={job.companyLogoUrl}
-                                alt="Logo"
-                              />
-                            </div>
-                            <div className="px-4 py-3 col-span-8">
-                              <a href="#">
-                                <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
-                                  {job.title}
-                                </h5>
-                              </a>
-
-                              <ul className="flex flex-wrap text-sm font-medium text-center justify-between text-gray-500 dark:text-gray-400">
-                                <li>
-                                  <p className="inline-block pr-8 py-2">
-                                    {job.companyName}
-                                  </p>
-                                  <p className="inline-block pr-8 py-2">
-                                    {job.type}
-                                  </p>
-                                  <p className="text-purple-600 inline-block pr-8 py-2">
-                                    RM{job.salary}
-                                  </p>
-                                </li>
-                                <li>
-                                  <p className="text-gray-400 font-normal inline-block pr-8 py-2">
-                                    Posted At: {job.postedAt}
-                                  </p>
-                                </li>
-                              </ul>
-                            </div>
+                  ) : (
+                    // "No results found" message for matched jobs
+                    // <div className="text-center p-10">
+                    //   <img
+                    //     src={nodata}
+                    //     alt="No results found"
+                    //     className="mx-auto"
+                    //     style={{ maxWidth: "300px" }}
+                    //   />
+                    //   <h3 className="mt-2 text-lg font-semibold">
+                    //     No matched jobs found
+                    //   </h3>
+                    //   <p className="text-gray-600">
+                    //     Try adjusting your search or filters.
+                    //   </p>
+                    // </div>
+                    <NoResult />
+                  )
+                ) : filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
+                    <div className="py-1">
+                      <Link
+                        key={job.id}
+                        className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 my-3"
+                        // onClick={() => openUpdateForm(job)}
+                        to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
+                      >
+                        <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                          <div className="col-span-2 grid justify-items-center content-center">
+                            <img
+                              className="mx-auto my-3 w-16 h-16 rounded-full"
+                              src={job.companyLogoUrl}
+                              alt="Logo"
+                            />
                           </div>
-                        </Link>
-                      </div>
-                    ))}
+                          <div className="px-4 py-3 col-span-8">
+                            <a href="#">
+                              <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
+                                {job.title}
+                              </h5>
+                            </a>
+
+                            <ul className="flex flex-wrap text-sm font-medium text-center justify-between text-gray-500 dark:text-gray-400">
+                              <li>
+                                <p className="inline-block pr-8 py-2">
+                                  {job.companyName}
+                                </p>
+                                <p className="inline-block pr-8 py-2">
+                                  {job.type}
+                                </p>
+                                <p className="text-purple-600 inline-block pr-8 py-2">
+                                  RM{job.salary}
+                                </p>
+                              </li>
+                              <li>
+                                <p className="text-gray-400 font-normal inline-block pr-8 py-2">
+                                  Posted At: {job.postedAt}
+                                </p>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  // <div className="text-center p-10">
+                  //   <img
+                  //     src={nodata}
+                  //     alt="No results found"
+                  //     className="mx-auto"
+                  //     style={{ maxWidth: "300px" }}
+                  //   />
+                  //   <h3 className="mt-2 text-lg font-semibold text-gray-600">
+                  //     No results found
+                  //   </h3>
+                  //   <p className="text-gray-400">
+                  //     Try adjusting your search or filters.
+                  //   </p>
+                  // </div>
+                  <NoResult />
+                )}
               </div>
               {/* ori below */}
               {/* {(viewMatchedJobs ? matchedJobs : jobs).map(([job, score]) => (

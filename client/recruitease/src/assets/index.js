@@ -12,6 +12,7 @@ import bg from "./bg.png";
 import user from "./user.svg";
 import track from "./track.svg";
 import talents from "./talents.svg";
+import nodata from "./nodata.svg";
 
 export {
   logo,
@@ -28,4 +29,5 @@ export {
   user,
   track,
   talents,
+  nodata,
 };
