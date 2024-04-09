@@ -1,11 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
+import DeletionModal from "./DeletionModal";
 import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
 import { useLocation, useNavigate } from "react-router-dom";
-import { apple, bitcoin, discord, vk } from "../assets";
 
 const JobDescription = () => {
   const navigate = useNavigate();
@@ -17,9 +17,18 @@ const JobDescription = () => {
 
   const [jobDetails, setJobDetails] = useState({});
   const [isFormOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState("update"); // 'create' or 'update'
+  const [formMode, setFormMode] = useState("update");
   const [selectedJob, setSelectedJob] = useState(null);
   const [updateTrigger, setUpdateTrigger] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const openDeleteModal = () => setShowDeleteModal(true);
+  const closeDeleteModal = () => setShowDeleteModal(false);
+
+  const handleConfirmDelete = async () => {
+    closeDeleteModal();
+    handleDeleteJob();
+  };
 
   const openUpdateForm = (job) => {
     setFormMode("Update");
@@ -46,25 +55,24 @@ const JobDescription = () => {
   // };
 
   const handleDeleteJob = async () => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      try {
-        const response = await fetch(`/api/delete-job/${jobId}`, {
-          method: "DELETE",
-        });
-        const data = await response.json();
+    // if (window.confirm("Are you sure you want to delete this job?")) {
+    try {
+      const response = await fetch(`/api/delete-job/${jobId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
 
-        if (!response.ok)
-          throw new Error(data.error || "Failed to delete job.");
+      if (!response.ok) throw new Error(data.error || "Failed to delete job.");
 
-        alert("Job Deleted Successfully!");
-        navigate(`/jobpostings?uid=${uid}&role=${role}`);
+      alert("Job Deleted Successfully!");
+      navigate(`/jobpostings?uid=${uid}&role=${role}`);
 
-        // Redirect or perform another action after successful deletion
-      } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to Delete Job");
-      }
+      // Redirect or perform another action after successful deletion
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Failed to Delete Job");
     }
+    // }
   };
 
   useEffect(() => {
@@ -127,7 +135,8 @@ const JobDescription = () => {
                 <button
                   type="button"
                   className="inline-flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
-                  onClick={handleDeleteJob}
+                  // onClick={handleDeleteJob}
+                  onClick={openDeleteModal}
                 >
                   <svg
                     aria-hidden="true"
@@ -321,6 +330,12 @@ const JobDescription = () => {
           isClose={() => {
             closeForm();
           }}
+        />
+      )}
+      {showDeleteModal && (
+        <DeletionModal
+          onCloseModal={closeDeleteModal}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </div>
