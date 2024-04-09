@@ -1,7 +1,7 @@
 import React from "react";
 import { nodata } from "../assets";
 
-const NoResult = () => {
+const NoResult = ({ title, desc }) => {
   return (
     <div className="text-center p-10">
       <img
@@ -10,10 +10,8 @@ const NoResult = () => {
         className="mx-auto"
         style={{ maxWidth: "300px" }}
       />
-      <h3 className="mt-2 text-lg font-semibold text-gray-600">
-        No results found
-      </h3>
-      <p className="text-gray-400">Try adjusting your search or filters.</p>
+      <h3 className="mt-2 text-lg font-semibold text-gray-600">{title}</h3>
+      <p className="text-gray-400">{desc}</p>
     </div>
   );
 };
