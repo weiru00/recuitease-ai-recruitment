@@ -1,6 +1,7 @@
 import React from "react";
 import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
+import NoResult from "../NoResult";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { user, option, talents } from "../../assets";
@@ -14,6 +15,13 @@ const Talents = () => {
   const [applications, setApplications] = useState([]);
   const [status, setStatus] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
+  const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTopTalents, setFilteredTopTalents] = useState([]);
+  const [
+    filteredSortedByTimeApplications,
+    setFilteredSortedByTimeApplications,
+  ] = useState([]);
 
   const toggleDropdown = (appId) => {
     setShowDropdown((prev) => ({
@@ -23,7 +31,7 @@ const Talents = () => {
   };
 
   const topTalents = applications
-    .filter((app) => app.score > 9)
+    .filter((app) => app.score > 60)
     .sort((a, b) => b.score - a.score);
 
   const topTalentIds = topTalents.map((app) => app.applicationID);
@@ -46,14 +54,6 @@ const Talents = () => {
         }
         const data = await response.json();
         setApplications(data.applications);
-        // setApplications(
-        //   applications.map((app) => {
-        //     if (app.applicationID === applicationID) {
-        //       return { ...app, status };
-        //     }
-        //     return app;
-        //   })
-        // );
       } catch (error) {
         console.error("Error fetching applications:", error);
       } finally {
@@ -64,27 +64,46 @@ const Talents = () => {
     fetchApplications();
   }, [recruiterID]);
 
-  // const autoUpdateApplicationStatus = (applicationId, resumeUrl) => {
-  //   // setApplications((prevApplications) =>
-  //   //   prevApplications.map((application) =>
-  //   //     application.id === applicationId
-  //   //       ? { ...application, status: "Review" }
-  //   //       : application
-  //   //   )
-  //   // );
-  //   updateApplicationStatus(applicationId, "Review")
-  //     .then(() => {
-  //       // Handle successful status update here, such as updating local state to reflect the change
-  //       console.log(
-  //         `Status updated to "Review" for application ${applicationId}`
-  //       );
-  //     })
-  //     .catch((error) => {
-  //       // Handle error here
-  //       console.error("Failed to update application status:", error);
-  //     });
-  //   window.open(resumeUrl, "_blank");
-  // };
+  useEffect(() => {
+    const filterApplications = (apps, query) => {
+      return apps.filter((app) => {
+        const searchMatch = app.jobTitle
+          .toLowerCase()
+          .includes(query.toLowerCase());
+
+        return searchMatch;
+      });
+    };
+
+    // Apply the filtering to top talents
+    const filteredTopTalents = filterApplications(
+      topTalents,
+      searchQueryTopTalents
+    );
+
+    // Apply the filtering to other applications sorted by time
+    const filteredSortedByTimeApplications = filterApplications(
+      sortedByTimeApplications,
+      searchQuery
+    );
+
+    // Update the states for the filtered lists
+    setFilteredTopTalents(filteredTopTalents);
+    setFilteredSortedByTimeApplications(filteredSortedByTimeApplications);
+  }, [
+    searchQueryTopTalents,
+    searchQuery,
+    topTalents,
+    sortedByTimeApplications,
+  ]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchChangeTopTalents = (e) => {
+    setSearchQueryTopTalents(e.target.value);
+  };
 
   const viewResumeAndUpdateStatus = (applicationId, resumeUrl) => {
     // Open the resume in a new tab
@@ -128,18 +147,6 @@ const Talents = () => {
       if (!response.ok) {
         throw new Error(data.error || "Could not update application status");
       }
-
-      // setStatus(data.currentStatus);
-
-      // setApplications(
-      //   applications.map((app) => {
-      //     if (app.applicationID === applicationID) {
-      //       // Update the application with the new status
-      //       return { ...app, status: newStatus };
-      //     }
-      //     return app;
-      //   })
-      // );
 
       setApplications(
         applications.map((app) => {
@@ -235,36 +242,6 @@ const Talents = () => {
 
       <Sidebar />
       <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
-          <div className="flex items-center">
-            <h5 className="text-xl font-bold dark:text-white">Find Talents</h5>
-          </div>
-          <div>
-            <span
-              id="badge-dismiss-purple"
-              className="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-purple-800 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
-            >
-              AI-featured Similarity Score
-              <a>
-                <svg
-                  className="w-5 h-5 ml-2 text-purple-700 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M15.03 9.684h3.965c.322 0 .64.08.925.232.286.153.532.374.717.645a2.109 2.109 0 0 1 .242 1.883l-2.36 7.201c-.288.814-.48 1.355-1.884 1.355-2.072 0-4.276-.677-6.157-1.256-.472-.145-.924-.284-1.348-.404h-.115V9.478a25.485 25.485 0 0 0 4.238-5.514 1.8 1.8 0 0 1 .901-.83 1.74 1.74 0 0 1 1.21-.048c.396.13.736.397.96.757.225.36.32.788.269 1.211l-1.562 4.63ZM4.177 10H7v8a2 2 0 1 1-4 0v-6.823C3 10.527 3.527 10 4.176 10Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </a>
-            </span>
-          </div>
-        </div> */}
         <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-8 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
             <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
@@ -315,7 +292,8 @@ const Talents = () => {
                 id="simple-search"
                 className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                 placeholder="Search job name..."
-                required
+                value={searchQueryTopTalents}
+                onChange={handleSearchChangeTopTalents}
               />
             </div>
             <button
@@ -341,223 +319,242 @@ const Talents = () => {
             </button>
           </form>
           <div href="#" className="col-span-4">
-            {topTalents.map((app) => (
-              <div
-                key={app.applicationID}
-                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
-              >
-                <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                  <div className="col-span-2 grid justify-items-center content-center">
-                    <img
-                      className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                      src={app.applicantPic || user}
-                      alt="Profile Pic"
-                    ></img>
-                  </div>
-                  <div className="px-2 py-3 col-span-6">
-                    <div className="flex">
-                      <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                        {app.applicantFName}
-                      </h5>
-                      <div>
-                        <ApplicationStatus status={app.status} />
-                        {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
+            {filteredTopTalents.length > 0 ? (
+              filteredTopTalents.map((app) => (
+                <div
+                  key={app.applicationID}
+                  className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
+                >
+                  <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                    <div className="col-span-2 grid justify-items-center content-center">
+                      <img
+                        className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                        src={app.applicantPic || user}
+                        alt="Profile Pic"
+                      ></img>
+                    </div>
+                    <div className="px-2 py-3 col-span-6">
+                      <div className="flex">
+                        <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                          {app.applicantFName}
+                        </h5>
+                        <div>
+                          <ApplicationStatus status={app.status} />
+                          {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
                           {app.status}
                         </span> */}
-                      </div>
-                    </div>
-
-                    <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                      <li>
-                        <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                          {app.jobTitle}
-                        </span>
-
-                        <p className="inline-block pr-8 py-2 text-xs">
-                          {new Intl.DateTimeFormat("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "2-digit",
-                          }).format(new Date(app.appliedAt))}
-                        </p>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-span-2 grid justify-items-center content-center">
-                    <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                      {app.score}%
-                    </span>
-                  </div>
-                  <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                    <button
-                      onClick={() =>
-                        viewResumeAndUpdateStatus(app.applicationID, app.resume)
-                      }
-                      // onClick={() => window.open(app.resume, "_blank")}
-                      // to="/talents"
-                      className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                    >
-                      <svg
-                        className="w-5 h-5 me-2 text-purple-600"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                        />
-                      </svg>
-                      View Resume
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleDropdown(app.applicationID)}
-                      // data-dropdown-toggle="apps-dropdown"
-                      className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                    >
-                      <span className="sr-only">View status</span>
-                      {/* <!-- Icon --> */}
-                      <img src={option} className="h-6" alt="icon" />
-                      <div
-                        className={`${
-                          showDropdown[app.applicationID]
-                            ? "opacity-100 visible"
-                            : "opacity-0 invisible"
-                        } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
-                        style={{
-                          top: showDropdown[app.applicationID]?.top || 0,
-                          left: showDropdown[app.applicationID]?.left || 0,
-                          zIndex: 9999,
-                        }}
-                        id="dropdown"
-                      >
-                        <div className="py-3 px-4 bg-purple-50">
-                          <span className="block text-sm font-semibold text-gray-900 ">
-                            Select Hiring Status
-                          </span>
                         </div>
-                        {/* Dropdown menu items */}
-                        <ul
-                          className="py-1 text-gray-700 dark:text-gray-300"
-                          aria-labelledby="dropdown"
-                        >
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Review")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Review
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(
-                                  app.applicationID,
-                                  "Interview"
-                                )
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-purple-600 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Schedule Interview
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Onboard")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-green-400 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              Hire
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Reject")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-red-500 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Decline
-                            </a>
-                          </li>
-                        </ul>
                       </div>
-                    </button>
+
+                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                        <li>
+                          <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                            {app.jobTitle}
+                          </span>
+
+                          <p className="inline-block pr-8 py-2 text-xs">
+                            {new Intl.DateTimeFormat("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "2-digit",
+                            }).format(new Date(app.appliedAt))}
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="col-span-2 grid justify-items-center content-center">
+                      <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                        {app.score}%
+                      </span>
+                    </div>
+                    <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                      <button
+                        onClick={() =>
+                          viewResumeAndUpdateStatus(
+                            app.applicationID,
+                            app.resume
+                          )
+                        }
+                        // onClick={() => window.open(app.resume, "_blank")}
+                        // to="/talents"
+                        className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                      >
+                        <svg
+                          className="w-5 h-5 me-2 text-purple-600"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                          />
+                        </svg>
+                        View Resume
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleDropdown(app.applicationID)}
+                        // data-dropdown-toggle="apps-dropdown"
+                        className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      >
+                        <span className="sr-only">View status</span>
+                        {/* <!-- Icon --> */}
+                        <img src={option} className="h-6" alt="icon" />
+                        <div
+                          className={`${
+                            showDropdown[app.applicationID]
+                              ? "opacity-100 visible"
+                              : "opacity-0 invisible"
+                          } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                          style={{
+                            top: showDropdown[app.applicationID]?.top || 0,
+                            left: showDropdown[app.applicationID]?.left || 0,
+                            zIndex: 9999,
+                          }}
+                          id="dropdown"
+                        >
+                          <div className="py-3 px-4 bg-purple-50">
+                            <span className="block text-sm font-semibold text-gray-900 ">
+                              Select Hiring Status
+                            </span>
+                          </div>
+                          {/* Dropdown menu items */}
+                          <ul
+                            className="py-1 text-gray-700 dark:text-gray-300"
+                            aria-labelledby="dropdown"
+                          >
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Review"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Review
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Interview"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Schedule Interview
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Onboard"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Hire
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Reject"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Decline
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <NoResult
+                title={"No result found"}
+                desc={"Try adjusting your search or filters."}
+              />
+            )}
           </div>
         </div>
 
@@ -569,7 +566,7 @@ const Talents = () => {
             </h5>
           </div>
           <form className="flex items-center max-w-sm">
-            <label htmlFor="simple-search" className="sr-only">
+            <label htmlFor="simple-search-alltalents" className="sr-only">
               Search
             </label>
             <div className="relative w-full">
@@ -592,10 +589,11 @@ const Talents = () => {
               </div>
               <input
                 type="text"
-                id="simple-search"
+                id="simple-search-alltalents"
                 className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                 placeholder="Search job name..."
-                required
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
             </div>
             <button
@@ -621,230 +619,249 @@ const Talents = () => {
             </button>
           </form>
           <div href="#" className="col-span-4">
-            {sortedByTimeApplications.map((app) => (
-              <div
-                key={app.applicationID}
-                className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
-                // onClick={() => openUpdateForm(job)}
-              >
-                <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                  <div className="col-span-2 grid justify-items-center content-center">
-                    {app.applicantPic ? (
-                      <img
-                        className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                        src={app.applicantPic}
-                        alt="Profile Pic"
-                      />
-                    ) : (
-                      <img
-                        className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                        src={user}
-                        alt="Profile Pic"
-                      ></img>
-                    )}
-                  </div>
-                  <div className="px-2 py-3 col-span-6">
-                    <div className="flex">
-                      <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                        {app.applicantFName}
-                      </h5>
-                      <div>
-                        <ApplicationStatus status={app.status} />
-                        {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
+            {filteredSortedByTimeApplications.length > 0 ? (
+              filteredSortedByTimeApplications.map((app) => (
+                <div
+                  key={app.applicationID}
+                  className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
+                  // onClick={() => openUpdateForm(job)}
+                >
+                  <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                    <div className="col-span-2 grid justify-items-center content-center">
+                      {app.applicantPic ? (
+                        <img
+                          className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                          src={app.applicantPic}
+                          alt="Profile Pic"
+                        />
+                      ) : (
+                        <img
+                          className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                          src={user}
+                          alt="Profile Pic"
+                        ></img>
+                      )}
+                    </div>
+                    <div className="px-2 py-3 col-span-6">
+                      <div className="flex">
+                        <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                          {app.applicantFName}
+                        </h5>
+                        <div>
+                          <ApplicationStatus status={app.status} />
+                          {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
                           {app.status}
                         </span> */}
-                      </div>
-                    </div>
-
-                    <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                      <li>
-                        <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                          {app.jobTitle}
-                        </span>
-
-                        <p className="inline-block pr-8 py-2 text-xs">
-                          {new Intl.DateTimeFormat("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "2-digit",
-                          }).format(new Date(app.appliedAt))}
-                        </p>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-span-2 grid justify-items-center content-center">
-                    <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                      {app.score}%
-                    </span>
-                  </div>
-                  <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                    <button
-                      onClick={() =>
-                        viewResumeAndUpdateStatus(app.applicationID, app.resume)
-                      }
-                      className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                    >
-                      <svg
-                        className="w-5 h-5 me-2 text-purple-600"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                        />
-                      </svg>
-                      View Resume
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleDropdown(app.applicationID)}
-                      data-dropdown-toggle="apps-dropdown"
-                      className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                    >
-                      <span className="sr-only">View Status</span>
-                      {/* <!-- Icon --> */}
-                      <img src={option} className="h-6" alt="icon" />
-                      <div
-                        className={`${
-                          showDropdown[app.applicationID]
-                            ? "opacity-100 visible"
-                            : "opacity-0 invisible"
-                        } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
-                        style={{
-                          top: showDropdown[app.applicationID]?.top || 0,
-                          left: showDropdown[app.applicationID]?.left || 0,
-                          zIndex: 9999,
-                        }}
-                        id="dropdown"
-                      >
-                        <div className="py-3 px-4 bg-purple-50">
-                          <span className="block text-sm font-semibold text-gray-900 ">
-                            Select Hiring Status
-                          </span>
                         </div>
-                        {/* Dropdown menu items */}
-                        <ul
-                          className="py-1 text-gray-700 dark:text-gray-300"
-                          aria-labelledby="dropdown"
-                        >
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Review")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Review
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(
-                                  app.applicationID,
-                                  "Interview"
-                                )
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-purple-600 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Schedule Interview
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Onboard")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-green-400 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              Hire
-                            </a>
-                          </li>
-                          <li>
-                            <a
-                              onClick={() =>
-                                handleStatusChange(app.applicationID, "Reject")
-                              }
-                              className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                            >
-                              <svg
-                                className="w-5 h-5 me-2 text-red-500 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  fill-rule="evenodd"
-                                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                  clip-rule="evenodd"
-                                />
-                              </svg>
-                              Decline
-                            </a>
-                          </li>
-                        </ul>
                       </div>
-                    </button>
+
+                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                        <li>
+                          <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                            {app.jobTitle}
+                          </span>
+
+                          <p className="inline-block pr-8 py-2 text-xs">
+                            {new Intl.DateTimeFormat("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "2-digit",
+                            }).format(new Date(app.appliedAt))}
+                          </p>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="col-span-2 grid justify-items-center content-center">
+                      <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                        {app.score}%
+                      </span>
+                    </div>
+                    <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                      <button
+                        onClick={() =>
+                          viewResumeAndUpdateStatus(
+                            app.applicationID,
+                            app.resume
+                          )
+                        }
+                        className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                      >
+                        <svg
+                          className="w-5 h-5 me-2 text-purple-600"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                          />
+                        </svg>
+                        View Resume
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleDropdown(app.applicationID)}
+                        data-dropdown-toggle="apps-dropdown"
+                        className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      >
+                        <span className="sr-only">View Status</span>
+                        {/* <!-- Icon --> */}
+                        <img src={option} className="h-6" alt="icon" />
+                        <div
+                          className={`${
+                            showDropdown[app.applicationID]
+                              ? "opacity-100 visible"
+                              : "opacity-0 invisible"
+                          } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                          style={{
+                            top: showDropdown[app.applicationID]?.top || 0,
+                            left: showDropdown[app.applicationID]?.left || 0,
+                            zIndex: 9999,
+                          }}
+                          id="dropdown"
+                        >
+                          <div className="py-3 px-4 bg-purple-50">
+                            <span className="block text-sm font-semibold text-gray-900 ">
+                              Select Hiring Status
+                            </span>
+                          </div>
+                          {/* Dropdown menu items */}
+                          <ul
+                            className="py-1 text-gray-700 dark:text-gray-300"
+                            aria-labelledby="dropdown"
+                          >
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Review"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Review
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Interview"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Schedule Interview
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Onboard"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Hire
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleStatusChange(
+                                    app.applicationID,
+                                    "Reject"
+                                  )
+                                }
+                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                              >
+                                <svg
+                                  className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                  aria-hidden="true"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  fill="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    fill-rule="evenodd"
+                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                    clip-rule="evenodd"
+                                  />
+                                </svg>
+                                Decline
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <NoResult
+                title={"No result found"}
+                desc={"Try adjusting your search or filters."}
+              />
+            )}
           </div>
         </div>
       </main>
