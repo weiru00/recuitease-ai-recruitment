@@ -112,7 +112,7 @@ const TrackApplication = () => {
 
   if (isLoading)
     return (
-      <div className="text-center">
+      <div className="text-center font-body">
         <div role="status">
           <svg
             aria-hidden="true"
@@ -144,8 +144,8 @@ const TrackApplication = () => {
   );
 
   return (
-    <div className="antialiased bg-white dark:bg-gray-900">
-      <DashNavbar />
+    <div className="font-body antialiased bg-white dark:bg-gray-900">
+      {/* <DashNavbar /> */}
 
       <ApplicantSidebar />
 

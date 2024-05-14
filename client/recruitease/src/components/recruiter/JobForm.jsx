@@ -93,7 +93,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
       <div
         tabIndex="-1"
         aria-hidden="true"
-        className="overflow-y-auto overflow-x-hidden fixed right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+        className="font-body overflow-y-auto overflow-x-hidden fixed right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
         style={{ top: "2rem" }}
       >
         <div className={` ${styles.paddingX} ${styles.flexCenter}`}>

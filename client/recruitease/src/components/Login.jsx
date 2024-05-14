@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className="font-body">
       <section className="bg-purple-50 dark:bg-gray-900">
         <div className="flex flex-row items-center justify-center gap-24 px-6 py-8 mx-auto md:h-screen lg:py-0">
           <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">

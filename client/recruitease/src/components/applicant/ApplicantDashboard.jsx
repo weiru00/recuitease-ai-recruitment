@@ -66,15 +66,15 @@ const ApplicantDashboard = () => {
   }
 
   return (
-    <div className="antialiased bg-white dark:bg-gray-900">
-      <DashNavbar />
+    <div className="font-body antialiased bg-white dark:bg-gray-900">
+      {/* <DashNavbar /> */}
 
       <ApplicantSidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
         <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
-            <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
+            <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
               Welcome Back, {userData.firstName}
             </h5>
             <div>
@@ -133,7 +133,7 @@ const ApplicantDashboard = () => {
 
                 <Link
                   to="/jobpostings"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
+                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-auto mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
                 >
                   <svg
                     className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"

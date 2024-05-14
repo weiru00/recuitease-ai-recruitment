@@ -75,7 +75,7 @@ const Sidebar = () => {
     );
   }
   return (
-    <div>
+    <div className="font-body">
       <button
         data-drawer-target="default-sidebar"
         data-drawer-toggle="default-sidebar"

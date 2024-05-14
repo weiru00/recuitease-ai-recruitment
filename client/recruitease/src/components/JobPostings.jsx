@@ -189,9 +189,9 @@ const JobPostings = () => {
   // }
 
   return (
-    <div>
+    <div className="font-body">
       <div className="antialiased bg-white dark:bg-gray-900">
-        <DashNavbar />
+        {/* <DashNavbar /> */}
 
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
@@ -317,7 +317,7 @@ const JobPostings = () => {
             // Recruiter's view
             <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
               <div className="items-center ">
-                <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
+                <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
                   Posted Jobs
                 </h5>
                 <div>

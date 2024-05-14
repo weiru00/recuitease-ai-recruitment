@@ -50,7 +50,7 @@ const Onboarding = () => {
   //   }
   // };
   return (
-    <div>
+    <div className="font-body">
       <section className="flex h-screen w-full items-center justify-center bg-purple-50 px-36">
         <div className="flex w-full max-w-screen-xl rounded-lg bg-white p-8 shadow-lg">
           <div className="mr-8 flex w-1/3 flex-col rounded-lg bg-purple-100 px-8 py-10 text-white">

@@ -118,7 +118,7 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
     : null;
 
   return (
-    <ol className="flex justify-center space-x-4">
+    <ol className="flex justify-center space-x-4 font-body">
       {steps.map((step, index) => {
         // Determine if the step is active or completed
         // const isActiveOrCompleted =
@@ -174,51 +174,6 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
       })}
     </ol>
   );
-  // return (
-  //   <ol className="flex justify-center space-x-4">
-  //     {steps.map((step, index) => {
-  //       // const isActiveOrCompleted = index <= currentStatusIndex;
-
-  //       const shouldDisplayStep = !isRejected || step.status === "reject";
-
-  //       const isActiveOrCompleted = isRejected
-  //         ? step.status === "reject"
-  //         : index <= currentStatusIndex;
-
-  //       if (step.conditionallyRender && !shouldDisplayStep) {
-  //         return null; // Skip rendering this step if it's conditionally rendered and should not be displayed
-  //       }
-
-  //       return (
-  //         <li key={step.name} className="flex items-center">
-  //           <span
-  //             className={`flex items-center justify-center w-8 h-8 rounded-full text-white ${
-  //               isActiveOrCompleted ? "bg-purple-200" : "bg-gray-200"
-  //             } ring-4 ring-white`}
-  //           >
-  //             {step.icon(isActiveOrCompleted)}
-  //           </span>
-  //           <div
-  //             className={`ml-2 ${
-  //               isActiveOrCompleted ? "text-gray-900" : "text-gray-400"
-  //             }`}
-  //           >
-  //             <h3 className="text-sm font-medium">{step.name}</h3>
-  //           </div>
-  //           {index < steps.length - 1 && (
-  //             <div
-  //               className={`my-2 ml-4 w-10 h-1 ${
-  //                 isActiveOrCompleted
-  //                   ? "bg-purple-200 text-purple-500"
-  //                   : "bg-gray-200"
-  //               }`}
-  //             ></div>
-  //           )}
-  //         </li>
-  //       );
-  //     })}
-  //   </ol>
-  // );
 };
 
 export default StepIndicator;

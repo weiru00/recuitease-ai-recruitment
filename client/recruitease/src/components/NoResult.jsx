@@ -3,7 +3,7 @@ import { nodata } from "../assets";
 
 const NoResult = ({ title, desc }) => {
   return (
-    <div className="text-center p-10">
+    <div className="text-center p-10 font-body">
       <img
         src={nodata}
         alt="No results found"

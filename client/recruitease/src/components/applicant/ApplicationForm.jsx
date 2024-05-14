@@ -85,7 +85,7 @@ const ApplicationForm = ({ isOpen, isClose }) => {
   return (
     <React.Fragment>
       {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+        <div className="font-body fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
           <svg
             aria-hidden="true"
             class="w-32 h-32 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
@@ -112,7 +112,7 @@ const ApplicationForm = ({ isOpen, isClose }) => {
       <div
         tabIndex="-1"
         aria-hidden="true"
-        className="overflow-y-auto overflow-x-hidden fixed right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+        className="font-body overflow-y-auto overflow-x-hidden fixed right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-modal md:h-full"
         style={{ top: "2rem" }}
       >
         <div className={` ${styles.paddingX} ${styles.flexCenter}`}>

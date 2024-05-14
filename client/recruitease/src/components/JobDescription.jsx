@@ -99,15 +99,15 @@ const JobDescription = () => {
       .map((req, index) => <li key={index}>{req}</li>);
   };
   return (
-    <div>
-      <div className="antialiased bg-white dark:bg-gray-900">
+    <div className="font-body">
+      <div className="antialiased bg-white dark:bg-gray-900 ">
         <DashNavbar />
 
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           <div className="flex justify-between bg-white dark:border-gray-600 h-auto mb-6 mx-6 px-5 py-4">
             <div className="flex items-center">
-              <h5 className="text-4xl font-bold dark:text-white">
+              <h5 className="text-3xl font-bold dark:text-white">
                 {jobDetails.title}
               </h5>
             </div>
@@ -282,7 +282,7 @@ const JobDescription = () => {
             </div>
             <div className="flex justify-between bg-white dark:border-gray-600 h-auto mx-6 pt-4">
               <div className="flex items-center">
-                <h5 className="text-3xl font-bold dark:text-white">
+                <h5 className="text-2xl font-bold dark:text-white">
                   Job Description
                 </h5>
               </div>

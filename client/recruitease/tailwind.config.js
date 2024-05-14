@@ -19,6 +19,12 @@ module.exports = {
       yellow: colors.amber,
       pink: colors.fuchsia,
     },
+    fontFamily: {
+      body: ["Poppins"],
+    },
+    fontSize: {
+      "3xl": "1.70rem",
+    },
     extend: {},
   },
   plugins: [

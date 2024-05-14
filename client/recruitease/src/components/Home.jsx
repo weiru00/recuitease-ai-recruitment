@@ -5,7 +5,7 @@ import { Navbar, Hero, Features, Footer, JobPostings } from "./index";
 
 const Home = () => {
   return (
-    <div className="bg-white w-full overflow-hidden">
+    <div className="bg-white w-full overflow-hidden font-body">
       <div className={`${styles.paddingX} ${styles.flexCenter}`}>
         <div className={`${styles.boxWidth}`}>
           <Navbar />

@@ -186,7 +186,7 @@ const Talents = () => {
 
   if (loading) {
     return (
-      <div className="text-center">
+      <div className="text-center font-body">
         <div role="status">
           <svg
             aria-hidden="true"
@@ -237,8 +237,8 @@ const Talents = () => {
   };
 
   return (
-    <div className="antialiased bg-white dark:bg-gray-900">
-      <DashNavbar />
+    <div className="font-body antialiased bg-white dark:bg-gray-900">
+      {/* <DashNavbar /> */}
 
       <Sidebar />
       <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">

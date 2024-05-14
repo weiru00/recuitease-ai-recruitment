@@ -116,15 +116,15 @@ const RecruiterDashboard = () => {
   };
 
   return (
-    <div className="antialiased bg-gray-50 dark:bg-gray-900">
-      <DashNavbar />
+    <div className="antialiased bg-white dark:bg-gray-900 font-body">
+      {/* <DashNavbar /> */}
 
       <Sidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
         <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
-            <h5 className="text-3xl font-bold dark:text-white mb-6 mt-3">
+            <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
               Welcome Back, {userData.firstName}
             </h5>
             <div>
@@ -138,7 +138,7 @@ const RecruiterDashboard = () => {
           </div>
           <img className="flex z-[5] h-60" src={dashboard}></img>
         </div>
-        <div className="bg-white rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
+        <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
           <div className="flex items-center">
             <h5 className="text-xl font-bold dark:text-white">Your Stats</h5>
           </div>

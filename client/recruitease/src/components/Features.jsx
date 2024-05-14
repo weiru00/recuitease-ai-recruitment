@@ -4,7 +4,7 @@ import styles from "../style";
 
 const Features = () => {
   return (
-    <section className="bg-white dark:bg-gray-900">
+    <section className="bg-white dark:bg-gray-900 font-body">
       <div className="gap-8 text-center py-4 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-4 lg:px-6">
         <div className="mt-2 md:mt-0">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">

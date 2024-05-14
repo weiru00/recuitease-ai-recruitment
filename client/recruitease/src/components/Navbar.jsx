@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="bg-white border-gray-200 dark:bg-gray-900">
+    <nav className="font-body bg-white border-gray-200 dark:bg-gray-900">
       <div className="max-w-screen-xl flex justify-between flex-wrap items-center mx-auto px-4 pt-4 pb-2">
         <a
           href="https://flowbite.com/"
