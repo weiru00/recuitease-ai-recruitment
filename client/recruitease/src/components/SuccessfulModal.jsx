@@ -1,8 +1,6 @@
 import React from "react";
 
 const SuccessfulModal = ({ onCloseModal, onCloseForm, title, desc }) => {
-  //   if (!isOpen) return null;
-
   return (
     <div
       className="animation-sliding-img-down-3 fixed inset-0 bg-gray-600 bg-opacity-50 z-[60] overflow-y-auto h-full w-full"

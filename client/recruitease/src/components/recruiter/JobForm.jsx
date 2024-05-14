@@ -71,14 +71,8 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // alert(
-          //   `Job ${mode === "Update" ? "Updated" : "Created"} Successfully!`
-          // );
-          // Reset form
-          // console.log("Showing success modal");
           setShowSuccessModal(true);
           setJob(initialState);
-          // isClose(); // Close form
         } else {
           alert(
             `Failed to ${mode === "Update" ? "Update" : "Create"} Job: ${
@@ -92,11 +86,6 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
       });
   };
 
-  // const handleDelete = () => {
-  //   if (window.confirm("Are you sure you want to delete this job?")) {
-  //     onDelete(jobId);
-  //   }
-  // };
   return (
     <React.Fragment>
       {/* Overlay */}
