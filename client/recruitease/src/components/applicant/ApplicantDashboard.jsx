@@ -88,9 +88,11 @@ const ApplicantDashboard = () => {
           </div>
           <img className="flex z-[5] h-60" src={dashboard}></img>
         </div>
-        <div className="bg-white  rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6 mt-4">
+        <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6 mt-4">
           <div className="flex items-center">
-            <h5 className="text-xl font-bold dark:text-white">Your Stats</h5>
+            <h5 className="text-xl font-semibold dark:text-white">
+              Your Stats
+            </h5>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mt-4">
             <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">

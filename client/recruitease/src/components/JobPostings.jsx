@@ -306,7 +306,7 @@ const JobPostings = () => {
                     type="submit"
                     className="mt-3 flex w-full items-center rounded-lg bg-purple-600 px-4 py-1 text-center justify-center hover:bg-purple-800"
                   >
-                    <span className="text-md text-white font-medium">
+                    <span className="text-sm py-1 text-white font-medium">
                       Submit
                     </span>
                   </button>
@@ -367,7 +367,7 @@ const JobPostings = () => {
                   <input
                     type="search"
                     id="default-search"
-                    className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                     placeholder="Search Job"
                     value={searchQuery}
                     onChange={handleSearchChange}

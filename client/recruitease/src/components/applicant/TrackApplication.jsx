@@ -18,7 +18,7 @@ const AccordionItem = ({ application }) => {
         className="items-center justify-between w-full p-5 font-medium text-left text-gray-800 dark:text-white bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-gray-700 focus:outline-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex justify-between px-3 py-2">
+        <div className="flex justify-between px-3 py-1">
           <span className="text-black font-semibold">
             {application.jobTitle}
           </span>
@@ -39,7 +39,7 @@ const AccordionItem = ({ application }) => {
             ></path>
           </svg>
         </div>
-        <ul className="flex flex-wrap text-sm font-medium text-center justify-between pt-1 px-3 text-gray-500 dark:text-gray-400">
+        <ul className="flex flex-wrap text-sm font-medium text-center justify-between px-3 text-gray-500 dark:text-gray-400">
           <li>
             <p className="inline-block pr-8 py-2">{application.companyName}</p>
             <p className="inline-block pr-8 py-2">{application.jobMode}</p>
@@ -179,7 +179,7 @@ const TrackApplication = () => {
           </div> */}
           {/* Section for Active Applications */}
           <section>
-            <h5 className="text-xl font-bold dark:text-white mb-4 px-8">
+            <h5 className="text-lg font-semibold text-purple-700 dark:text-white px-8 py-2 rounded-lg bg-purple-50">
               Active Applications
             </h5>
             <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
@@ -200,7 +200,7 @@ const TrackApplication = () => {
 
           {/* Section for Past Applications */}
           <section className="mt-8">
-            <h5 className="text-xl font-bold dark:text-white mb-4 px-8">
+            <h5 className="text-lg font-semibold text-gray-700 dark:text-white px-8 py-2 rounded-lg bg-gray-50">
               Past Applications
             </h5>
             <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
