@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import DashNavbar from "./DashNavbar";
 import DeletionModal from "./DeletionModal";
+import SuccessfulModal from "./SuccessfulModal";
 import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 // import JobForm from "./recruiter/JobForm";
@@ -21,13 +22,20 @@ const JobDescription = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [updateTrigger, setUpdateTrigger] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const openDeleteModal = () => setShowDeleteModal(true);
   const closeDeleteModal = () => setShowDeleteModal(false);
+  const openSuccessModal = () => setShowSuccessModal(true);
 
   const handleConfirmDelete = async () => {
     closeDeleteModal();
     handleDeleteJob();
+    openSuccessModal();
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
   };
 
   const openUpdateForm = (job) => {
@@ -48,14 +56,7 @@ const JobDescription = () => {
     setUpdateTrigger(!updateTrigger); // refresh the job listings
   };
 
-  // const handleDelete = () => {
-  //   if (window.confirm("Are you sure you want to delete this job?")) {
-  //     onDelete(jobId);
-  //   }
-  // };
-
   const handleDeleteJob = async () => {
-    // if (window.confirm("Are you sure you want to delete this job?")) {
     try {
       const response = await fetch(`/api/delete-job/${jobId}`, {
         method: "DELETE",
@@ -64,8 +65,9 @@ const JobDescription = () => {
 
       if (!response.ok) throw new Error(data.error || "Failed to delete job.");
 
-      alert("Job Deleted Successfully!");
-      navigate(`/jobpostings?uid=${uid}&role=${role}`);
+      setTimeout(() => {
+        navigate(`/jobpostings?uid=${uid}&role=${role}`);
+      }, 3000);
 
       // Redirect or perform another action after successful deletion
     } catch (error) {
@@ -336,6 +338,16 @@ const JobDescription = () => {
         <DeletionModal
           onCloseModal={closeDeleteModal}
           onConfirm={handleConfirmDelete}
+        />
+      )}
+      {showSuccessModal && (
+        <SuccessfulModal
+          onCloseModal={handleCloseModal}
+          onCloseForm={() => {
+            isClose();
+          }}
+          title={`Job Deleted`}
+          desc={`Your job has been successfully deleted.`}
         />
       )}
     </div>
