@@ -1,16 +1,21 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import DashNavbar from "../DashNavbar";
+import Button from "../Button";
 import ApplicantSidebar from "./ApplicantSidebar";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { dashboard } from "../../assets";
+import { appliedjob, dashboard } from "../../assets";
+import ApplicationWidget from "./ApplicationWidget";
 import styles from "../../style";
 
 const ApplicantDashboard = () => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
+  // const [jobappliedCount, setjobappliedCount] = useState([]);
+  // const [jobofferCount, setjobofferCount] = useState([]);
+  // const [jobrejectCount, setjobrejectCount] = useState([]);
+  // const [interviewCount, setinterviewCount] = useState([]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -72,7 +77,7 @@ const ApplicantDashboard = () => {
       <ApplicantSidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
+        {/* <div className="flex justify-between border-2 rounded-2xl border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
             <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
               Welcome Back, {userData.firstName}
@@ -87,121 +92,108 @@ const ApplicantDashboard = () => {
             </div>
           </div>
           <img className="flex z-[5] h-60" src={dashboard}></img>
+        </div> */}
+        <div className="mb-6 mx-6">
+          <h5 className="text-2xl font-semibold text-gray-500">
+            {/* Welcome Back,{" "} */}
+            <span className="text-purple-700 font-semibold">Dashboard</span>
+          </h5>
         </div>
-        <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6 mt-4">
-          <div className="flex items-center">
+        {/* <div className="bg-white border-2 border-gray-100 rounded-2xl dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6 mt-4"> */}
+        {/* <div className="flex items-center">
             <h5 className="text-xl font-semibold dark:text-white">
               Your Stats
             </h5>
+          </div> */}
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {userData.number_of_applications}
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Job Applied
+              </dd>
+            </div>
+            <img src={appliedjob} alt="job icon" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mt-4">
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Active Jobs
-                </dd>
-                <Link
-                  to="/talents"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                    />
-                  </svg>
-                  Edit Status
-                </Link>
-              </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {userData.number_of_offers}
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Job Offer
+              </dd>
             </div>
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Total Jobs Posted
-                </dd>
-
-                <Link
-                  to="/jobpostings"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-auto mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
-                    />
-                  </svg>
-                  Manage Jobs
-                </Link>
-              </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {userData.number_of_rejections}
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Jobs Reject
+              </dd>
             </div>
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Hires Made
-                </dd>
-                <Link
-                  to="/talents"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeWidth="2"
-                      d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                  </svg>
-                  Find Talents
-                </Link>
-              </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {userData.number_of_interviews}
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Interviews
+              </dd>
             </div>
+            <img src={appliedjob} alt="job icon" />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-6 mb-6 mx-6">
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+        {/* </div> */}
+        {/* <div className="grid grid-cols-1 gap-6 mb-6 mx-6">
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+        </div> */}
+        {/* <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-96 mb-6 mx-6"></div> */}
+        <div className="grid grid-cols-2 gap-6 mx-6 mb-6">
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto max-h-80 overflow-y-auto">
+            <ApplicationWidget
+              statuses={["Applied", "Interview", "Review"]}
+              title="Ongoing Applications"
+            />
+          </div>
+          <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto max-h-80 overflow-y-auto">
+            <ApplicationWidget statuses={["Onboard"]} title="Jobs Offered" />
+          </div>
         </div>
-        <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-96 mb-6 mx-6"></div>
-        <div className="grid grid-cols-2 gap-6 mx-6">
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+        <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto mb-6 mx-6">
+          {/* bg-[url('assets/bg.png')] */}
+          <div className="flex justify-between border-2 rounded-2xl border-gray-100 bg-purple-700 bg-opacity-95 dark:border-gray-600 h-48 px-10 py-6 z-40">
+            <div className="items-center ">
+              <h5 className="text-2xl font-bold text-white mb-6 mt-3">
+                AI Powered Recommended Jobs ✨
+              </h5>
+              <div className="mb-10">
+                {/* <span
+                  id="badge-dismiss-purple"
+                  className="inline-flex items-centerpy-1 me-2 text-md font-medium text-white rounded dark:bg-purple-900 dark:text-purple-300"
+                >
+                  Try out our new feature
+                </span> */}
+              </div>
+              <Button
+                text="Try now 👜"
+                size="small"
+                type="cancel"
+                navigateTo={`/jobpostings?uid=${userId}&role=${userData.role}`}
+              />
+            </div>
+            <img className="flex z-[5] h-60" src={dashboard}></img>
+          </div>
         </div>
       </main>
     </div>

@@ -106,10 +106,15 @@ const JobDescription = () => {
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           <div className="flex justify-between bg-white dark:border-gray-600 h-auto mb-6 mx-6 px-5 py-4">
-            <div className="flex items-center">
-              <h5 className="text-3xl font-bold dark:text-white">
+            <div className="items-center">
+              <h5 className="text-3xl font-bold text-purple-700 mb-2">
                 {jobDetails.title}
               </h5>
+              <div className="flex items-center">
+                <h5 className="text-lg font-semibold text-gray-500">
+                  {jobDetails.companyName}
+                </h5>
+              </div>
             </div>
             {role === "recruiter" ? (
               <div className="flex items-center space-x-4">

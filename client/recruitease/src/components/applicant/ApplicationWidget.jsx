@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import DashNavbar from "../DashNavbar";
 import ApplicantSidebar from "./ApplicantSidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { track } from "../../assets";
@@ -60,7 +61,7 @@ const AccordionItem = ({ application }) => {
       </button>
 
       {isOpen && (
-        <div className="p-5">
+        <div className="p-4">
           <StepIndicator
             currentStatus={currentStatus}
             prevStatus={prevStatus}
@@ -72,7 +73,7 @@ const AccordionItem = ({ application }) => {
   );
 };
 
-const TrackApplication = () => {
+const ApplicationWidget = ({ statuses, title }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -135,92 +136,59 @@ const TrackApplication = () => {
     );
   if (error) return <div>Error: {error}</div>;
 
-  const activeApplications = applications.filter(
-    (app) => app.status !== "Reject"
+  // const activeApplications = applications.filter(
+  //   (app) => app.status !== "Reject" && app.status !== "Onboard"
+  // );
+
+  const filteredApplications = applications.filter((app) =>
+    statuses.includes(app.status)
   );
-  const pastApplications = applications.filter(
-    (app) => app.status === "Reject"
-  );
+
+  // const pastApplications = applications.filter(
+  //   (app) => app.status === "Reject"
+  // );
 
   return (
     <div className="font-body antialiased bg-white dark:bg-gray-900">
-      {/* <DashNavbar /> */}
-
-      <ApplicantSidebar />
-
-      <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
-          <div className="items-center ">
-            <h5 className="text-2xl font-bold dark:text-white mb-9 mt-3">
-              My Applications
-            </h5>
-            <div>
-              <span
-                id="badge-dismiss-purple"
-                className="inline-flex items-centerpy-1 me-2 text-md font-medium text-gray-500 bg-purple-100 rounded dark:bg-purple-900 dark:text-purple-300"
-              >
-                View and track all the jobs you have applied for! 🗃️
-              </span>
-            </div>
-          </div>
-          <img className="flex z-[5] h-60" src={track}></img>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 mt-8 mb-6 mx-6">
-          {/* <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
-            {applications.length > 0 ? (
-              applications.map((application) => (
+      <div className="grid grid-cols-1 gap-6 ">
+        {/* Section for Active Applications */}
+        <section>
+          <h5 className="text-lg font-semibold text-purple-700 dark:text-white px-8 py-2 rounded-lg bg-purple-50">
+            {title}
+          </h5>
+          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+            {filteredApplications.length > 0 ? (
+              filteredApplications.map((application) => (
                 <AccordionItem key={application.id} application={application} />
               ))
             ) : (
-              <p>No applications found.</p>
+              <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
+                No active applications found.
+              </p>
             )}
-          </div> */}
-          {/* Section for Active Applications */}
-          <section>
-            <h5 className="text-lg font-semibold text-purple-700 dark:text-white px-8 py-2 rounded-lg bg-purple-50">
-              Ongoing Applications
-            </h5>
-            <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
-              {activeApplications.length > 0 ? (
-                activeApplications.map((application) => (
-                  <AccordionItem
-                    key={application.id}
-                    application={application}
-                  />
-                ))
-              ) : (
-                <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
-                  No active applications found.
-                </p>
-              )}
-            </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Section for Past Applications */}
-          <section className="mt-8">
-            <h5 className="text-lg font-semibold text-gray-700 dark:text-white px-8 py-2 rounded-lg bg-gray-50">
-              Past Applications
-            </h5>
-            <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
-              {pastApplications.length > 0 ? (
-                pastApplications.map((application) => (
-                  <AccordionItem
-                    key={application.id}
-                    application={application}
-                  />
-                ))
-              ) : (
-                <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
-                  No past applications found.
-                </p>
-              )}
-            </div>
-          </section>
-        </div>
-      </main>
+        {/* Section for Past Applications */}
+        {/* <section className="mt-8">
+          <h5 className="text-lg font-semibold text-gray-700 dark:text-white px-8 py-2 rounded-lg bg-gray-50">
+            Past Applications
+          </h5>
+          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+            {pastApplications.length > 0 ? (
+              pastApplications.map((application) => (
+                <AccordionItem key={application.id} application={application} />
+              ))
+            ) : (
+              <p className="border-1 rounded-lg border-gray-100 dark:border-gray-600 h-auto p-6">
+                No past applications found.
+              </p>
+            )}
+          </div>
+        </section> */}
+      </div>
     </div>
   );
 };
 
-export default TrackApplication;
+export default ApplicationWidget;

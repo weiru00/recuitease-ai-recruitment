@@ -218,24 +218,66 @@ def get_job_details(job_id):
     try:
         job_ref = db.collection('jobListings').document(job_id)
         job_doc = job_ref.get()
-
+      
         if job_doc.exists:
-            # If the document exists, return its data
-            return jsonify(job_doc.to_dict()), 200
+            job_details = job_doc.to_dict()
+            
+            recruiter_id = job_details.get('recruiterID')
+            user_doc = db.collection('users').document(recruiter_id).get()
+            
+            if user_doc.exists:
+                user_details = user_doc.to_dict()
+                job_details['companyName'] = user_details.get('companyName')
+                
+            else:
+                job_details['companyName'] = 'Unavailable company name'
+
         else:
-            # If the document does not exist, return a 404 error
             return jsonify({'error': 'Job not found'}), 404
+        
+        return jsonify(job_details), 200
+    
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/user-data', methods=['GET'])
 def get_user_data():
     user_id = request.args.get('uid')
-
+    
     try:
         user_docs = db.collection('users').document(user_id).get()
         if user_docs.exists:
-            return jsonify(user_docs.to_dict()), 200
+            # Get all applications for the user
+            apps_ref = db.collection('applications').where('applicantID', '==', user_id)
+            apps = apps_ref.stream()
+            
+            # Initialize counters
+            job_applied_counter = 0
+            job_offer_counter = 0
+            job_reject_counter = 0
+            interview_counter = 0
+
+            # Process each application
+            for app in apps:
+                job_applied_counter += 1
+                status = app.to_dict().get('status', '')
+                if status == "Onboard":
+                    job_offer_counter += 1
+                elif status == "Reject":
+                    job_reject_counter += 1
+                elif status == "Interview":
+                    interview_counter += 1
+            
+            # Construct the response object
+            response_data = {
+                'number_of_applications': job_applied_counter,
+                'number_of_offers': job_offer_counter,
+                'number_of_rejections': job_reject_counter,
+                'number_of_interviews': interview_counter,
+            }
+            response_data.update(user_docs.to_dict())  # Merge user details into the response
+            
+            return jsonify(response_data), 200
         else:
             return jsonify({'error': 'User not found'}), 404
     except Exception as e:

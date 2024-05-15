@@ -118,7 +118,7 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
     : null;
 
   return (
-    <ol className="flex justify-center space-x-4 font-body">
+    <ol className="flex justify-center space-x-auto font-body">
       {steps.map((step, index) => {
         // Determine if the step is active or completed
         // const isActiveOrCompleted =
@@ -154,7 +154,7 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
               {step.icon(isActiveOrCompleted)}
             </span>
             <div
-              className={`ml-2 ${
+              className={`ml-1 ${
                 isActiveOrCompleted ? "text-gray-900" : "text-gray-400"
               }`}
             >
@@ -162,7 +162,7 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
             </div>
             {index < steps.length - 2 && (
               <div
-                className={`my-2 ml-4 w-10 h-1 ${
+                className={`my-2 ml-1 w-10 h-1 ${
                   isActiveOrCompleted && step.status !== "Reject"
                     ? "bg-purple-200 text-purple-500"
                     : "bg-gray-200"

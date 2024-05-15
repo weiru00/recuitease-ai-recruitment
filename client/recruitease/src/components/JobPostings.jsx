@@ -196,7 +196,7 @@ const JobPostings = () => {
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           {role === "applicant" ? (
-            <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-auto mb-4 mx-6 px-10 py-6 z-30">
+            <div className="flex justify-between border-2 rounded-xl border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-auto mb-4 mx-6 px-10 py-6 z-30">
               <div className="items-center ">
                 <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
                   Browse Jobs
@@ -211,7 +211,7 @@ const JobPostings = () => {
                   </span>
                 </div>
               </div>
-              <div className="bg-white shadow-md rounded-lg p-6 w-1/3 h-auto">
+              <div className="bg-white shadow-md rounded-xl p-6 w-1/3 h-auto">
                 {loading && (
                   <div
                     role="status"
@@ -304,7 +304,7 @@ const JobPostings = () => {
                   </div>
                   <button
                     type="submit"
-                    className="mt-3 flex w-full items-center rounded-lg bg-purple-600 px-4 py-1 text-center justify-center hover:bg-purple-800"
+                    className="mt-3 flex w-full items-center rounded-xl bg-purple-600 px-4 py-1 text-center justify-center hover:bg-purple-800"
                   >
                     <span className="text-sm py-1 text-white font-medium">
                       Submit
@@ -315,7 +315,7 @@ const JobPostings = () => {
             </div>
           ) : (
             // Recruiter's view
-            <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
+            <div className="flex justify-between border-2 rounded-xl border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
               <div className="items-center ">
                 <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
                   Posted Jobs
@@ -323,7 +323,7 @@ const JobPostings = () => {
                 <div>
                   <button
                     type="button"
-                    className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+                    className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-xl text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
                     onClick={openCreateForm}
                   >
                     Create New Job
@@ -336,7 +336,7 @@ const JobPostings = () => {
 
           <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6 pt-6">
             {/* Filter and Seacrh Section */}
-            <div className="col-span-2 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto px-5 py-4">
+            <div className="col-span-2 border-2 rounded-xl border-gray-100 bg-white dark:border-gray-600 h-auto px-5 py-4">
               {/* Search bar */}
               <h6 className="text-md font-bold mb-2 dark:text-white">Search</h6>
               <form className="mx-auto mb-6">
@@ -367,7 +367,7 @@ const JobPostings = () => {
                   <input
                     type="search"
                     id="default-search"
-                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-xl bg-white focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                     placeholder="Search Job"
                     value={searchQuery}
                     onChange={handleSearchChange}
@@ -427,7 +427,7 @@ const JobPostings = () => {
                   id="salary"
                   value={salaryRange}
                   onChange={(e) => setSalaryRange(e.target.value)}
-                  className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                  className="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                 >
                   <option defaultValue>Salary Range</option>
                   {salaryRanges.map((range) => (
@@ -447,7 +447,7 @@ const JobPostings = () => {
 
             <div href="#" className="col-span-4 overflow-auto">
               {role === "applicant" && (
-                <div className="items-center border-2 rounded-lg border-purple-50 px-4 py-1 mb-2 ">
+                <div className="items-center border-2 rounded-xl border-purple-50 px-4 py-1 mb-2 ">
                   {viewMatchedJobs ? (
                     <div className="flex justify-between">
                       <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
@@ -481,7 +481,7 @@ const JobPostings = () => {
                           // onClick={() => openUpdateForm(job)}
                           to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                         >
-                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
                             <div className="col-span-2 grid justify-items-center content-center">
                               <img
                                 className="rounded-t-lg"
@@ -494,7 +494,7 @@ const JobPostings = () => {
                             </div>
                             <div className="px-4 py-3 col-span-8">
                               <a href="#">
-                                <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
+                                <h5 className="mb-2 text-md font-semibold tracking-tight text-gray-900 dark:text-white">
                                   {job.title}
                                 </h5>
                               </a>
@@ -541,7 +541,7 @@ const JobPostings = () => {
                           // onClick={() => openUpdateForm(job)}
                           to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                         >
-                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                          <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
                             <div className="col-span-2 grid justify-items-center content-center">
                               <img
                                 className="mx-auto my-3 w-16 h-16 rounded-full"
@@ -551,7 +551,7 @@ const JobPostings = () => {
                             </div>
                             <div className="px-4 py-3 col-span-8">
                               <a href="#">
-                                <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
+                                <h5 className="mb-2 text-md font-semibold tracking-tight text-gray-900 dark:text-white">
                                   {job.title}
                                 </h5>
                               </a>
@@ -599,7 +599,7 @@ const JobPostings = () => {
                         // onClick={() => openUpdateForm(job)}
                         to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                       >
-                        <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                        <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
                           <div className="col-span-2 grid justify-items-center content-center">
                             <img
                               className="mx-auto my-3 w-16 h-16 rounded-full"
@@ -652,7 +652,7 @@ const JobPostings = () => {
                   // onClick={() => openUpdateForm(job)}
                   to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                 >
-                  <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-lg hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
+                  <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
                     <div className="col-span-2 grid justify-items-center content-center">
                       <img className="rounded-t-lg" src={discord} alt="" />
                     </div>
