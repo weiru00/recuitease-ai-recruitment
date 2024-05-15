@@ -104,10 +104,16 @@ const OnboardingRecruiter = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <h2 className="block mb-2 text-lg font-bold text-gray-900 dark:text-white">
+              <div>
+                <h2 className="block text-lg font-bold text-gray-900 dark:text-white">
                   Company Information
                 </h2>
+              </div>
+              <div className="mb-6">
+                <a className="text-sm me-2 text-gray-400">
+                  *By registering the company, you will become the{" "}
+                  <span className="font-semibold">admin</span>.
+                </a>
               </div>
               <div className="grid gap-6 mb-6 md:grid-cols-2">
                 <div>

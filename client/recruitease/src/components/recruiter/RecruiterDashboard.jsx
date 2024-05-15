@@ -183,7 +183,7 @@ const RecruiterDashboard = () => {
 
                 <Link
                   to="/jobpostings"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
+                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-auto mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
                 >
                   <svg
                     className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"

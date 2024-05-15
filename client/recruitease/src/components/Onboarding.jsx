@@ -90,14 +90,16 @@ const Onboarding = () => {
               <h2 className="text-3xl font-bold">Tell us about yourself</h2>
               <p className="text-lg font-semibold text-gray-600">
                 What is your profession?
+                {/* You are registering as: */}
               </p>
-              <div className="flex flex-col space-y-6">
+              <div className="flex flex-col">
                 <button
                   onClick={() => setSelectedRole("applicant")}
-                  className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
+                  className="flex w-full items-center mb-6 justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
                 >
                   <span className="text-lg font-medium text-gray-600">
                     I'm an Applicant.
+                    {/* Applicant */}
                   </span>
                   {/* <ChevronRightIcon className="h-6 w-6" /> */}
                 </button>
@@ -106,13 +108,18 @@ const Onboarding = () => {
                   className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
                 >
                   <span className="text-lg font-medium text-gray-600">
+                    {/* Company */}
                     I'm a Recruiter.
                   </span>
                   {/* <ChevronRightIcon className="h-6 w-6" /> */}
                 </button>
+                <a className="text-sm ml-2 me-2 text-gray-400">
+                  *Please register as a Recruiter if your company has not yet
+                  been registered.
+                </a>
               </div>
               <div className="flex items-center ">
-                <a className="text-md me-2 text-gray-400">
+                <a className="text-md me-2 text-gray-600">
                   Already have an account?
                 </a>
                 <a

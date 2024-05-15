@@ -99,19 +99,19 @@ const JobDescription = () => {
       .map((req, index) => <li key={index}>{req}</li>);
   };
   return (
-    <div className="font-body">
+    <div className="font-body text-gray-700 ">
       <div className="antialiased bg-white dark:bg-gray-900 ">
-        <DashNavbar />
+        {/* <DashNavbar /> */}
 
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}
         <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
           <div className="flex justify-between bg-white dark:border-gray-600 h-auto mb-6 mx-6 px-5 py-4">
             <div className="items-center">
-              <h5 className="text-3xl font-bold text-purple-700 mb-2">
+              <h5 className="text-2xl font-bold mb-2 text-gray-800">
                 {jobDetails.title}
               </h5>
               <div className="flex items-center">
-                <h5 className="text-lg font-semibold text-gray-500">
+                <h5 className="text-md font-semibold text-gray-500">
                   {jobDetails.companyName}
                 </h5>
               </div>
@@ -141,7 +141,8 @@ const JobDescription = () => {
                 </button>
                 <button
                   type="button"
-                  className="inline-flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900"
+                  className="inline-flex items-center text-purple-700 bg-purple-100 hover:bg-purple-200 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  // className="inline-flex items-center text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                   // onClick={handleDeleteJob}
                   onClick={openDeleteModal}
                 >
@@ -204,7 +205,7 @@ const JobDescription = () => {
                     </svg>
                     <a className="me-4 text-md md:me-6 ">Mode</a>
                   </div>
-                  <a className="me-4 pl-2 text-gray-900 font-semibold text-lg md:me-6 ">
+                  <a className="me-4 pl-2 text-gray-900 font-semibold text-md md:me-6 ">
                     {jobDetails.jobMode}
                   </a>
                 </li>
@@ -230,7 +231,7 @@ const JobDescription = () => {
 
                     <a className="me-4 text-md md:me-6">Type</a>
                   </div>
-                  <a className="me-4 pl-1 text-gray-900 font-semibold text-lg md:me-6 ">
+                  <a className="me-4 pl-1 text-gray-900 font-semibold text-md md:me-6 ">
                     {jobDetails.type}
                   </a>
                 </li>
@@ -255,7 +256,7 @@ const JobDescription = () => {
                     </svg>
                     <a className="me-4 text-md md:me-6">Qualification</a>
                   </div>{" "}
-                  <a className="me-4 pl-1 text-gray-900 font-semibold text-lg md:me-6 ">
+                  <a className="me-4 pl-1 text-gray-900 font-semibold text-md md:me-6 ">
                     {jobDetails.qualification}
                   </a>
                 </li>
@@ -279,7 +280,7 @@ const JobDescription = () => {
                     </svg>
                     <a className="me-4 text-md md:me-6">Salary</a>
                   </div>{" "}
-                  <a className="me-4 pl-1 text-gray-900 font-semibold text-lg md:me-6 ">
+                  <a className="me-4 pl-1 text-gray-900 font-semibold text-md md:me-6 ">
                     RM{jobDetails.salary}
                   </a>
                 </li>
@@ -287,7 +288,7 @@ const JobDescription = () => {
             </div>
             <div className="flex justify-between bg-white dark:border-gray-600 h-auto mx-6 pt-4">
               <div className="flex items-center">
-                <h5 className="text-2xl font-bold dark:text-white">
+                <h5 className="text-lg bg-gray-100 rounded-xl font-bold py-1 px-3 text-gray-700">
                   Job Description
                 </h5>
               </div>
@@ -301,19 +302,19 @@ const JobDescription = () => {
               </div>
             </div>
             <div className="flex h-auto mx-6">
-              <h5 className="text-lg font-normal text-gray-900 dark:text-white">
+              <h5 className="text-md font-normal text-gray-900 dark:text-white">
                 {jobDetails.desc}
               </h5>
             </div>
             <div className="flex justify-between bg-white dark:border-gray-600 h-auto mx-6 ">
               <div className="flex items-center">
-                <h5 className="text-2xl font-bold dark:text-white">
+                <h5 className="text-lg bg-gray-100 rounded-xl font-bold py-1 px-3 text-gray-700">
                   Requirements
                 </h5>
               </div>
             </div>
             <div className="flex h-auto mx-6">
-              <ul className="list-disc pl-5 mt-2 text-lg font-normal text-gray-900 dark:text-white">
+              <ul className="list-disc pl-5 mt-2 text-md font-normal text-gray-900 dark:text-white">
                 {jobDetails.req && renderRequirements(jobDetails.req)}
               </ul>
             </div>

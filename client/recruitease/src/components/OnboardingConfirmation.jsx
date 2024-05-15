@@ -60,8 +60,9 @@ const Onboarding = () => {
           </div>
           <div className="flex flex-col space-y-6 text-center">
             <h2 className="text-3xl font-bold">Successful</h2>
-            <p className="text-lg font-normal text-gray-600">
-              You have completed your profile!
+            <p className="text-lg font-normal text-gray-500">
+              Your profile is all set! <br></br>You can add new users to your
+              company at any time.
             </p>
           </div>
           <Link
