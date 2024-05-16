@@ -22,6 +22,7 @@ import {
   Talents,
   OnboardingRecruiter,
 } from "./components/recruiter";
+import { AdminDashboard } from "./components/admin";
 
 const App = () => {
   // const [isModalOpen, setModalOpen] = useState(false);
@@ -55,10 +56,11 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
         <Route path="/applicant-dashboard" element={<ApplicantDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
         <Route path="/talents" element={<Talents />} />
         <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/onboarding-recruiter" element={<OnboardingRecruiter />} />
+        <Route path="/onboarding-admin" element={<OnboardingRecruiter />} />
         <Route path="/onboarding-applicant" element={<OnboardingApplicant />} />
         <Route
           path="/onboarding-successful"

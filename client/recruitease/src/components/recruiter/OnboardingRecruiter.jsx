@@ -25,14 +25,6 @@ const OnboardingRecruiter = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // const userData = {
-    //   companyName,
-    //   website,
-    //   companySize,
-    //   companyDescription,
-    //   firstName,
-    //   lastName,
-    // };
     const formData = new FormData();
     formData.append("uid", uid);
     formData.append("companyName", companyName);
@@ -45,7 +37,7 @@ const OnboardingRecruiter = () => {
     if (companyLogo) formData.append("companyLogo", companyLogo);
 
     try {
-      const response = await fetch("/api/update-company", {
+      const response = await fetch("/api/register-company", {
         method: "POST",
         body: formData,
       });

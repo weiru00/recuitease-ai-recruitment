@@ -145,32 +145,44 @@ def update_user():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-@app.route('/update-company', methods=['POST'])
-def update_company():
+    
+@app.route('/register-company', methods=['POST'])
+def register_company():
     try:
-        uid = request.form['uid']
-        user_data = {
+        company_data = {
             'companyName': request.form['companyName'],
             'website': request.form['website'],
             'companySize': request.form['companySize'],
             'companyDescription': request.form['companyDescription'],
-            'firstName': request.form['firstName'],
-            'lastName': request.form['lastName'],
+            # 'adminID': request.form['uid'],
         }
 
-        if not uid or not user_data:
-            return jsonify({'error': 'Missing UID or user data'}), 400
+        if not company_data:
+            return jsonify({'error': 'Missing company data'}), 400
+        
+        company_ref = db.collection('company').add(company_data)
+        
+        company_id = company_ref[1].id
 
         # Handle file upload
         company_logo = request.files.get('companyLogo')
         if company_logo and company_logo.filename != '':
             filename = secure_filename(company_logo.filename)
-            blob = storage.bucket().blob(f'company_logo/{uid}')
+            blob = storage.bucket().blob(f'company_logo/{company_id}')
             blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
             # Get the URL of the uploaded file
-            user_data['companyLogoUrl'] = blob.public_url
-            
+            company_data['companyLogoUrl'] = blob.public_url
+       
+            company_ref = db.collection('company').document(company_id)
+            company_ref.update(company_data)
+
+        # save user data 
+        uid = request.form['uid']
+        user_data = {
+            'companyID': company_id,
+            'firstName': request.form['firstName'],
+            'lastName': request.form['lastName'],
+        }
         user_ref = db.collection('users').document(uid)
         user_ref.update(user_data)
         
@@ -178,6 +190,99 @@ def update_company():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# @app.route('/update-company', methods=['POST'])
+# def update_company():
+#     try:
+#         uid = request.form['uid']
+#         user_data = {
+#             'companyName': request.form['companyName'],
+#             'website': request.form['website'],
+#             'companySize': request.form['companySize'],
+#             'companyDescription': request.form['companyDescription'],
+#             'firstName': request.form['firstName'],
+#             'lastName': request.form['lastName'],
+#         }
+
+#         if not uid or not user_data:
+#             return jsonify({'error': 'Missing UID or user data'}), 400
+
+#         # Handle file upload
+#         company_logo = request.files.get('companyLogo')
+#         if company_logo and company_logo.filename != '':
+#             filename = secure_filename(company_logo.filename)
+#             blob = storage.bucket().blob(f'company_logo/{uid}')
+#             blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
+#             # Get the URL of the uploaded file
+#             user_data['companyLogoUrl'] = blob.public_url
+            
+#         user_ref = db.collection('users').document(uid)
+#         user_ref.update(user_data)
+        
+#         return jsonify({'success': True}), 200
+
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+@app.route('/invite-user', methods=['POST'])
+def invite_user():
+    data = request.json
+    user_email = data['email']
+    user_role = data['role']
+    company_id = data['company_id']
+
+    try:
+        # Create the user with Firebase Auth
+        user = auth.create_user(email=user_email)
+        # Store user details in Firestore
+        db.collection('users').document(user.uid).set({
+            'email': user_email,
+            'role': user_role,
+            'company_id': company_id
+        })
+        # Send an invitation email (logic to be implemented)
+        send_invitation_email(user_email)
+        return jsonify({'message': 'Invitation sent successfully!'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+def send_invitation_email(email, company_name):
+    try:
+        msg = Message("Invitation to Join Our Platform",
+                      recipients=[email])
+        msg.body = "You are invited to join our recruitment platform as a recruiter or manager."
+        msg.html = "<p>You are invited to join our recruitment platform as a recruiter or manager. Please click on the link to complete your registration: <a href='http://your-website.com/register'>Register Here</a></p>"
+        mail.send(msg)
+        print("Mail sent successfully.")
+    except Exception as e:
+        print(str(e))
+    # base_html = """
+    # <html>
+    #     <body>
+    #         {content}
+    #     </body>
+    # </html>
+    # """
+    
+    # subject = f"Invitation to Join Our Platform"
+    # message_html = f"""
+    # <div style="font-size: 14px;">
+    # Dear Applicant,
+    # <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
+    # <br><br>We look forward to your response.
+    # <br><br>Best Regards,
+    # <br><br><b>{sender_name}</b>
+    # <br>Hiring Team<br>
+    # <b>{company_name}</b>
+    # </div>"""
+          
+    # final_html_content = base_html.format(content=message_html)
+
+    # msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[new_user_email], cc=[cc_email])
+
+    # msg.html = final_html_content
+
+    # mail.send(msg)
 
     
 @app.route("/joblistings", methods=['GET'])
@@ -237,6 +342,51 @@ def get_job_details(job_id):
         
         return jsonify(job_details), 200
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/user-info', methods=['GET'])
+def get_user_info():
+    user_id = request.args.get('uid')
+    if not user_id:
+        return jsonify({'error': 'User ID is required'}), 400
+
+    try:
+        # Retrieve the user document by user_id
+        user_doc = db.collection('users').document(user_id).get()
+        if user_doc.exists:
+            user_data = user_doc.to_dict()
+            company_id = user_data.get('companyID')
+
+            # Check if company ID is available
+            if company_id:
+                company_doc = db.collection('company').document(company_id).get()  # Make sure collection name is 'companies'
+                
+                if company_doc.exists:
+                    company_data = company_doc.to_dict()
+                    response_data = {
+                        'user_info': user_data,
+                        'company_info': company_data
+                    }
+                else:
+                    # Company ID is present but the document does not exist
+                    response_data = {
+                        'user_info': user_data,
+                        'company_info': None,
+                        'company_error': 'Company not found'
+                    }
+            else:
+                # No company ID found in the user's document
+                response_data = {
+                    'user_info': user_data,
+                    'company_info': None,
+                    'company_error': 'No company ID associated with the user'
+                }
+            return jsonify(response_data), 200
+
+        else:
+            return jsonify({'error': 'User not found'}), 404
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -370,7 +520,7 @@ def get_applications():
         gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
         status_counts = [{"status": status, "count": count} for status, count in status_counter.items()]
 
-        print(status_counts)
+        # print(status_counts)
         return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -482,22 +632,7 @@ def update_application_status():
                 'prevStatus': current_status,  # Store the current status as previous
                 'status': new_status  # Update to the new status
             })
-        
-                # Based on the new status, customize the email message
-            # if new_status == "Onboard":
-            #     subject = "Congratulations on your successful application!"
-            #     message_text = "We are pleased to inform you that you have been hired."
-            # elif new_status == "Review":
-            #     subject = "Application Status Update"
-            #     message_text = "Your Application is currently under review."
-            # elif new_status == "Interview":
-            #     subject = "Application Status Update"
-            #     message_text = "You are invited to an interview session."
-            # elif new_status == "Reject":
-            #     subject = "Application Status Update"
-            #     message_text = "We regret to inform you that your application has not been successful."
-            # Add more conditions based on your status types
-            
+                   
             # Send the email
             send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
 
@@ -718,45 +853,6 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
         print(f"Error calculating similarity scores: {e}")
         return []
 
-# For recruiter
-# def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
-#     try:
-#         vectorizer = TfidfVectorizer()
-
-#         # Combine the current job description with all resumes
-#         documents = [preprocessed_job_descs , preprocessed_resumes]
-#         tfidf_matrix = vectorizer.fit_transform(documents)
-        
-#         cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-#         similarity_score = cos_sim[0, 0]
-
-#         return round(similarity_score * 100, 2)
-    
-#     except Exception as e:
-#         print(f"Error calculating similarity scores: {e}")
-
-
-# def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=2):
-#     vectorizer = TfidfVectorizer()
-    
-#     # Combine the resume with all job descriptions
-#     documents = [preprocessed_resume] + preprocessed_job_descs
-#     tfidf_matrix = vectorizer.fit_transform(documents)
-    
-#     # The first vector in tfidf_matrix is the resume, the rest are job descriptions
-#     cos_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])
-    
-#     # Get similarity scores for all jobs
-#     similarity_scores = cos_sim.flatten()
-    
-#     # Get indices of top_n matching jobs
-#     top_matching_indices = similarity_scores.argsort()[-top_n:][::-1]
-    
-#     # Prepare the results
-#     top_matches = [(index, similarity_scores[index]) for index in top_matching_indices]
-    
-#     return top_matches
-
 def find_matching_jobs(preprocessed_resume, top_n):
     jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
     docs = jobs_collection.stream()
@@ -779,11 +875,6 @@ def find_matching_jobs(preprocessed_resume, top_n):
     matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
 
     return matched_jobs
-
-# def send_email(applicant_email, subject, message_text, cc_email):
-#   msg = Message(subject, sender ='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
-#   msg.body = message_text
-#   mail.send(msg)
   
 def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name):
     
@@ -861,23 +952,6 @@ def send_email(applicant_email, cc_email, new_status, job_title, company_name, s
         <br>Hiring Team
         <br><b>{company_name}</b>
         </div>"""
-
-
-    # if new_status == "Onboard":
-    #     subject = f"Successful Application - {job_title}, {company_name}"
-    #     message_text = f"Dear Applicant,\n\nWe are thrilled to extend an offer to you to join our team at {company_name} as a {job_title}. We were impressed with your skills and experience and believe you will be a valuable addition to our team.\n\nWe look forward to your response.\n\nBest Regards,\n{sender_name}\nHiring Team\n{company_name}"
-    # elif new_status == "Applied":
-    #     subject = f"Application Received - {job_title}, {company_name}"
-    #     message_text = f"Dear Applicant,\n\nThank you for applying for the {job_title} position at {company_name}. We have successfully received your application and wanted to confirm that it is currently under review by our recruitment team.\nWe appreciate your interest in joining our team and will be carefully reviewing your application along with the others we have received. We aim to complete this process as quickly as possible and will keep you updated on the status of your application.\n\nBest Regards,\n{sender_name}\nHiring Team\n{company_name}"
-    # elif new_status == "Review":
-    #     subject = f"Application Status Update - {job_title}, {company_name}"
-    #     message_text = f"Dear Applicant,\n\nWe are writing to let you know that your application for the {job_title} position at {company_name} is currently under review. We are carefully considering your skills and experience among our pool of talented candidates.\n\nWe appreciate your patience during this process and will keep you updated on your application status.\n\nBest Regards,\n{sender_name}\nHiring Team\n{company_name}"
-    # elif new_status == "Interview":
-    #     subject = f"Invitation to Interview - {job_title}, {company_name}"
-    #     message_text = f"Dear Applicant,\n\nWe are pleased to inform you that after reviewing your application for the {job_title} position at {company_name}, we would like to invite you to the next stage of our recruitment process: interview session.\n\nThis is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.\n\nWe will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.\n\nBest Regards,\n{sender_name}\nHiring Team\n{company_name}"
-    # elif new_status == "Reject":
-    #     subject = f"Application Status Update - {job_title}, {company_name}"
-    #     message_text = f"Dear Applicant,\n\nWe would like to thank you for taking the time to apply for the {job_title} position at {company_name}.\n\nAfter careful consideration, we regret to inform you that we will not be moving forward with your application for this role. This decision does not reflect on your qualifications or experiences, which we found impressive, but rather on the competitive nature of the application process and the specific needs for this position.\n\nWe encourage you to apply for future openings at {company_name} that match your skills and experience.\n\nWe wish you all the best in your job search and future professional endeavors.\n\nBest Regards,\n{sender_name}\nHiring Team\n{company_name}"
   
     final_html_content = base_html.format(content=message_html)
 
@@ -886,9 +960,6 @@ def send_email(applicant_email, cc_email, new_status, job_title, company_name, s
     msg.html = final_html_content
 
     mail.send(msg)
-    # msg = Message(subject, sender ='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
-    # msg.body = message_text
-    # mail.send(msg)
 
 if __name__ == '__main__':
     app.run(debug=True)

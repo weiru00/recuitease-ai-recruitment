@@ -26,7 +26,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (userId) {
-      fetch(`/api/user-data?uid=${userId}`)
+      fetch(`/api/user-info?uid=${userId}`)
         .then((response) => response.json())
         .then((data) => {
           setUserData(data);
@@ -115,7 +115,7 @@ const Sidebar = () => {
             alt="Profile Picture"
           ></img>
           <h3 className="mb-10 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {userData.firstName}
+            {userData.user_info.firstName}
           </h3>
           {/* <p className="mb-10 text-md font-normal tracking-tight text-gray-900 dark:text-white">
             {userData.firstName}
