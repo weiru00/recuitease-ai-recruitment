@@ -126,7 +126,7 @@ const Sidebar = () => {
           <ul className="space-y-2">
             <li>
               <Link
-                to={`/${userData.role}-dashboard?uid=${userId}&role=${userData.role}`}
+                to={`/${userData.user_info.role}-dashboard?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -144,7 +144,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to={`/jobpostings?uid=${userId}&role=${userData.role}`}
+                to={`/jobpostings?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -165,7 +165,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to={`/track-applications?uid=${userId}&role=${userData.role}`}
+                to={`/track-applications?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
