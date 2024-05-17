@@ -2,16 +2,20 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Button from "../Button";
 import Sidebar from "./Sidebar";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { appliedjob, dashboard } from "../../assets";
-// import ApplicationWidget from "./ApplicationWidget";
-import styles from "../../style";
+import { appliedjob, dashboard, user } from "../../assets";
 
 const ApplicantDashboard = () => {
-  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const uid = queryParams.get("uid");
+
+  const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const auth = getAuth();
@@ -23,7 +27,6 @@ const ApplicantDashboard = () => {
       }
     });
 
-    // Clean up the observer when the component unmounts.
     return () => unsubscribe();
   }, [navigate]);
 
@@ -39,6 +42,73 @@ const ApplicantDashboard = () => {
         });
     }
   }, [userId]);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`/api/get-company-users?uid=${uid}`);
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        setUsers(data);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [uid]);
+
+  const handleUpdateStatus = async (userId, newStatus) => {
+    try {
+      const response = await fetch("/api/approve_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uid: userId, status: newStatus }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        fetchUsers(); // Refresh user list upon successful update
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Failed to update user status:", error.message);
+    }
+  };
+
+  const handleDeleteUser = async (uid) => {
+    try {
+      const response = await fetch(`/api/delete-user?uid=${uid}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        fetchUsers();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Failed to delete user:", error.message);
+    }
+  };
+
+  const filteredUsers = users.filter(
+    (user) =>
+      (user.firstName &&
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.lastName &&
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.email &&
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.position &&
+        user.position.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   if (!userData) {
     return (
@@ -122,22 +192,172 @@ const ApplicantDashboard = () => {
             <img src={appliedjob} alt="job icon" />
           </div>
         </div>
-        <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto mb-6 mx-6">
-          {/* bg-[url('assets/bg.png')] */}
-          <div className="flex justify-between border-2 rounded-2xl border-gray-100 bg-purple-700 bg-opacity-95 dark:border-gray-600 h-48 px-10 py-6 z-40">
-            <div className="items-center ">
-              <h5 className="text-2xl font-bold text-white mb-6 mt-3">
-                AI Powered Recommended Jobs ✨
-              </h5>
-              <div className="mb-10"></div>
-              <Button
-                text="Try now 👜"
-                size="small"
-                type="cancel"
-                navigateTo={`/jobpostings?uid=${userId}&role=${userData.role}`}
-              />
+        <div className="grid grid-cols-4 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
+          <div className="col-span-3 justify-between border-2 border-gray-100 rounded-2xl h-auto max-h-72 overflow-auto py-4 px-6">
+            <h5 className="text-md font-medium text-purple-700 px-3 py-1.5 rounded-lg bg-purple-50">
+              Pending Approvals
+            </h5>
+
+            <div className="flex flex-col items-left justify-center px-1">
+              <ul role="list" className="divide-y divide-purple-100">
+                {users
+                  .filter((newuser) => newuser.register_status === "pending")
+                  .map((newuser) => (
+                    <li
+                      key={newuser.email}
+                      className="flex justify-between gap-x-6 py-4"
+                    >
+                      <div className="flex min-w-0 gap-x-4">
+                        <img
+                          className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                          src={newuser.profilePicUrl || user}
+                          alt="Profile Picture"
+                        />
+                        <div className="min-w-0 flex-auto">
+                          <p className="text-md font-semibold leading-6 text-gray-900">
+                            {newuser.firstName} {newuser.lastName}
+                          </p>
+                          <p className="mt-1 truncate text-sm leading-5 text-gray-500">
+                            {newuser.email} | {newuser.position}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                        {/* <p className="text-md leading-6 text-gray-900 mr-2">
+                        {newuser.position}
+                      </p> */}
+
+                        <div className="mt-1 flex items-center gap-x-1.5">
+                          <div className="flex-none rounded-full bg-emerald-500/20 p-1">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          </div>
+                          <button
+                            className="text-xs text-white bg-purple-700 rounded-xl px-3 py-2 hover:bg-purple-800"
+                            onClick={() =>
+                              handleUpdateStatus(newuser.uid, "approved")
+                            }
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="text-xs text-purple-700 bg-purple-100 rounded-xl px-3 py-2 hover:bg-purple-200"
+                            onClick={() =>
+                              handleUpdateStatus(newuser.uid, "decline")
+                            }
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
             </div>
-            <img className="flex z-[5] h-60" src={dashboard}></img>
+          </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {userData.number_of_interviews}
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Users Deleted
+              </dd>
+            </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+
+          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto max-h-72 overflow-auto p-4">
+            <div className="flex justify-between mb-4">
+              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
+                All Users
+              </h5>
+
+              <label htmlFor="simple-search" className="sr-only">
+                Search
+              </label>
+              <div className="relative w-1/3">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg
+                    aria-hidden="true"
+                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  id="simple-search"
+                  className="justify-center bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-700 focus:border-purple-700 block w-full pl-10 p-2"
+                  placeholder="Search name, email, position..."
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto relative">
+              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" className="py-3 px-6 "></th>
+                    <th scope="col" className="pl-2 pr-6 px-6 ">
+                      Name
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Email
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Position
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers
+                    .filter(
+                      (newuser) =>
+                        newuser.register_status === "approved" &&
+                        newuser.uid !== uid
+                    )
+                    .map((newuser) => (
+                      <tr
+                        key={newuser.uid}
+                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      >
+                        <td className="py-2 pl-4 pr-1">
+                          {" "}
+                          <img
+                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
+                            src={newuser.profilePicUrl || user}
+                            alt="Profile Picture"
+                          />
+                        </td>
+                        <td className="py-4 pl-2 pr-6">
+                          {newuser.firstName} {newuser.lastName}
+                        </td>
+                        <td className="py-4 px-6">{newuser.email}</td>
+                        <td className="py-4 px-6">{newuser.position}</td>
+                        <td className="py-4 px-6">
+                          <button
+                            onClick={() => handleDeleteUser(newuser.id)}
+                            className="font-medium text-red-600 dark:text-red-500 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </main>

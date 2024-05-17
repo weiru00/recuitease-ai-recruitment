@@ -278,44 +278,62 @@ def invite_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-def send_invitation_email(email, company_name):
+# def send_invitation_email(email, company_name):
+#     try:
+#         msg = Message("Invitation to Join Our Platform",
+#                       recipients=[email])
+#         msg.body = "You are invited to join our recruitment platform as a recruiter or manager."
+#         msg.html = "<p>You are invited to join our recruitment platform as a recruiter or manager. Please click on the link to complete your registration: <a href='http://your-website.com/register'>Register Here</a></p>"
+#         mail.send(msg)
+#         print("Mail sent successfully.")
+#     except Exception as e:
+#         print(str(e))
+
+@app.route('/get-company-users', methods=['GET'])
+def get_company_users():
+    uid = request.args.get('uid')
     try:
-        msg = Message("Invitation to Join Our Platform",
-                      recipients=[email])
-        msg.body = "You are invited to join our recruitment platform as a recruiter or manager."
-        msg.html = "<p>You are invited to join our recruitment platform as a recruiter or manager. Please click on the link to complete your registration: <a href='http://your-website.com/register'>Register Here</a></p>"
-        mail.send(msg)
-        print("Mail sent successfully.")
+        # Retrieve the company ID from the user's document
+        user_ref = db.collection('users').document(uid)
+        user_doc = user_ref.get()
+        if not user_doc.exists:
+            return jsonify({'error': 'User not found'}), 404
+        
+        company_id = user_doc.to_dict().get('companyID')
+        if not company_id:
+            return jsonify({'error': 'Company ID not found'}), 404
+
+        # Retrieve all users from the same company
+        users_ref = db.collection('users').where('companyID', '==', company_id)
+        users = users_ref.stream()
+        users_data = [{**user.to_dict(), 'uid': user.id} for user in users]
+
+        return jsonify(users_data), 200
     except Exception as e:
-        print(str(e))
-    # base_html = """
-    # <html>
-    #     <body>
-    #         {content}
-    #     </body>
-    # </html>
-    # """
+        return jsonify({'error': str(e)}), 500
     
-    # subject = f"Invitation to Join Our Platform"
-    # message_html = f"""
-    # <div style="font-size: 14px;">
-    # Dear Applicant,
-    # <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
-    # <br><br>We look forward to your response.
-    # <br><br>Best Regards,
-    # <br><br><b>{sender_name}</b>
-    # <br>Hiring Team<br>
-    # <b>{company_name}</b>
-    # </div>"""
-          
-    # final_html_content = base_html.format(content=message_html)
+@app.route('/approve_user', methods=['POST'])
+def approve_user():
+    data = request.json
+    uid = data.get('uid')
+    status = data.get('status')
 
-    # msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[new_user_email], cc=[cc_email])
+    try:
+        user_ref = db.collection('users').document(uid)
+        user_ref.update({'register_status': status})
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-    # msg.html = final_html_content
+@app.route('/delete-user', methods=['DELETE'])
+def delete_user():
+    uid = request.args.get('uid')
 
-    # mail.send(msg)
-
+    try:
+        db.collection('users').document(uid).delete()
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
