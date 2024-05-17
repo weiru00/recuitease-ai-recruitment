@@ -40,6 +40,10 @@ app.config['MAIL_USE_SSL'] = True
 
 mail = Mail(app)
 
+@app.route('/time')
+def get_current_time():
+    return {'time': time.strftime("%I:%M:%S %p", time.localtime())}
+
 @app.route('/register', methods=['POST'])
 def register():
     try:
@@ -961,5 +965,8 @@ def send_email(applicant_email, cc_email, new_status, job_title, company_name, s
 
     mail.send(msg)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8090)))
