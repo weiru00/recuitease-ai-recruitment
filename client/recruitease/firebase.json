@@ -1,13 +1,13 @@
 {
   "hosting": {
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
+        "source": "/api/**",
+        "destination": "https://recruitease-qsb6zqss6q-uc.a.run.app/api/**"
+      },
+      {
         "source": "**",
-        "run": {
-          "serviceId": "flaskserver"
-        },
         "destination": "/index.html"
       }
     ]

@@ -4,6 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import auth from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
+// const API_URL = import.meta.env.PROD
+//   ? "https://recruitease-qsb6zqss6q-uc.a.run.app/api"
+//   : "/api";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,13 +27,16 @@ const Login = () => {
       const idToken = await userCredential.user.getIdToken(true); // Get the ID token
       const uid = userCredential.user.uid;
 
-      const response = await fetch("/api/verifyToken", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken }),
-      })
+      const response = await fetch(
+        "https://flaskserver-qsb6zqss6q-uc.a.run.app/api/verifyToken",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ idToken }),
+        }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
