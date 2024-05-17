@@ -54,9 +54,17 @@ def register():
         user = auth.create_user(email=email, password=password)
         uid = user.uid
         
-        user_data['email'] = email
-        
-        save_user_data(uid, user_data)
+        # user_data: {
+        #     'email': email,
+        #     'role': None,
+        #     'status': 'pending_setup'
+        # }
+        db.collection('users').document(user.uid).set({
+            'email': email,
+            'role': None,
+            'register_status': 'pending_setup'
+        })
+        # save_user_data(uid, user_data)
         
         return jsonify({'success': True, 'uid': user.uid}), 201
 
@@ -65,13 +73,13 @@ def register():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-def save_user_data(uid, user_data):
-    try:
-        user_ref = db.collection('users').document(uid)
-        user_ref.set(user_data)
-        print(f'User data for {uid} saved successfully.')
-    except Exception as e:
-        print(f'Failed to save user data for {uid}: {str(e)}')
+# def save_user_data(uid, user_data):
+#     try:
+#         user_ref = db.collection('users').document(uid)
+#         user_ref.set(user_data)
+#         print(f'User data for {uid} saved successfully.')
+#     except Exception as e:
+#         print(f'Failed to save user data for {uid}: {str(e)}')
     
 @app.route('/verifyToken', methods=['POST'])
 def verify_token():
@@ -87,8 +95,14 @@ def verify_token():
 
         if user_doc.exists:
             user_data = user_doc.to_dict()
-            user_role = user_data.get('role', 'unknown')  # Assuming the role field is 'role'
-            return jsonify({'success': True, 'uid': uid, 'role': user_role}), 200
+            user_role = user_data.get('role', 'unknown')  # Fetch the user role
+            user_status = user_data.get('register_status', 'pending')  # Fetch the user status
+
+            # Check if the user is approved to login
+            if user_status == 'approved':
+                return jsonify({'success': True, 'uid': uid, 'role': user_role, 'register_status': user_status}), 200
+            else:
+                return jsonify({'error': 'Your account is not yet approved.'}), 403  # User not approved
         else:
             return jsonify({'error': 'User not found'}), 404
 
@@ -106,12 +120,17 @@ def update_user_role():
 
         if not uid or not user_data:
             return jsonify({'error': 'Missing UID or user data'}), 400
+        
+        # initial_status = 'approved' if role == 'applicant' else 'pending'
             
+        role = user_data.get('role')
+        initial_status = 'approved' if role == 'applicant' else 'pending'
+        user_data['register_status'] = initial_status
+        
         user_ref = db.collection('users').document(uid)
         user_ref.update(user_data)
         
         return jsonify({'success': True}), 200
-
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
@@ -129,8 +148,10 @@ def update_user():
 
         if not uid or not user_data:
             return jsonify({'error': 'Missing UID or user data'}), 400
+                   
+        # initial_status = 'approved' if role not in ['recruiter', 'manager'] else 'pending'
+        # user_data['register_status'] = initial_status
         
-        # print(role)
         if role in ['recruiter', 'manager']:
             company_id = request.form.get('companyID')
             position = request.form['position']
@@ -192,6 +213,7 @@ def register_company():
             'companyID': company_id,
             'firstName': request.form['firstName'],
             'lastName': request.form['lastName'],
+            'register_status': "approved"
         }
         user_ref = db.collection('users').document(uid)
         user_ref.update(user_data)

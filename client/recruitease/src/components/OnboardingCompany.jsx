@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { login } from "../assets";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -132,12 +132,12 @@ const Onboarding = () => {
                 <a className="text-md me-2 text-gray-600">
                   Already have an account?
                 </a>
-                <a
+                <Link
                   className="text-md text-purple-600 hover:text-purple-800"
-                  href="#"
+                  to="/login"
                 >
                   Login here.
-                </a>
+                </Link>
                 {/* <Button className="bg-blue-600 px-6 py-2 text-white">Next: Account Info</Button> */}
               </div>
             </div>

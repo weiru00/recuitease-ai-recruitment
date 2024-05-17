@@ -46,88 +46,86 @@ const Onboarding = () => {
               </span>
             </div>
           </div>
-          {role === "admin" ||
-            (role === "applicant" && (
-              <div>
-                <div class="w-24 h-24 rounded-full bg-green-100 dark:bg-green-900 p-2 flex items-center justify-center mt-8 mx-auto mb-3.5">
-                  <svg
-                    aria-hidden="true"
-                    class="w-8 h-8 text-green-500 dark:text-green-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  <span class="sr-only">Success</span>
-                </div>
-                <div className="flex flex-col space-y-6 text-center">
-                  <h2 className="text-3xl font-bold">Successful</h2>
-                  {role === "admin" && (
-                    <p className="text-lg font-normal text-gray-500">
-                      Your company profile is all set! <br></br>You can log in
-                      to your company account now.
-                    </p>
-                  )}
-                  {role === "applicant" && (
-                    <p className="text-lg font-normal text-gray-500">
-                      Your profile is all set! <br></br>You can log in to your
-                      account now.
-                    </p>
-                  )}
-                </div>
-                <Link
-                  to="/login"
-                  className="mt-12 flex w-full items-center rounded-lg bg-purple-600 px-4 py-3 text-center justify-center hover:bg-purple-800"
+          {role === "admin" || role === "applicant" ? (
+            <div>
+              <div class="w-24 h-24 rounded-full bg-green-100 dark:bg-green-900 p-2 flex items-center justify-center mt-8 mx-auto mb-3.5">
+                <svg
+                  aria-hidden="true"
+                  class="w-8 h-8 text-green-500 dark:text-green-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <span className="text-md text-white font-medium">
-                    Log in to your Account
-                  </span>
-                </Link>
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span class="sr-only">Success</span>
               </div>
-            ))}
-
-          {role === "recruiter" ||
-            (role === "manager" && (
-              <div>
-                <div class="w-24 h-24 rounded-full bg-yellow-100 dark:bg-green-900 p-2 flex items-center justify-center mt-8 mx-auto mb-3.5">
-                  <svg
-                    aria-hidden="true"
-                    class="w-8 h-8 text-yellow-500 dark:text-green-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                  <span class="sr-only">Pending</span>
-                </div>
-                <div className="flex flex-col space-y-6 text-center">
-                  <h2 className="text-3xl font-bold">Review</h2>
+              <div className="flex flex-col space-y-6 text-center">
+                <h2 className="text-3xl font-bold">Successful</h2>
+                {role === "admin" && (
                   <p className="text-lg font-normal text-gray-500">
-                    Your registration is successful! We are currently reviewing
-                    your application. <br></br> You will receive an email once
-                    admin has approved your application.
+                    Your company profile is all set! <br></br>You can log in to
+                    your company account now.
                   </p>
-                </div>
-                <Link
-                  to="/"
-                  className="mt-12 flex w-full items-center rounded-lg bg-purple-600 px-4 py-3 text-center justify-center hover:bg-purple-800"
-                >
-                  <span className="text-md text-white font-medium">
-                    Return to Home
-                  </span>
-                </Link>
+                )}
+                {role === "applicant" && (
+                  <p className="text-lg font-normal text-gray-500">
+                    Your profile is all set! <br></br>You can log in to your
+                    account now.
+                  </p>
+                )}
               </div>
-            ))}
+              <Link
+                to="/login"
+                className="mt-12 flex w-full items-center rounded-lg bg-purple-600 px-4 py-3 text-center justify-center hover:bg-purple-800"
+              >
+                <span className="text-md text-white font-medium">
+                  Log in to your Account
+                </span>
+              </Link>
+            </div>
+          ) : null}
+
+          {role === "recruiter" || role === "manager" ? (
+            <div>
+              <div class="w-24 h-24 rounded-full bg-yellow-100 dark:bg-green-900 p-2 flex items-center justify-center mt-8 mx-auto mb-3.5">
+                <svg
+                  aria-hidden="true"
+                  class="w-8 h-8 text-yellow-500 dark:text-green-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span class="sr-only">Pending</span>
+              </div>
+              <div className="flex flex-col space-y-6 text-center">
+                <h2 className="text-3xl font-bold">Review</h2>
+                <p className="text-lg font-normal text-gray-500">
+                  Your registration is successful! We are currently reviewing
+                  your application. <br></br> You will receive an email once
+                  admin has approved your application.
+                </p>
+              </div>
+              <Link
+                to="/"
+                className="mt-12 flex w-full items-center rounded-lg bg-purple-600 px-4 py-3 text-center justify-center hover:bg-purple-800"
+              >
+                <span className="text-md text-white font-medium">
+                  Return to Home
+                </span>
+              </Link>
+            </div>
+          ) : null}
         </div>
         <div
           id="successModal"
