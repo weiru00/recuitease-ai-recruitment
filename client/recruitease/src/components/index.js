@@ -9,6 +9,7 @@ import Login from "./Login";
 import Signup from "./Signup";
 import PrivateRoute from "./PrivateRoute";
 import Onboarding from "./Onboarding";
+import OnboardingCompany from "./OnboardingCompany";
 import OnboardingConfirmation from "./OnboardingConfirmation";
 import JobPostings from "./JobPostings";
 import JobDescription from "./JobDescription";
@@ -27,6 +28,7 @@ export {
   Signup,
   PrivateRoute,
   Onboarding,
+  OnboardingCompany,
   OnboardingConfirmation,
   JobPostings,
   JobDescription,

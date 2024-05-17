@@ -14,6 +14,7 @@ const OnboardingApplicant = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
+  const role = queryParams.get("role");
 
   const handleLogoChange = (event) => {
     // Assuming you're handling file uploads for the logo
@@ -32,6 +33,7 @@ const OnboardingApplicant = () => {
 
     const formData = new FormData();
     formData.append("uid", uid);
+    formData.append("role", role);
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
     formData.append("gender", gender);
@@ -48,7 +50,7 @@ const OnboardingApplicant = () => {
       const data = await response.json();
       if (data.success) {
         console.log("User data updated successfully");
-        navigate("/onboarding-successful");
+        navigate(`/onboarding-successful?role=${role}`);
       } else {
         console.error("Failed to update user data");
       }

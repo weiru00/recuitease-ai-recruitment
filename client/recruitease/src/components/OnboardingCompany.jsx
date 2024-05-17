@@ -36,7 +36,11 @@ const Onboarding = () => {
   };
 
   const handleSubmit = () => {
-    if (selectedRole === "applicant" || selectedRole === "company") {
+    if (
+      selectedRole === "admin" ||
+      selectedRole === "recruiter" ||
+      selectedRole === "manager"
+    ) {
       updateUserRole(selectedRole);
     }
   };
@@ -89,29 +93,35 @@ const Onboarding = () => {
             <div className="flex flex-col space-y-6">
               <h2 className="text-3xl font-bold">Tell us about yourself</h2>
               <p className="text-lg font-semibold text-gray-600">
-                {/* What is your profession? */}
-                Type of account:
+                What is your profession?
+                {/* Type of account: */}
               </p>
               <div className="flex flex-col">
                 <button
-                  onClick={() => setSelectedRole("applicant")}
+                  onClick={() => setSelectedRole("admin")}
                   className="flex w-full items-center mb-6 justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
                 >
                   <span className="text-lg font-medium text-gray-600">
-                    Individual Applicant
+                    Admin
                     {/* Applicant */}
                   </span>
                   {/* <ChevronRightIcon className="h-6 w-6" /> */}
                 </button>
                 <button
-                  onClick={() => setSelectedRole("company")}
+                  onClick={() => setSelectedRole("recruiter")}
+                  className="flex w-full items-center mb-6 justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
+                >
+                  <span className="text-lg font-medium text-gray-600">
+                    Recruiter/HR
+                  </span>
+                </button>
+                <button
+                  onClick={() => setSelectedRole("manager")}
                   className="flex w-full items-center justify-between rounded-lg border-2 border-gray-300 px-4 py-3 text-left hover:border-2 hover:border-purple-600 focus:border-purple-600 focus:ring-4 focus:outline-none focus:ring-purple-300"
                 >
                   <span className="text-lg font-medium text-gray-600">
-                    {/* Company */}
-                    Company/Organization
+                    Manager
                   </span>
-                  {/* <ChevronRightIcon className="h-6 w-6" /> */}
                 </button>
                 {/* <a className="text-sm ml-2 me-2 text-gray-400">
                   *Please register as an Admin if your company has not yet been

@@ -119,6 +119,7 @@ def update_user_role():
 def update_user():
     try:
         uid = request.form['uid']
+        role = request.form['role']
         user_data = {
             'firstName': request.form['firstName'],
             'lastName': request.form['lastName'],
@@ -128,6 +129,14 @@ def update_user():
 
         if not uid or not user_data:
             return jsonify({'error': 'Missing UID or user data'}), 400
+        
+        # print(role)
+        if role in ['recruiter', 'manager']:
+            company_id = request.form.get('companyID')
+            position = request.form['position']
+            if company_id:
+                user_data['companyID'] = company_id
+                user_data['position'] = position
 
         # Handle file upload
         profile_pic = request.files.get('profilePic')
@@ -139,6 +148,7 @@ def update_user():
             user_data['profilePicUrl'] = blob.public_url
             
         user_ref = db.collection('users').document(uid)
+        print(user_data)
         user_ref.update(user_data)
         
         return jsonify({'success': True}), 200

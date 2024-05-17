@@ -1,3 +1,4 @@
 import AdminDashboard from "./AdminDashboard";
+import OnboardingAdmin from "./OnboardingAdmin";
 
-export { AdminDashboard };
+export { AdminDashboard, OnboardingAdmin };

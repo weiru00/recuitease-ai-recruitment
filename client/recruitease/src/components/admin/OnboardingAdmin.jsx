@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "../../assets";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 const OnboardingRecruiter = () => {
-  const [profilePic, setprofilePic] = useState(null);
-  const [companyList, setCompanyList] = useState([]);
-  const [companyID, setCompanyID] = useState("");
+  const [companyLogo, setCompanyLogo] = useState(null); // Assuming you'll handle file uploads
   const [companyName, setCompanyName] = useState("");
-  const [position, setPosition] = useState("");
-  const [gender, setGender] = useState("");
-  const [race, setRace] = useState("");
+  const [website, setWebsite] = useState("");
+  const [companySize, setCompanySize] = useState("");
+  const [companyDescription, setCompanyDescription] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
@@ -20,42 +17,28 @@ const OnboardingRecruiter = () => {
   const uid = queryParams.get("uid");
   const role = queryParams.get("role");
 
-  const db = getFirestore();
-
   const handleLogoChange = (event) => {
+    // Assuming you're handling file uploads for the logo
     const file = event.target.files[0];
-    setprofilePic(file);
+    setCompanyLogo(file);
   };
-
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      const querySnapshot = await getDocs(collection(db, "company"));
-      const companies = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().companyName,
-      }));
-      setCompanyList(companies);
-    };
-
-    fetchCompanies();
-  }, [db]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const formData = new FormData();
     formData.append("uid", uid);
-    formData.append("role", role);
     formData.append("companyName", companyName);
-    formData.append("position", position);
+    formData.append("website", website);
+    formData.append("companySize", companySize);
+    formData.append("companyDescription", companyDescription);
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
-    formData.append("gender", gender);
-    formData.append("race", race);
-    if (profilePic) formData.append("profilePic", profilePic);
+
+    if (companyLogo) formData.append("companyLogo", companyLogo);
 
     try {
-      const response = await fetch("/api/update-user", {
+      const response = await fetch("/api/register-company", {
         method: "POST",
         body: formData,
       });
@@ -114,64 +97,24 @@ const OnboardingRecruiter = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-6">
+              <div>
                 <h2 className="block text-lg font-bold text-gray-900 dark:text-white">
                   Company Information
                 </h2>
               </div>
-              <div className="grid gap-6 mb-6 md:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="companyName"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Company Name
-                  </label>
-                  <select
-                    id="companyName"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                    value={companyID}
-                    onChange={(e) => setCompanyID(e.target.value)}
-                    required
-                  >
-                    <option defaultValue>Select a company</option>
-                    {companyList.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="position"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Position
-                  </label>
-                  <input
-                    type="text"
-                    id="position"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                    placeholder="E.g: Hiring Manager"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    // required={true}
-                  />
-                </div>
-              </div>
               <div className="mb-6">
-                <h2 className="block mb-2 text-lg font-bold text-gray-900 dark:text-white">
-                  Personal Information
-                </h2>
+                <a className="text-sm me-2 text-gray-400">
+                  *By registering the company, you will become the{" "}
+                  <span className="font-semibold">admin</span>.
+                </a>
               </div>
               <div className="grid gap-6 mb-6 md:grid-cols-2">
-                <div className="col-span-2">
+                <div>
                   <label
                     htmlFor="logo"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
-                    Profile Picture
+                    Company Logo
                   </label>
                   <div>
                     <input
@@ -179,12 +122,89 @@ const OnboardingRecruiter = () => {
                       aria-describedby="file_input_help"
                       id="file_input"
                       type="file"
-                      accept=".jpg, .png"
                       onChange={handleLogoChange}
                     />
                   </div>
                 </div>
-
+                <div>
+                  <label
+                    htmlFor="company_name"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    id="company_name"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
+                    placeholder="ABC Corp."
+                    required={true}
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="website"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Website URL
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="flowbite.com"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <div className="max-w-sm mx-auto">
+                    <label
+                      htmlFor="sizes"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Company Size
+                    </label>
+                    <select
+                      id="sizes"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                      value={companySize}
+                      onChange={(e) => setCompanySize(e.target.value)}
+                    >
+                      <option defaultValue>Choose a company size</option>
+                      <option value="small">Below 10 Employees</option>
+                      <option value="medium">11-50 Employees</option>
+                      <option value="big">51-100 Employees</option>
+                      <option value="huge">100+ Employees</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <label
+                    htmlFor="description"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Company description
+                  </label>
+                  <textarea
+                    id="description"
+                    rows="4"
+                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="Write company description here..."
+                    value={companyDescription}
+                    onChange={(e) => setCompanyDescription(e.target.value)}
+                  ></textarea>
+                </div>
+              </div>
+              <div className="grid gap-6 mb-6 md:grid-cols-2">
+                <div className="col-span-2">
+                  <label className="block text-lg font-bold text-gray-900 dark:text-white">
+                    Personal Information
+                  </label>
+                </div>
                 <div>
                   <label
                     htmlFor="first_name"
@@ -218,48 +238,6 @@ const OnboardingRecruiter = () => {
                     onChange={(e) => setLastName(e.target.value)}
                     required={true}
                   />
-                </div>
-                <div>
-                  <div className="max-w-sm mx-auto">
-                    <label
-                      htmlFor="gender"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Gender
-                    </label>
-                    <select
-                      id="gender"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                    >
-                      <option defaultValue>Choose your gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <div className="max-w-sm mx-auto">
-                    <label
-                      htmlFor="race"
-                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Race
-                    </label>
-                    <select
-                      id="race"
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                      value={race}
-                      onChange={(e) => setRace(e.target.value)}
-                    >
-                      <option defaultValue>Choose your race</option>
-                      <option value="malay">Malay</option>
-                      <option value="chinese">Chinese</option>
-                      <option value="indian">Indian</option>
-                      <option value="others">Others</option>
-                    </select>
-                  </div>
                 </div>
               </div>
 
