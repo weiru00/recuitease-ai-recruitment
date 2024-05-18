@@ -4,10 +4,11 @@ import Button from "../Button";
 import Sidebar from "./Sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { appliedjob, dashboard, user } from "../../assets";
+import { appliedjob, dashboard2, user } from "../../assets";
 import StatusModal from "../StatusModal";
 import DeletionModal from "../DeletionModal";
 import SuccessfulModal from "../SuccessfulModal";
+import NoResult from "../NoResult";
 
 const ApplicantDashboard = () => {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ const ApplicantDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
   const [users, setUsers] = useState([]);
+  const [numberOfManagers, setNumberOfManagers] = useState(0);
+  const [numberOfHRs, setNumberOfHRs] = useState(0);
   const [selectedUser, setSelectedUser] = useState([]);
   const [status, setStatus] = useState([]);
   const [desc, setDesc] = useState([]);
@@ -90,7 +93,9 @@ const ApplicantDashboard = () => {
       const data = await response.json();
       if (response.ok) {
         console.log(data);
-        setUsers(data);
+        setUsers(data.users);
+        setNumberOfHRs(data.number_of_hrs);
+        setNumberOfManagers(data.number_of_managers);
       } else {
         throw new Error(data.error);
       }
@@ -139,6 +144,10 @@ const ApplicantDashboard = () => {
     }
   };
 
+  const pendingUsers = users.filter(
+    (user) => user.register_status === "pending"
+  );
+
   const filteredUsers = users.filter(
     (user) =>
       (user.firstName &&
@@ -149,6 +158,10 @@ const ApplicantDashboard = () => {
         user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (user.position &&
         user.position.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const approvedUsers = filteredUsers.filter(
+    (newuser) => newuser.register_status === "approved" && newuser.uid !== uid
   );
 
   if (!userData) {
@@ -187,11 +200,11 @@ const ApplicantDashboard = () => {
             <span className="text-purple-700 font-semibold">Dashboard</span>
           </h5>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mx-6 mt-4">
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {userData.number_of_applications}
+                {numberOfManagers}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Managers
@@ -202,7 +215,7 @@ const ApplicantDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {userData.number_of_offers}
+                {numberOfHRs}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 HR/Recruiters
@@ -213,21 +226,10 @@ const ApplicantDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {userData.number_of_rejections}
+                {approvedUsers.length}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Total Users
-              </dd>
-            </div>
-            <img src={appliedjob} alt="job icon" />
-          </div>
-          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
-            <div className="flex flex-col items-left justify-center px-3">
-              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {userData.number_of_interviews}
-              </dt>
-              <dd className="font-medium text-gray-400 dark:text-gray-400">
-                Users Deleted
               </dd>
             </div>
             <img src={appliedjob} alt="job icon" />
@@ -236,14 +238,13 @@ const ApplicantDashboard = () => {
         <div className="grid grid-cols-4 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
           <div className="col-span-3 justify-between border-2 border-gray-100 rounded-2xl h-auto max-h-72 overflow-auto py-4 px-6">
             <h5 className="text-md font-medium text-purple-700 px-3 py-1.5 rounded-lg bg-purple-50">
-              Pending Approvals
+              Pending Approvals ({pendingUsers.length})
             </h5>
 
             <div className="flex flex-col items-left justify-center px-1">
               <ul role="list" className="divide-y divide-purple-100">
-                {users
-                  .filter((newuser) => newuser.register_status === "pending")
-                  .map((newuser) => (
+                {pendingUsers.length > 0 ? (
+                  pendingUsers.map((newuser) => (
                     <li
                       key={newuser.email}
                       className="flex justify-between gap-x-6 py-4"
@@ -293,23 +294,19 @@ const ApplicantDashboard = () => {
                         </div>
                       </div>
                     </li>
-                  ))}
+                  ))
+                ) : (
+                  <NoResult desc={"No pending users"} />
+                )}
               </ul>
             </div>
           </div>
-          <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
-            <div className="flex flex-col items-left justify-center px-3">
-              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {userData.number_of_interviews}
-              </dt>
-              <dd className="font-medium text-gray-400 dark:text-gray-400">
-                Users Deleted
-              </dd>
-            </div>
-            <img src={appliedjob} alt="job icon" />
+          <div className="justify-center border-gray-100 rounded-2xl max-h-48 z-50">
+            {/* <div className="items-center justify-center px-3"></div> */}
+            <img src={dashboard2} alt="job icon" className="z-40" />
           </div>
 
-          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto max-h-72 overflow-auto p-4">
+          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto max-h-96 overflow-auto p-4">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
                 All Users
@@ -345,32 +342,28 @@ const ApplicantDashboard = () => {
             </div>
 
             <div className="overflow-x-auto relative">
-              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
-                <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th scope="col" className="py-3 px-6 "></th>
-                    <th scope="col" className="pl-2 pr-6 px-6 ">
-                      Name
-                    </th>
-                    <th scope="col" className="py-3 px-6">
-                      Email
-                    </th>
-                    <th scope="col" className="py-3 px-6">
-                      Position
-                    </th>
-                    <th scope="col" className="py-3 px-6">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers
-                    .filter(
-                      (newuser) =>
-                        newuser.register_status === "approved" &&
-                        newuser.uid !== uid
-                    )
-                    .map((newuser) => (
+              {approvedUsers.length > 0 ? (
+                approvedUsers.map((newuser) => (
+                  <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                    <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                        <th scope="col" className="py-3 px-6 "></th>
+                        <th scope="col" className="pl-2 pr-6 px-6 ">
+                          Name
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Email
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Position
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {" "}
                       <tr
                         key={newuser.uid}
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -399,9 +392,12 @@ const ApplicantDashboard = () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
+                    </tbody>
+                  </table>
+                ))
+              ) : (
+                <NoResult desc={"No user"} />
+              )}
             </div>
           </div>
         </div>

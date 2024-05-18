@@ -306,9 +306,29 @@ def get_company_users():
         # Retrieve all users from the same company
         users_ref = db.collection('users').where('companyID', '==', company_id)
         users = users_ref.stream()
-        users_data = [{**user.to_dict(), 'uid': user.id} for user in users]
-
-        return jsonify(users_data), 200
+        
+        manager_counter = 0
+        hr_counter = 0
+        
+        users_data = []
+        
+        for user in users:
+            role = user.to_dict().get('role', '')
+            register_status = user.to_dict().get('register_status', '')
+            if register_status == "approved":
+                if role == "manager":
+                    manager_counter += 1
+                elif role == "recruiter":
+                    hr_counter += 1
+                
+            users_data.append({**user.to_dict(), 'uid': user.id})
+        
+        result_data = {
+            'number_of_managers': manager_counter,
+            'number_of_hrs': hr_counter,
+            'users': users_data
+        }
+        return jsonify(result_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     

@@ -8,6 +8,7 @@ import vk from "./vk.svg";
 import google from "./google.svg";
 import login from "./login.svg";
 import dashboard from "./dashboard.svg";
+import dashboard2 from "./dashboard2.svg";
 import bg from "./bg.png";
 import user from "./user.svg";
 import track from "./track.svg";
@@ -26,6 +27,7 @@ export {
   google,
   login,
   dashboard,
+  dashboard2,
   bg,
   user,
   track,
