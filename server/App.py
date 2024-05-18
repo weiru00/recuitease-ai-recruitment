@@ -40,6 +40,9 @@ app.config['MAIL_USE_SSL'] = True
 
 mail = Mail(app)
 
+def get_current_timestamp():
+    return int(datetime.now().timestamp())
+
 @app.route('/register', methods=['POST'])
 def register():
     try:
@@ -397,8 +400,6 @@ def send_status_email(email, status):
 
 @app.route('/delete-user/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    # uid = request.args.get('uid')
-
     try:
         db.collection('users').document(user_id).delete()
         auth.delete_user(user_id)
@@ -407,6 +408,66 @@ def delete_user(user_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    try:
+        uid = request.form.get('uid')
+        if not uid:
+            return jsonify({'error': 'UID is required'}), 400
+
+        # Fetch user document
+        user_ref = db.collection('users').document(uid)
+        user_doc = user_ref.get()
+        if not user_doc.exists:
+            return jsonify({'error': 'User not found'}), 404
+
+        # Prepare user data update
+        user_data = {
+            'firstName': request.form.get('firstName', ''),
+            'lastName': request.form.get('lastName', '')
+        }
+
+        role = request.form.get('role')
+        if role == "admin":
+            # Admin uploads company logo
+            company_id = user_doc.to_dict().get('companyID')
+            if company_id:
+                company_ref = db.collection('company').document(company_id)
+                company_data = {
+                    'companyName': request.form.get('companyName', ''),
+                    'website': request.form.get('website', ''),
+                    'companySize': request.form.get('companySize', ''),
+                    'companyDescription': request.form.get('companyDescription', ''),
+                }
+
+                # Handling company logo upload
+                company_logo = request.files.get('companyLogo')
+                if company_logo and company_logo.filename != '':
+                    filename = secure_filename(company_logo.filename)
+                    blob = storage.bucket().blob(f'company_logo/{company_id}')
+                    blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
+                    company_data['companyLogoUrl'] = blob.public_url
+
+                company_ref.update(company_data)
+            else:
+                return jsonify({'error': 'No company associated with this user'}), 400
+        else:
+            # Non-admin uploads profile picture
+            profile_pic = request.files.get('profilePic')
+            if profile_pic and profile_pic.filename != '':
+                filename = secure_filename(profile_pic.filename)
+                blob = storage.bucket().blob(f'profile_pictures/{uid}')
+                blob.upload_from_string(profile_pic.read(), content_type=profile_pic.content_type)
+                user_data['profilePicUrl'] = blob.public_url
+
+        # Update user document
+        user_ref.update(user_data)
+
+        return jsonify({'success': True, 'message': 'Profile updated successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+            
 @app.route("/joblistings", methods=['GET'])
 def get_jobs():
 
