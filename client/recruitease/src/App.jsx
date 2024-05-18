@@ -23,7 +23,11 @@ import {
   Talents,
   OnboardingRecruiter,
 } from "./components/recruiter";
-import { AdminDashboard, OnboardingAdmin } from "./components/admin";
+import {
+  AdminDashboard,
+  OnboardingAdmin,
+  ManageProfile,
+} from "./components/admin";
 
 const App = () => {
   // const [isModalOpen, setModalOpen] = useState(false);
@@ -72,6 +76,7 @@ const App = () => {
         />
         <Route path="/jobdescription" element={<JobDescription />} />
         <Route path="/track-applications" element={<TrackApplication />} />
+        <Route path="/manage-profile" element={<ManageProfile />} />
 
         {/* <Route path="*" element={<NotFound />} />  */}
       </Routes>
