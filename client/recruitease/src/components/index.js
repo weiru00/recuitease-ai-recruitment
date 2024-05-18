@@ -15,6 +15,7 @@ import JobPostings from "./JobPostings";
 import JobDescription from "./JobDescription";
 import StepIndicator from "./StepIndicator";
 import NoResult from "./NoResult";
+import ManageProfile from "./ManageProfile";
 
 export {
   Button,
@@ -34,4 +35,5 @@ export {
   JobDescription,
   StepIndicator,
   NoResult,
+  ManageProfile,
 };

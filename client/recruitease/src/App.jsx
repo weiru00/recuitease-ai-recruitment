@@ -12,6 +12,7 @@ import {
   JobPostings,
   JobDescription,
   OnboardingCompany,
+  ManageProfile,
 } from "./components";
 import {
   ApplicantDashboard,
@@ -23,11 +24,8 @@ import {
   Talents,
   OnboardingRecruiter,
 } from "./components/recruiter";
-import {
-  AdminDashboard,
-  OnboardingAdmin,
-  ManageProfile,
-} from "./components/admin";
+import { AdminDashboard, OnboardingAdmin } from "./components/admin";
+import { ManagerDashboard } from "./components/manager";
 
 const App = () => {
   // const [isModalOpen, setModalOpen] = useState(false);
@@ -62,6 +60,7 @@ const App = () => {
         <Route path="/recruiter-dashboard" element={<RecruiterDashboard />} />
         <Route path="/applicant-dashboard" element={<ApplicantDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/manager-dashboard" element={<ManagerDashboard />} />
         <Route path="/jobpostings" element={<JobPostings />} />
         <Route path="/talents" element={<Talents />} />
         <Route path="/onboarding" element={<Onboarding />} />

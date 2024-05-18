@@ -111,7 +111,7 @@ const Sidebar = () => {
           <img
             className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
             // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-            src={userData.profilePicUrl || user}
+            src={userData.user_info.profilePicUrl || user}
             alt="Profile Picture"
           ></img>
           <h3 className="mb-10 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -126,7 +126,7 @@ const Sidebar = () => {
           <ul className="space-y-2">
             <li>
               <Link
-                to={`/${userData.role}-dashboard?uid=${userId}&role=${userData.role}`}
+                to={`/${userData.user_info.role}-dashboard?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -144,7 +144,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to={`/jobpostings?uid=${userId}&role=${userData.role}`}
+                to={`/jobpostings?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -165,7 +165,7 @@ const Sidebar = () => {
             </li>
             <li>
               <Link
-                to={`/track-applications?uid=${userId}&role=${userData.role}`}
+                to={`/track-applications?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-purple-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -214,25 +214,28 @@ const Sidebar = () => {
             </li>
 
             <li>
-              <a
-                href="#"
+              <Link
+                to={`/manage-profile?uid=${userId}&role=${userData.user_info.role}`}
                 className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-purple-100 dark:hover:bg-gray-700 dark:text-white group"
               >
                 <svg
-                  aria-hidden="true"
                   className="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-purple-800 dark:group-hover:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    clipRule="evenodd"
-                  ></path>
+                    fill-rule="evenodd"
+                    d="M9.586 2.586A2 2 0 0 1 11 2h2a2 2 0 0 1 2 2v.089l.473.196.063-.063a2.002 2.002 0 0 1 2.828 0l1.414 1.414a2 2 0 0 1 0 2.827l-.063.064.196.473H20a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-.089l-.196.473.063.063a2.002 2.002 0 0 1 0 2.828l-1.414 1.414a2 2 0 0 1-2.828 0l-.063-.063-.473.196V20a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-.089l-.473-.196-.063.063a2.002 2.002 0 0 1-2.828 0l-1.414-1.414a2 2 0 0 1 0-2.827l.063-.064L4.089 15H4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h.09l.195-.473-.063-.063a2 2 0 0 1 0-2.828l1.414-1.414a2 2 0 0 1 2.827 0l.064.063L9 4.089V4a2 2 0 0 1 .586-1.414ZM8 12a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
-                <span className="ml-3">Help</span>
-              </a>
+
+                <span className="ml-3">Manage Profile</span>
+              </Link>
             </li>
           </ul>
         </div>

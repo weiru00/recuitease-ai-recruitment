@@ -424,7 +424,11 @@ def update_profile():
         # Prepare user data update
         user_data = {
             'firstName': request.form.get('firstName', ''),
-            'lastName': request.form.get('lastName', '')
+            'lastName': request.form.get('lastName', ''),
+            'gender': request.form.get('gender', ''),
+            'race': request.form.get('race', ''),
+            'gender': request.form.get('gender', ''),
+            'position': request.form.get('position', ''),
         }
 
         role = request.form.get('role')
