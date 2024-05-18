@@ -325,12 +325,14 @@ def approve_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/delete-user', methods=['DELETE'])
-def delete_user():
-    uid = request.args.get('uid')
+@app.route('/delete-user/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    # uid = request.args.get('uid')
 
     try:
-        db.collection('users').document(uid).delete()
+        db.collection('users').document(user_id).delete()
+        auth.delete_user(user_id)
+        
         return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

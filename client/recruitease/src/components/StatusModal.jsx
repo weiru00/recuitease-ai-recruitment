@@ -1,6 +1,6 @@
 import React from "react";
 
-const deletionModal = ({ onCloseModal, onConfirm }) => {
+const statusModal = ({ onCloseModal, onConfirm, status }) => {
   return (
     <div
       className="font-body animation-sliding-img-down-3 fixed inset-0 bg-gray-600 bg-opacity-50 z-[60] overflow-y-auto h-full w-full"
@@ -28,12 +28,12 @@ const deletionModal = ({ onCloseModal, onConfirm }) => {
               clipRule="evenodd"
             ></path>
           </svg>
-          <span className="sr-only">Close modal</span>
+          <span class="sr-only">Close modal</span>
         </button>
-        <div className="w-12 h-12 rounded-full bg-purple-100 p-2 flex items-center justify-center mx-auto mb-3.5">
+        <div class="w-12 h-12 rounded-full bg-purple-100 p-2 flex items-center justify-center mx-auto mb-3.5">
           <svg
             aria-hidden="true"
-            className="w-8 h-8 text-purple-500"
+            class="w-8 h-8 text-purple-500"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -44,11 +44,11 @@ const deletionModal = ({ onCloseModal, onConfirm }) => {
               clip-rule="evenodd"
             ></path>
           </svg>
-          <span className="sr-only">Success</span>
+          <span class="sr-only">Success</span>
         </div>
         <div className="mt-3 text-center mb-3">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Are you sure you want to delete?
+            Are you sure you want to set this user as "{status}"?
           </h3>
           <div className="mt-2 px-7 py-3">
             <p className="text-sm text-gray-500">
@@ -56,21 +56,21 @@ const deletionModal = ({ onCloseModal, onConfirm }) => {
             </p>
           </div>
         </div>
-        <div className="flex justify-center items-center space-x-4">
+        <div class="flex justify-center items-center space-x-4">
           <button
             data-modal-toggle="deleteModal"
             type="button"
             onClick={() => {
               onCloseModal();
             }}
-            className="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-xl border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+            class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-xl border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
           >
             No, cancel
           </button>
           <button
             type="submit"
             onClick={onConfirm}
-            className="py-2 px-4 text-sm font-medium text-center text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 rounded-xl"
+            class="py-2 px-4 text-sm font-medium text-center text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 rounded-xl"
           >
             Yes
           </button>
@@ -80,4 +80,4 @@ const deletionModal = ({ onCloseModal, onConfirm }) => {
   );
 };
 
-export default deletionModal;
+export default statusModal;

@@ -5,6 +5,9 @@ import Sidebar from "./Sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { appliedjob, dashboard, user } from "../../assets";
+import StatusModal from "../StatusModal";
+import DeletionModal from "../DeletionModal";
+import SuccessfulModal from "../SuccessfulModal";
 
 const ApplicantDashboard = () => {
   const navigate = useNavigate();
@@ -15,7 +18,45 @@ const ApplicantDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState([]);
+  const [status, setStatus] = useState([]);
+  const [desc, setDesc] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const closeStatusModal = () => setShowStatusModal(false);
+  const openStatusModal = (userId, newStatus) => {
+    setShowStatusModal(true);
+    setSelectedUser(userId);
+    setStatus(newStatus);
+  };
+  const openDeleteModal = (userId) => {
+    setShowDeleteModal(true);
+    setSelectedUser(userId);
+  };
+  const closeDeleteModal = () => setShowDeleteModal(false);
+  const openSuccessModal = (desc) => {
+    setShowSuccessModal(true);
+    setDesc(desc);
+  };
+
+  const handleConfirmDelete = async () => {
+    closeDeleteModal();
+    handleDeleteUser();
+    openSuccessModal("deleted");
+  };
+
+  const handleConfirmStatus = async () => {
+    closeStatusModal();
+    handleUpdateStatus(selectedUser, status);
+    openSuccessModal("updated");
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -82,9 +123,9 @@ const ApplicantDashboard = () => {
     }
   };
 
-  const handleDeleteUser = async (uid) => {
+  const handleDeleteUser = async () => {
     try {
-      const response = await fetch(`/api/delete-user?uid=${uid}`, {
+      const response = await fetch(`/api/delete-user/${selectedUser}`, {
         method: "DELETE",
       });
       const data = await response.json();
@@ -233,16 +274,18 @@ const ApplicantDashboard = () => {
                           </div>
                           <button
                             className="text-xs text-white bg-purple-700 rounded-xl px-3 py-2 hover:bg-purple-800"
+                            // onClick={openStatusModal}
                             onClick={() =>
-                              handleUpdateStatus(newuser.uid, "approved")
+                              openStatusModal(newuser.uid, "approved")
                             }
                           >
                             Approve
                           </button>
                           <button
                             className="text-xs text-purple-700 bg-purple-100 rounded-xl px-3 py-2 hover:bg-purple-200"
+                            // onClick={openStatusModal}
                             onClick={() =>
-                              handleUpdateStatus(newuser.uid, "decline")
+                              openStatusModal(newuser.uid, "decline")
                             }
                           >
                             Decline
@@ -347,7 +390,9 @@ const ApplicantDashboard = () => {
                         <td className="py-4 px-6">{newuser.position}</td>
                         <td className="py-4 px-6">
                           <button
-                            onClick={() => handleDeleteUser(newuser.id)}
+                            // onClick={openDeleteModal}
+                            onClick={() => openDeleteModal(newuser.uid)}
+                            // onClick={() => handleDeleteUser(newuser.id)}
                             className="font-medium text-red-600 dark:text-red-500 hover:underline"
                           >
                             Delete
@@ -361,6 +406,29 @@ const ApplicantDashboard = () => {
           </div>
         </div>
       </main>
+      {showStatusModal && (
+        <StatusModal
+          onCloseModal={closeStatusModal}
+          onConfirm={handleConfirmStatus}
+          status={status}
+        />
+      )}
+      {showDeleteModal && (
+        <DeletionModal
+          onCloseModal={closeDeleteModal}
+          onConfirm={handleConfirmDelete}
+        />
+      )}
+      {showSuccessModal && (
+        <SuccessfulModal
+          onCloseModal={handleCloseModal}
+          onCloseForm={() => {
+            isClose();
+          }}
+          title={`User ${desc}`}
+          desc={`This user has been successfully ${desc}.`}
+        />
+      )}
     </div>
   );
 };
