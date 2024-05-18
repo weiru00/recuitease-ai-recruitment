@@ -426,7 +426,7 @@ const ApplicantDashboard = () => {
             isClose();
           }}
           title={`User ${desc}`}
-          desc={`This user has been successfully ${desc}.`}
+          desc={`This user has been successfully ${desc}. An update email will be sent to this user.`}
         />
       )}
     </div>

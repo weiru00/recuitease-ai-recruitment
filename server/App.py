@@ -321,9 +321,59 @@ def approve_user():
     try:
         user_ref = db.collection('users').document(uid)
         user_ref.update({'register_status': status})
+        user_doc = user_ref.get()
+        if not user_doc.exists:
+            return jsonify({'error': 'User not found'}), 404
+        
+        email = user_doc.to_dict().get('email')
+        if not email:
+            return jsonify({'error': 'Email not found'}), 404
+        send_status_email(email, status)
+        
         return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+def send_status_email(email, status):
+    base_html = """
+    <html>
+        <body>
+            {content}
+        </body>
+    </html>
+    """
+    
+    if status == "approved":
+        subject = f"Account Registration Success "
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear User,
+        <br><br>Your account has been approved by your company admin.
+        <br><br>You may log in to RecruitEase using the email and password registered.
+        <br><br><br><b>RecruitEase</b>
+        </div>"""
+        
+    if status == "decline":
+        subject = f"Account Registration Failed "
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear User,
+        <br><br>Unfortunately, your account registration has been rejected by your company admin.
+        <br><br>Kindly sign up again through our platform and make sure your info is accurate.
+        <br><br><br><b>RecruitEase</b>
+        </div>"""
+
+    try:
+        final_html_content = base_html.format(content=message_html)
+
+        msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[email])
+
+        msg.html = final_html_content
+
+        mail.send(msg)
+            
+    except Exception as e:
+        print(str(e))
 
 @app.route('/delete-user/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
