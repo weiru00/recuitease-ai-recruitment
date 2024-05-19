@@ -5,7 +5,6 @@ import DeletionModal from "./DeletionModal";
 import SuccessfulModal from "./SuccessfulModal";
 import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
-// import JobForm from "./recruiter/JobForm";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const JobDescription = () => {
@@ -330,7 +329,6 @@ const JobDescription = () => {
           }}
           mode={formMode}
           jobData={selectedJob}
-          // onDelete={handleDeleteJob}
         />
       ) : (
         <ApplicationForm

@@ -2,7 +2,7 @@ import React from "react";
 import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import NoResult from "../NoResult";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { user, option, talents } from "../../assets";
 import StatusModal from "../StatusModal";
@@ -20,11 +20,11 @@ const Talents = () => {
   const [showDropdown, setShowDropdown] = useState({});
   const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredTopTalents, setFilteredTopTalents] = useState([]);
-  const [
-    filteredSortedByTimeApplications,
-    setFilteredSortedByTimeApplications,
-  ] = useState([]);
+  // const [filteredTopTalents, setFilteredTopTalents] = useState([]);
+  // const [
+  //   filteredSortedByTimeApplications,
+  //   setFilteredSortedByTimeApplications,
+  // ] = useState([]);
 
   const toggleDropdown = (appId) => {
     setShowDropdown((prev) => ({
@@ -82,38 +82,52 @@ const Talents = () => {
     fetchApplications();
   }, [recruiterID]);
 
-  useEffect(() => {
-    const filterApplications = (apps, query) => {
-      return apps.filter((app) => {
-        const searchMatch = app.jobTitle
-          .toLowerCase()
-          .includes(query.toLowerCase());
+  // useEffect(() => {
+  //   const filterApplications = (apps, query) => {
+  //     return apps.filter((app) => {
+  //       const searchMatch = app.jobTitle
+  //         .toLowerCase()
+  //         .includes(query.toLowerCase());
 
-        return searchMatch;
-      });
-    };
+  //       return searchMatch;
+  //     });
+  //   };
 
-    // Apply the filtering to top talents
-    const filteredTopTalents = filterApplications(
-      topTalents,
-      searchQueryTopTalents
+  //   // Apply the filtering to top talents
+  //   const filteredTopTalents = filterApplications(
+  //     topTalents,
+  //     searchQueryTopTalents
+  //   );
+
+  //   // Apply the filtering to other applications sorted by time
+  //   const filteredSortedByTimeApplications = filterApplications(
+  //     sortedByTimeApplications,
+  //     searchQuery
+  //   );
+
+  //   // Update the states for the filtered lists
+  //   setFilteredTopTalents(filteredTopTalents);
+  //   setFilteredSortedByTimeApplications(filteredSortedByTimeApplications);
+  // }, [
+  //   searchQueryTopTalents,
+  //   searchQuery,
+  //   topTalents,
+  //   sortedByTimeApplications,
+  // ]);
+
+  const filterApplications = (apps, query) => {
+    return apps.filter((app) =>
+      app.jobTitle.toLowerCase().includes(query.toLowerCase())
     );
+  };
 
-    // Apply the filtering to other applications sorted by time
-    const filteredSortedByTimeApplications = filterApplications(
-      sortedByTimeApplications,
-      searchQuery
-    );
+  const filteredTopTalents = useMemo(() => {
+    return filterApplications(topTalents, searchQueryTopTalents);
+  }, [topTalents, searchQueryTopTalents]);
 
-    // Update the states for the filtered lists
-    setFilteredTopTalents(filteredTopTalents);
-    setFilteredSortedByTimeApplications(filteredSortedByTimeApplications);
-  }, [
-    searchQueryTopTalents,
-    searchQuery,
-    topTalents,
-    sortedByTimeApplications,
-  ]);
+  const filteredSortedByTimeApplications = useMemo(() => {
+    return filterApplications(sortedByTimeApplications, searchQuery);
+  }, [sortedByTimeApplications, searchQuery]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -465,9 +479,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Review
@@ -493,9 +507,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Schedule Interview
@@ -543,9 +557,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Decline
@@ -763,9 +777,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Review
@@ -791,9 +805,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Schedule Interview
@@ -841,9 +855,9 @@ const Talents = () => {
                                   viewBox="0 0 24 24"
                                 >
                                   <path
-                                    fill-rule="evenodd"
+                                    fillRule="evenodd"
                                     d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                    clip-rule="evenodd"
+                                    clipRule="evenodd"
                                   />
                                 </svg>
                                 Decline
