@@ -5,6 +5,7 @@ import NoResult from "../NoResult";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { user, option, talents } from "../../assets";
+import StatusModal from "../StatusModal";
 
 const Talents = () => {
   const location = useLocation();
@@ -13,7 +14,9 @@ const Talents = () => {
 
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
+  const [showStatusModal, setShowStatusModal] = useState(false);
   const [status, setStatus] = useState("");
+  const [applicationID, setApplicationID] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
   const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,6 +31,21 @@ const Talents = () => {
       ...prev,
       [appId]: !prev[appId],
     }));
+  };
+
+  const closeStatusModal = () => setShowStatusModal(false);
+
+  const openStatusModal = (applicationID, newStatus) => {
+    setShowStatusModal(true);
+    setStatus(newStatus);
+    setApplicationID(applicationID);
+    // handleStatusChange(applicationID, newStatus);
+  };
+
+  const handleConfirmStatus = async () => {
+    closeStatusModal();
+    handleStatusChange(applicationID, status);
+    // openSuccessModal("updated");
   };
 
   const topTalents = applications
@@ -433,10 +451,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Review"
-                                  )
+                                  openStatusModal(app.applicationID, "Review")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
                               >
@@ -461,7 +476,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
+                                  openStatusModal(
                                     app.applicationID,
                                     "Interview"
                                   )
@@ -489,10 +504,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Onboard"
-                                  )
+                                  openStatusModal(app.applicationID, "Onboard")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -517,10 +529,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Reject"
-                                  )
+                                  openStatusModal(app.applicationID, "Reject")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -740,10 +749,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Review"
-                                  )
+                                  openStatusModal(app.applicationID, "Review")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
                               >
@@ -768,7 +774,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
+                                  openStatusModal(
                                     app.applicationID,
                                     "Interview"
                                   )
@@ -796,10 +802,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Onboard"
-                                  )
+                                  openStatusModal(app.applicationID, "Onboard")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -824,10 +827,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  handleStatusChange(
-                                    app.applicationID,
-                                    "Reject"
-                                  )
+                                  openStatusModal(app.applicationID, "Reject")
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -865,6 +865,13 @@ const Talents = () => {
           </div>
         </div>
       </main>
+      {showStatusModal && (
+        <StatusModal
+          onCloseModal={closeStatusModal}
+          onConfirm={handleConfirmStatus}
+          status={status}
+        />
+      )}
     </div>
   );
 };

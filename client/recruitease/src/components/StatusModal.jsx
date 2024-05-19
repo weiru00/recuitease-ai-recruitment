@@ -48,11 +48,11 @@ const statusModal = ({ onCloseModal, onConfirm, status }) => {
         </div>
         <div className="mt-3 text-center mb-3">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Are you sure you want to set this user as "{status}"?
+            Application Status
           </h3>
           <div className="mt-2 px-7 py-3">
             <p className="text-sm text-gray-500">
-              This action is irreversible.
+              Are you sure you want to set this user as "{status}"?
             </p>
           </div>
         </div>
