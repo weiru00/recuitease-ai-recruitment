@@ -741,7 +741,6 @@ def track_applications():
 @app.route('/update-application-status', methods=['POST'])
 def update_application_status():
     recruiter_id = request.args.get('uid')
-    print("recruiter: ", recruiter_id)
 
     try:
         # Extract application ID and new status from the request body
@@ -829,6 +828,50 @@ def forward_application():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/get-forwarded-applications', methods=['GET'])
+def get_forwarded_applications():
+    try:
+        manager_id = request.args.get('uid')
+        if not manager_id:
+            return jsonify({"error": "Missing manager ID parameter"}), 400
+        
+        app_list = []
+        apps_ref = db.collection('applications').where('managerID', '==', manager_id)
+        applications = apps_ref.stream()
+
+        for app in applications:
+            app_id = app.id
+            app_data = app.to_dict()
+            app_data['applicationID'] = app_id
+
+            # Get job details
+            job_id = app_data.get('jobID')
+            if job_id:
+                job_ref = db.collection('jobListings').document(job_id)
+                job_doc = job_ref.get()
+                if job_doc.exists:
+                    job_data = job_doc.to_dict()
+                    app_data['jobTitle'] = job_data.get('title', 'Unknown Title')
+
+            # Get applicant details
+            applicant_id = app_data.get('applicantID')
+
+            if applicant_id:
+                user_ref = db.collection('users').document(applicant_id)
+                user_doc = user_ref.get()
+                if user_doc.exists:
+                    user_data = user_doc.to_dict()
+                    app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
+                    app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
+                    app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
+                                    
+            app_list.append(app_data)
+
+        return jsonify(app_list), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
       
 ################### Resume-Job Matching Score ###################
 

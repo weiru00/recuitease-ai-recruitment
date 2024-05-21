@@ -28,30 +28,7 @@ import { AdminDashboard, OnboardingAdmin } from "./components/admin";
 import { ManagerDashboard } from "./components/manager";
 
 const App = () => {
-  // const [isModalOpen, setModalOpen] = useState(false);
-
-  // const toggleModal = () => {
-  //   setModalOpen(!isModalOpen);
-  // };
-
   return (
-    // <div className="bg-white w-full overflow-hidden">
-    //   <div className={`${styles.paddingX} ${styles.flexCenter}`}>
-    //     <div className={`${styles.boxWidth}`}>{/* <Navbar /> */}</div>
-    //   </div>
-
-    //   <div className={`bg-white ${styles.flexStart}`}>
-    //     <div className={`${styles.boxWidth}`}>{/* <Hero /> */}</div>
-    //   </div>
-
-    //   <div className={`bg-white ${styles.paddingX} ${styles.flexCenter}`}>
-    //     <div className={`${styles.boxWidth}`}>
-    //     </div>
-    //   </div>
-    //   {/* <button onClick={toggleModal}>Toggle Modal</button>
-    // <JobForm isOpen={isModalOpen} isClose={toggleModal} /> */}
-    // </div>
-
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
