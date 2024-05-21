@@ -151,10 +151,7 @@ def update_user():
 
         if not uid or not user_data:
             return jsonify({'error': 'Missing UID or user data'}), 400
-                   
-        # initial_status = 'approved' if role not in ['recruiter', 'manager'] else 'pending'
-        # user_data['register_status'] = initial_status
-        
+                           
         if role in ['recruiter', 'manager']:
             company_id = request.form.get('companyID')
             position = request.form['position']
@@ -172,7 +169,6 @@ def update_user():
             user_data['profilePicUrl'] = blob.public_url
             
         user_ref = db.collection('users').document(uid)
-        print(user_data)
         user_ref.update(user_data)
         
         return jsonify({'success': True}), 200
@@ -281,17 +277,6 @@ def invite_user():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
-# def send_invitation_email(email, company_name):
-#     try:
-#         msg = Message("Invitation to Join Our Platform",
-#                       recipients=[email])
-#         msg.body = "You are invited to join our recruitment platform as a recruiter or manager."
-#         msg.html = "<p>You are invited to join our recruitment platform as a recruiter or manager. Please click on the link to complete your registration: <a href='http://your-website.com/register'>Register Here</a></p>"
-#         mail.send(msg)
-#         print("Mail sent successfully.")
-#     except Exception as e:
-#         print(str(e))
-
 @app.route('/get-company-users', methods=['GET'])
 def get_company_users():
     uid = request.args.get('uid')
@@ -502,7 +487,6 @@ def get_jobs():
         
         job_list.append(job_data)
         
-
     return jsonify(job_list)
 
 @app.route('/job-details/<job_id>', methods=['GET'])
@@ -666,17 +650,14 @@ def get_applications():
         gender_counter = Counter()
         status_counter = Counter()
         
-        # Fetch all job IDs posted by the recruiter
         jobs_ref = db.collection('jobListings').where('recruiterID', '==', recruiter_id)
         jobs = jobs_ref.stream()
 
         applications = []
-        # For each job, fetch applications
         for job in jobs:
             job_id = job.id
             job_data = job.to_dict()  # Get job data
             job_title = job_data.get('title', 'Unknown Job Title')
-            # status_counter[job_data.get('status', 'Not Stated')] += 1
             
             apps_ref = db.collection('applications').where('jobID', '==', job_id)
             apps = apps_ref.stream()
@@ -707,7 +688,6 @@ def get_applications():
         gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
         status_counts = [{"status": status, "count": count} for status, count in status_counter.items()]
 
-        # print(status_counts)
         return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -775,7 +755,6 @@ def update_application_status():
         if not application_id or not new_status:
             return jsonify({'error': 'Missing applicationId or status'}), 400
 
-        # Retrieve sender's (recruiter's) email from Firestore
         recruiter_ref = db.collection('users').document(recruiter_id)
         recruiter_doc = recruiter_ref.get()
         if recruiter_doc.exists:
@@ -830,7 +809,27 @@ def update_application_status():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-    
+@app.route('/forward-application', methods=['POST'])
+def forward_application():
+    try:
+        applicationID = request.form['applicationID']
+
+        if not applicationID:
+            return jsonify({'error': 'Missing application ID'}), 400
+
+        forward_data = {        
+            'managerID' : request.form['managerID'],
+            'feedbackHR' : request.form['feedbackHR'],
+        }
+                                       
+        application_ref = db.collection('applications').document(applicationID)
+        application_ref.update(forward_data)
+        
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+      
 ################### Resume-Job Matching Score ###################
 
 @app.route("/apply-job", methods=['POST'])

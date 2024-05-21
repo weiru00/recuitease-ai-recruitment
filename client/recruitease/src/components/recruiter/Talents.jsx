@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { user, option, talents } from "../../assets";
 import StatusModal from "../StatusModal";
+import ForwardForm from "./ForwardForm";
 
 const Talents = () => {
   const location = useLocation();
@@ -15,16 +16,12 @@ const Talents = () => {
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showForwardForm, setShowForwardForm] = useState(false);
   const [status, setStatus] = useState("");
   const [applicationID, setApplicationID] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
   const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  // const [filteredTopTalents, setFilteredTopTalents] = useState([]);
-  // const [
-  //   filteredSortedByTimeApplications,
-  //   setFilteredSortedByTimeApplications,
-  // ] = useState([]);
 
   const toggleDropdown = (appId) => {
     setShowDropdown((prev) => ({
@@ -42,9 +39,21 @@ const Talents = () => {
     // handleStatusChange(applicationID, newStatus);
   };
 
+  const closeForwardForm = () => setShowForwardForm(false);
+
+  const openForwardForm = (applicationID) => {
+    setShowForwardForm(true);
+    setApplicationID(applicationID);
+    // handleStatusChange(applicationID, newStatus);
+  };
+
   const handleConfirmStatus = async () => {
     closeStatusModal();
     handleStatusChange(applicationID, status);
+
+    // if (status == "Forwarded") {
+    //   openForwardForm(applicationID);
+    // }
     // openSuccessModal("updated");
   };
 
@@ -81,39 +90,6 @@ const Talents = () => {
 
     fetchApplications();
   }, [recruiterID]);
-
-  // useEffect(() => {
-  //   const filterApplications = (apps, query) => {
-  //     return apps.filter((app) => {
-  //       const searchMatch = app.jobTitle
-  //         .toLowerCase()
-  //         .includes(query.toLowerCase());
-
-  //       return searchMatch;
-  //     });
-  //   };
-
-  //   // Apply the filtering to top talents
-  //   const filteredTopTalents = filterApplications(
-  //     topTalents,
-  //     searchQueryTopTalents
-  //   );
-
-  //   // Apply the filtering to other applications sorted by time
-  //   const filteredSortedByTimeApplications = filterApplications(
-  //     sortedByTimeApplications,
-  //     searchQuery
-  //   );
-
-  //   // Update the states for the filtered lists
-  //   setFilteredTopTalents(filteredTopTalents);
-  //   setFilteredSortedByTimeApplications(filteredSortedByTimeApplications);
-  // }, [
-  //   searchQueryTopTalents,
-  //   searchQuery,
-  //   topTalents,
-  //   sortedByTimeApplications,
-  // ]);
 
   const filterApplications = (apps, query) => {
     return apps.filter((app) =>
@@ -518,7 +494,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  openStatusModal(app.applicationID, "Onboard")
+                                  openForwardForm(app.applicationID)
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -537,7 +513,7 @@ const Talents = () => {
                                     clipRule="evenodd"
                                   />
                                 </svg>
-                                Hire
+                                Shortlist
                               </a>
                             </li>
                             <li>
@@ -816,7 +792,7 @@ const Talents = () => {
                             <li>
                               <a
                                 onClick={() =>
-                                  openStatusModal(app.applicationID, "Onboard")
+                                  openForwardForm(app.applicationID)
                                 }
                                 className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                               >
@@ -835,7 +811,7 @@ const Talents = () => {
                                     clipRule="evenodd"
                                   />
                                 </svg>
-                                Hire
+                                Shortlist
                               </a>
                             </li>
                             <li>
@@ -884,6 +860,13 @@ const Talents = () => {
           onCloseModal={closeStatusModal}
           onConfirm={handleConfirmStatus}
           status={status}
+        />
+      )}
+      {showForwardForm && (
+        <ForwardForm
+          onCloseModal={closeForwardForm}
+          // onConfirm={handleConfirmStatus}
+          applicationID={applicationID}
         />
       )}
     </div>

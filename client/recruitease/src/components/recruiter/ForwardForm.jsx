@@ -1,9 +1,88 @@
-// import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 // import SuccessfulModal from "../SuccessfulModal";
 import { useLocation } from "react-router-dom";
+import {
+  getFirestore,
+  collection,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+} from "firebase/firestore";
 import styles from "../../style";
 
-const ForwardForm = ({ onCloseModal, onConfirm, applicantData }) => {
+const ForwardForm = ({ onCloseModal, applicationID }) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const uid = queryParams.get("uid");
+
+  const db = getFirestore();
+
+  const [managers, setManagers] = useState([]);
+  const [managerID, setManagerID] = useState("");
+  const [feedbackHR, setFeedbackHR] = useState("");
+
+  useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        const userDocRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userCompanyID = userDoc.data().companyID;
+
+          const q = query(
+            collection(db, "users"),
+            where("companyID", "==", userCompanyID),
+            where("role", "==", "manager")
+          );
+
+          const querySnapshot = await getDocs(q);
+          const managers = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            f_name: doc.data().firstName,
+            l_name: doc.data().lastName,
+            email: doc.data().email,
+          }));
+
+          setManagers(managers);
+        } else {
+          console.log("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching managers:", error);
+      }
+    };
+
+    fetchManagers();
+  }, [uid]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append("applicationID", applicationID);
+    formData.append("managerID", managerID);
+    formData.append("feedbackHR", feedbackHR);
+
+    try {
+      const response = await fetch("/api/forward-application", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log("Application forwarded successfully");
+      } else {
+        console.error("Failed to forward application");
+      }
+    } catch (error) {
+      console.error("Error forwarding data:", error);
+    }
+  };
+
   return (
     <React.Fragment>
       {/* Overlay */}
@@ -22,7 +101,7 @@ const ForwardForm = ({ onCloseModal, onConfirm, applicantData }) => {
                 {/* <!-- Modal header --> */}
                 <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Job
+                    Shortlist Candidate
                   </h3>
                   <button
                     onClick={onCloseModal}
@@ -46,64 +125,46 @@ const ForwardForm = ({ onCloseModal, onConfirm, applicantData }) => {
                   </button>
                 </div>
                 {/* <!-- Modal body --> */}
-                <form onSubmit={onConfirm}>
+                <form onSubmit={handleSubmit}>
                   <div className="grid gap-4 mb-4 sm:grid-cols-2">
-                    <div>
-                      <label
-                        htmlFor="title"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Job Title
-                      </label>
-                      <input
-                        type="text"
-                        name="title"
-                        id="title"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="E.g: Software Engineer"
-                        required={true}
-                        // value={job.title}
-                        // onChange={(e) =>
-                        //   setJob({ ...job, title: e.target.value })
-                        // }
-                      ></input>
-                    </div>
                     <div>
                       <label
                         htmlFor="type"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        Type
+                        Direct To
                       </label>
                       <select
-                        id="type"
+                        id="manager"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        // value={job.type}
-                        // onChange={(e) =>
-                        //   setJob({ ...job, type: e.target.value })
-                        // }
+                        value={managerID}
+                        onChange={(e) => setManagerID(e.target.value)}
+                        required={true}
                       >
-                        <option defaultValue="">Select Job Type</option>
-                        <option value="Full-Time">Full-Time</option>
-                        <option value="Internship">Internship</option>
+                        <option defaultValue>Select a manager</option>
+                        {managers.map((manager) => (
+                          <option key={manager.id} value={manager.id}>
+                            {manager.f_name} {manager.l_name}&#10; (
+                            {manager.email})
+                          </option>
+                        ))}
                       </select>
                     </div>
+
                     <div className="sm:col-span-2 mb-3">
                       <label
-                        htmlFor="description"
+                        htmlFor="feedback"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        Description
+                        Feedback
                       </label>
                       <textarea
-                        id="description"
+                        id="feedback"
                         rows="6"
                         className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                        placeholder="Write job description here"
-                        // value={job.desc}
-                        // onChange={(e) =>
-                        //   setJob({ ...job, desc: e.target.value })
-                        // }
+                        placeholder="Write some notes about this candidate here"
+                        value={feedbackHR}
+                        onChange={(e) => setFeedbackHR(e.target.value)}
                       ></textarea>
                     </div>
                   </div>
