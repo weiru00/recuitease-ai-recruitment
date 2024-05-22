@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { appliedjob, option, user } from "../../assets";
 import StatusModal from "../StatusModal";
+import { Tooltip } from "react-tooltip";
 import DeletionModal from "../DeletionModal";
 import SuccessfulModal from "../SuccessfulModal";
 import NoResult from "../NoResult";
@@ -249,9 +250,9 @@ const ManagerDashboard = () => {
           </div>
         </div>
         <div className="grid grid-cols-4 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
-          <div className="col-span-4 justify-between border-2 border-gray-100 rounded-2xl h-auto max-h-72 overflow-auto py-4 px-6">
+          {/* <div className="col-span-4 justify-between border-2 border-gray-100 rounded-2xl h-auto py-4 px-6">
             <h5 className="text-md font-medium text-purple-700 px-3 py-1.5 rounded-lg bg-purple-50">
-              Pending Approvals
+              Applicants
             </h5>
 
             <div className="flex flex-col items-left justify-center px-1">
@@ -277,9 +278,6 @@ const ManagerDashboard = () => {
                             </h5>
                             <div>
                               <ApplicationStatus status={app.status} />
-                              {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
-                          {app.status}
-                        </span> */}
                             </div>
                           </div>
 
@@ -312,8 +310,6 @@ const ManagerDashboard = () => {
                                 app.resume
                               )
                             }
-                            // onClick={() => window.open(app.resume, "_blank")}
-                            // to="/talents"
                             className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
                           >
                             <svg
@@ -335,14 +331,115 @@ const ManagerDashboard = () => {
                             </svg>
                             View Resume
                           </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <NoResult
+                    title={"No result found"}
+                    desc={"Try adjusting your search or filters."}
+                  />
+                )}
+              </ul>
+            </div>
+          </div> */}
+          {/* <div className="justify-center border-gray-100 rounded-2xl max-h-48 z-50">
+            <img src={dashboard2} alt="job icon" className="z-40" />
+          </div> */}
+
+          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto p-4">
+            <div className="flex justify-between mb-4">
+              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
+                Applicants ({applications.length})
+              </h5>
+            </div>
+
+            <div className="relative">
+              {applications.length > 0 ? (
+                applications.map((app) => (
+                  <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                    <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                        <th scope="col" className="py-3 px-6 "></th>
+                        <th scope="col" className="pl-2 pr-6 px-6 ">
+                          Name
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          Applied Position
+                        </th>
+                        <th scope="col" className="py-3 px-4">
+                          Score
+                        </th>
+                        <th scope="col" className="py-3 px-6">
+                          HR Feedback
+                        </th>
+                        <th scope="col" className="py-3 px-3">
+                          Action
+                        </th>
+                        <th scope="col" className="py-3 px-3"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        key={app.applicationID}
+                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      >
+                        <td className="py-2 pl-4 pr-1">
+                          <img
+                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
+                            src={app.applicantPic || user}
+                            alt="Profile Picture"
+                          />
+                        </td>
+                        <td className="py-4 pl-2 pr-6">
+                          {app.applicantFName} {app.applicantLName}
+                        </td>
+                        <td className="py-4 px-6">{app.jobTitle}</td>
+                        <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
+                          {app.score}%
+                        </td>
+                        <td className="py-4 px-6">{app.feedbackHR}</td>
+                        <td className="py-4 px-3">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(
+                                app.applicationID,
+                                app.resume
+                              )
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            // to="/talents"
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                        </td>
+                        <td className="py-4 px-3">
                           <button
                             type="button"
                             onClick={() => toggleDropdown(app.applicationID)}
-                            // data-dropdown-toggle="apps-dropdown"
-                            className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                            className="relative p-1.5 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                           >
                             <span className="sr-only">View status</span>
-                            {/* <!-- Icon --> */}
                             <img src={option} className="h-6" alt="icon" />
                             <div
                               className={`${
@@ -363,39 +460,10 @@ const ManagerDashboard = () => {
                                   Select Hiring Status
                                 </span>
                               </div>
-                              {/* Dropdown menu items */}
                               <ul
                                 className="py-1 text-gray-700 dark:text-gray-300"
                                 aria-labelledby="dropdown"
                               >
-                                <li>
-                                  <a
-                                    onClick={() =>
-                                      openStatusModal(
-                                        app.applicationID,
-                                        "Review"
-                                      )
-                                    }
-                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                                  >
-                                    <svg
-                                      className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
-                                      aria-hidden="true"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="24"
-                                      height="24"
-                                      fill="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    Review
-                                  </a>
-                                </li>
                                 <li>
                                   <a
                                     onClick={() =>
@@ -480,107 +548,6 @@ const ManagerDashboard = () => {
                               </ul>
                             </div>
                           </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <NoResult
-                    title={"No result found"}
-                    desc={"Try adjusting your search or filters."}
-                  />
-                )}
-              </ul>
-            </div>
-          </div>
-          {/* <div className="justify-center border-gray-100 rounded-2xl max-h-48 z-50">
-            <img src={dashboard2} alt="job icon" className="z-40" />
-          </div> */}
-
-          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto max-h-96 overflow-auto p-4">
-            <div className="flex justify-between mb-4">
-              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                All Users
-              </h5>
-
-              <label htmlFor="simple-search" className="sr-only">
-                Search
-              </label>
-              <div className="relative w-1/3">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    aria-hidden="true"
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  id="simple-search"
-                  className="justify-center bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-700 focus:border-purple-700 block w-full pl-10 p-2"
-                  placeholder="Search name, email, position..."
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* <div className="overflow-x-auto relative">
-              {approvedUsers.length > 0 ? (
-                approvedUsers.map((newuser) => (
-                  <table className="w-full text-sm text-left text-gray-500 rounded-xl">
-                    <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
-                      <tr>
-                        <th scope="col" className="py-3 px-6 "></th>
-                        <th scope="col" className="pl-2 pr-6 px-6 ">
-                          Name
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Email
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Position
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {" "}
-                      <tr
-                        key={newuser.uid}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-                      >
-                        <td className="py-2 pl-4 pr-1">
-                          {" "}
-                          <img
-                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
-                            src={newuser.profilePicUrl || user}
-                            alt="Profile Picture"
-                          />
-                        </td>
-                        <td className="py-4 pl-2 pr-6">
-                          {newuser.firstName} {newuser.lastName}
-                        </td>
-                        <td className="py-4 px-6">{newuser.email}</td>
-                        <td className="py-4 px-6">{newuser.position}</td>
-                        <td className="py-4 px-6">
-                          <button
-                            // onClick={openDeleteModal}
-                            onClick={() => openDeleteModal(newuser.uid)}
-                            // onClick={() => handleDeleteUser(newuser.id)}
-                            className="font-medium text-red-600 dark:text-red-500 hover:underline"
-                          >
-                            Delete
-                          </button>
                         </td>
                       </tr>
                     </tbody>
@@ -589,7 +556,7 @@ const ManagerDashboard = () => {
               ) : (
                 <NoResult desc={"No user"} />
               )}
-            </div> */}
+            </div>
           </div>
         </div>
       </main>
