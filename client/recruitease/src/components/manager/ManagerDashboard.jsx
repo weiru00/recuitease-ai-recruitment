@@ -68,28 +68,9 @@ const ManagerDashboard = () => {
     }));
   };
 
-  const viewResumeAndUpdateStatus = (applicationId, resumeUrl) => {
+  const viewResumeAndUpdateStatus = (resumeUrl) => {
     // Open the resume in a new tab
     window.open(resumeUrl, "_blank");
-
-    // Ask the user if they want to mark the application as "Review"
-    // const shouldSetToReview = window.confirm(
-    //   "Do you want to set the status to 'Review' for this application?"
-    // );
-
-    // if (shouldSetToReview) {
-    //   // If user confirms, update the application status to "Review"
-    //   updateApplicationStatus(applicationId, "Review")
-    //     .then(() => {
-    //       console.log(
-    //         `Status updated to "Review" for application ${applicationId}`
-    //       );
-    //       // Here you might want to update your component's state to reflect the change
-    //     })
-    //     .catch((error) => {
-    //       console.error("Failed to update application status:", error);
-    //     });
-    // }
   };
 
   // useEffect(() => {
@@ -351,7 +332,7 @@ const ManagerDashboard = () => {
           <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto p-4">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Applicants ({applications.length})
+                Pending Applicants ({applications.length})
               </h5>
             </div>
 
@@ -371,9 +352,12 @@ const ManagerDashboard = () => {
                         <th scope="col" className="py-3 px-4">
                           Score
                         </th>
-                        <th scope="col" className="py-3 px-6">
+                        <th scope="col" className="py-3 px-3">
                           HR Feedback
                         </th>
+                        {/* <th scope="col" className="py-3 px-3">
+                          Status
+                        </th> */}
                         <th scope="col" className="py-3 px-3">
                           Action
                         </th>
@@ -383,7 +367,7 @@ const ManagerDashboard = () => {
                     <tbody>
                       <tr
                         key={app.applicationID}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                        className="bg-white hover:bg-gray-50"
                       >
                         <td className="py-2 pl-4 pr-1">
                           <img
@@ -399,14 +383,12 @@ const ManagerDashboard = () => {
                         <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
                           {app.score}%
                         </td>
-                        <td className="py-4 px-6">{app.feedbackHR}</td>
+                        <td className="py-4 px-3 max-w-96">{app.feedbackHR}</td>
+                        {/* <td className="py-4 px-3">{app.status}</td> */}
                         <td className="py-4 px-3">
                           <button
                             onClick={() =>
-                              viewResumeAndUpdateStatus(
-                                app.applicationID,
-                                app.resume
-                              )
+                              viewResumeAndUpdateStatus(app.resume)
                             }
                             data-tooltip-id="resume-tooltip"
                             data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}

@@ -1,31 +1,12 @@
-import firebase_admin
-from firebase_admin import credentials, auth, firestore, storage
 from flask import request, Flask, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from firebase_config import db, bucket
+from resume_job_match import fetch_pdf_text, find_matching_jobs, calculate_similarity_scores, get_job_description
+# from resume_parser import resumeparse
 
 from flask_mail import Mail, Message
 from flask_cors import CORS
-
-import re
-import io
-import os
-import nltk
-import numpy as np
-nltk.download('punkt')
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from pypdf import PdfReader
-
-cred = credentials.Certificate('recruitease-6b088-firebase-adminsdk-kar6k-61a0f2350b.json')
-firebase_admin.initialize_app(cred, {
-        'storageBucket': 'recruitease-6b088.appspot.com'
-    })
-
-db = firestore.client()
 
 app = Flask(__name__)
 CORS(app)
@@ -163,7 +144,8 @@ def update_user():
         profile_pic = request.files.get('profilePic')
         if profile_pic and profile_pic.filename != '':
             filename = secure_filename(profile_pic.filename)
-            blob = storage.bucket().blob(f'profile_pictures/{uid}')
+            # blob = storage.bucket().blob(f'profile_pictures/{uid}')
+            blob = bucket.blob(f'profile_pictures/{uid}')
             blob.upload_from_string(profile_pic.read(), content_type=profile_pic.content_type)
             # Get the URL of the uploaded file
             user_data['profilePicUrl'] = blob.public_url
@@ -198,7 +180,7 @@ def register_company():
         company_logo = request.files.get('companyLogo')
         if company_logo and company_logo.filename != '':
             filename = secure_filename(company_logo.filename)
-            blob = storage.bucket().blob(f'company_logo/{company_id}')
+            blob = bucket.blob(f'company_logo/{company_id}')
             blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
             # Get the URL of the uploaded file
             company_data['companyLogoUrl'] = blob.public_url
@@ -433,7 +415,7 @@ def update_profile():
                 company_logo = request.files.get('companyLogo')
                 if company_logo and company_logo.filename != '':
                     filename = secure_filename(company_logo.filename)
-                    blob = storage.bucket().blob(f'company_logo/{company_id}')
+                    blob = bucket.blob(f'company_logo/{company_id}')
                     blob.upload_from_string(company_logo.read(), content_type=company_logo.content_type)
                     company_data['companyLogoUrl'] = blob.public_url
 
@@ -445,7 +427,7 @@ def update_profile():
             profile_pic = request.files.get('profilePic')
             if profile_pic and profile_pic.filename != '':
                 filename = secure_filename(profile_pic.filename)
-                blob = storage.bucket().blob(f'profile_pictures/{uid}')
+                blob = bucket.blob(f'profile_pictures/{uid}')
                 blob.upload_from_string(profile_pic.read(), content_type=profile_pic.content_type)
                 user_data['profilePicUrl'] = blob.public_url
 
@@ -479,12 +461,23 @@ def get_jobs():
         recruiter_doc = db.collection('users').document(job_data['recruiterID']).get()
         if recruiter_doc.exists:
             recruiter_data = recruiter_doc.to_dict()
-            job_data['companyName'] = recruiter_data.get('companyName', 'Unknown Company')
-            job_data['companyLogoUrl'] = recruiter_data.get('companyLogoUrl', 'Unavailable Logo')
-            print(recruiter_data.get('companyLogoUrl', 'Unavailable Logo')) 
+            # job_data['companyName'] = recruiter_data.get('companyName', 'Unknown Company')
+            
+            company_id = recruiter_data.get('companyID')
+            if company_id:
+                company_doc = db.collection('company').document(company_id).get()
+                if company_doc.exists:
+                    company_data = company_doc.to_dict()
+                    job_data['companyName'] = company_data.get('companyName', 'Unavailable')
+                    job_data['companyLogoUrl'] = company_data.get('companyLogoUrl', 'Logo Unavailable')
+                else:
+                    job_data['companyLogoUrl'] = 'Logo Unavailable'
+                    job_data['companyName'] = 'Unknown Company'
+            else:
+                job_data['companyLogoUrl'] = 'Logo Unavailable'
         else:
-            job_data['companyName'] = 'Unknown Company'  # Default value in case recruiter document is not found
-        
+            job_data['companyLogoUrl'] = 'Logo Unavailable' 
+                   
         job_list.append(job_data)
         
     return jsonify(job_list)
@@ -887,7 +880,7 @@ def apply_job():
         if resume_file and resume_file.filename.endswith('.pdf'):
             filename = secure_filename(resume_file.filename)
             # Upload the resume to Firebase Storage
-            bucket = storage.bucket()
+            # bucket = storage.bucket()
             blob = bucket.blob(f'resumes/{uid}/{filename}')
             blob.upload_from_string(
                 resume_file.read(), content_type=resume_file.content_type
@@ -901,7 +894,7 @@ def apply_job():
             job_desc_text = get_job_description(jobId)
             
             score = calculate_similarity_scores(resume_text, job_desc_text)
-            print("Score here", score)
+            # print("Score here", score)
 
             # Add additional data to application data
             app_data.update({
@@ -931,7 +924,7 @@ def match_jobs():
 
         filename = secure_filename(resume_file.filename)
         
-        bucket = storage.bucket()
+        # bucket = storage.bucket()
         blob = bucket.blob(f'tempResumes/{uid}/{filename}')
         blob.upload_from_string(
             resume_file.read(), content_type=resume_file.content_type
@@ -941,169 +934,171 @@ def match_jobs():
         
         # Preprocess the resume text
         resume_text = fetch_pdf_text(blob.name)
+        # resume_text = resumeparse.read_file(blob.name)
+        # print("resume parse in App.py: ", resume_text)
         
         # Retrieve jobs from Firestore and match
         matched_jobs = find_matching_jobs(resume_text, top_n=10)
-        print("matched jobs: ", matched_jobs)
+        # print("matched jobs: ", matched_jobs)
 
         return jsonify(matched_jobs)
 
-# Function to fetch and preprocess text from a PDF in Firebase Storage
-def fetch_pdf_text(file_path):
-    try:
-        bucket = storage.bucket()
-        blob = bucket.blob(file_path)
-        pdf_bytes = blob.download_as_bytes()
+# # Function to fetch and preprocess text from a PDF in Firebase Storage
+# def fetch_pdf_text(file_path):
+#     try:
+#         bucket = storage.bucket()
+#         blob = bucket.blob(file_path)
+#         pdf_bytes = blob.download_as_bytes()
 
-        pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
-        text = ''
-        for page in pdf_reader.pages:
-            text += page.extract_text() + ' '
-        return preprocess_text(text)
+#         pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
+#         text = ''
+#         for page in pdf_reader.pages:
+#             text += page.extract_text() + ' '
+#         return preprocess_text(text)
 
-    except Exception as e:
-        print(f"Error fetching PDF text: {e}")
-        return ""
+#     except Exception as e:
+#         print(f"Error fetching PDF text: {e}")
+#         return ""
 
-def preprocess_text(text):
-    text = text.lower()
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(r'[^\w\s]', '', text)
-    tokens = word_tokenize(text)
-    tokens = [word for word in tokens if word not in stopwords.words('english')]
-    return ' '.join(tokens)
+# def preprocess_text(text):
+#     text = text.lower()
+#     text = re.sub(r'\d+', '', text)
+#     text = re.sub(r'[^\w\s]', '', text)
+#     tokens = word_tokenize(text)
+#     tokens = [word for word in tokens if word not in stopwords.words('english')]
+#     return ' '.join(tokens)
 
-def fetch_resumes_for_job(job_id):
-    applications_ref = db.collection('applications')
-    query = applications_ref.where('jobID', '==', job_id)
-    results = query.stream()
+# def fetch_resumes_for_job(job_id):
+#     applications_ref = db.collection('applications')
+#     query = applications_ref.where('jobID', '==', job_id)
+#     results = query.stream()
 
-    resumes = []
-    for doc in results:
-        application = doc.to_dict()
-        resume_url = application.get('resume')
+#     resumes = []
+#     for doc in results:
+#         application = doc.to_dict()
+#         resume_url = application.get('resume')
 
-        if resume_url:
-            try:
-                resume_content = fetch_pdf_text(resume_url)
-                resumes.append(resume_content)
-            except Exception as e:
-                print(f"Error fetching resume content for application {doc.id}: {e}")
-        else:
-            print(f"No resume found for application {doc.id}")
+#         if resume_url:
+#             try:
+#                 resume_content = fetch_pdf_text(resume_url)
+#                 resumes.append(resume_content)
+#             except Exception as e:
+#                 print(f"Error fetching resume content for application {doc.id}: {e}")
+#         else:
+#             print(f"No resume found for application {doc.id}")
 
-    return resumes
+#     return resumes
 
-from transformers import AutoTokenizer, AutoModel
-import torch
+# from transformers import AutoTokenizer, AutoModel
+# import torch
 
-def get_job_description(job_id):
-    doc_ref = db.collection('jobListings').document(job_id)
-    doc = doc_ref.get()
+# def get_job_description(job_id):
+#     doc_ref = db.collection('jobListings').document(job_id)
+#     doc = doc_ref.get()
     
-    if doc.exists:
-        doc_data = doc.to_dict()
-        full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
-        # Preprocess the full job description to a clean string
-        full_description = preprocess_text(full_description)
-        return full_description  # Return the string directly
-    else:
-        print("No such job listing document!")
-        return ""
+#     if doc.exists:
+#         doc_data = doc.to_dict()
+#         full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
+#         # Preprocess the full job description to a clean string
+#         full_description = preprocess_text(full_description)
+#         return full_description  # Return the string directly
+#     else:
+#         print("No such job listing document!")
+#         return ""
     
-def get_embeddings(text, model, tokenizer, device):
-    # Tokenize the input text and prepare input tensors
-    inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding='max_length')
-    inputs = {key: value.to(device) for key, value in inputs.items()}
+# def get_embeddings(text, model, tokenizer, device):
+#     # Tokenize the input text and prepare input tensors
+#     inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding='max_length')
+#     inputs = {key: value.to(device) for key, value in inputs.items()}
 
-    # Generate embeddings using the model
-    with torch.no_grad():
-        outputs = model(**inputs)
+#     # Generate embeddings using the model
+#     with torch.no_grad():
+#         outputs = model(**inputs)
     
-    # Use the mean of the last hidden state as the text embedding
-    embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
-    return embeddings
+#     # Use the mean of the last hidden state as the text embedding
+#     embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
+#     return embeddings
 
-# For recruiter
-def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
-    try:
+# # For recruiter
+# def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
+#     try:
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+#         device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # Load the tokenizer and model from the Hugging Face library
-        model_name = "bert-base-uncased"
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModel.from_pretrained(model_name)
-        model.to(device)
+#         # Load the tokenizer and model from the Hugging Face library
+#         model_name = "bert-base-uncased"
+#         tokenizer = AutoTokenizer.from_pretrained(model_name)
+#         model = AutoModel.from_pretrained(model_name)
+#         model.to(device)
 
-        # Generate embeddings for the job description and the resume
-        job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
-        resume_embedding = get_embeddings(preprocessed_resumes, model, tokenizer, device)
+#         # Generate embeddings for the job description and the resume
+#         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
+#         resume_embedding = get_embeddings(preprocessed_resumes, model, tokenizer, device)
 
-        # Calculate the cosine similarity between the job description and resume embeddings
-        similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
+#         # Calculate the cosine similarity between the job description and resume embeddings
+#         similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
 
-        return round(similarity_score * 100, 2)
+#         return round(similarity_score * 100, 2)
 
-    except Exception as e:
-        print(f"Error calculating similarity scores: {e}")
+#     except Exception as e:
+#         print(f"Error calculating similarity scores: {e}")
     
-def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=10):
-    try:
+# def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=10):
+#     try:
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+#         device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        # Load the tokenizer and model from the Hugging Face library
-        model_name = "bert-base-uncased"
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModel.from_pretrained(model_name)
-        model.to(device)
+#         # Load the tokenizer and model from the Hugging Face library
+#         model_name = "bert-base-uncased"
+#         tokenizer = AutoTokenizer.from_pretrained(model_name)
+#         model = AutoModel.from_pretrained(model_name)
+#         model.to(device)
 
-        # Generate embeddings for the job description and the resume
-        job_desc_embeddings = np.array([get_embeddings(job_desc, model, tokenizer, device) for job_desc in preprocessed_job_descs])
-        resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
+#         # Generate embeddings for the job description and the resume
+#         job_desc_embeddings = np.array([get_embeddings(job_desc, model, tokenizer, device) for job_desc in preprocessed_job_descs])
+#         resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
         
-        # Ensure job_desc_embeddings is a 2D array
-        if job_desc_embeddings.ndim > 2:
-            job_desc_embeddings = job_desc_embeddings.mean(axis=1)
+#         # Ensure job_desc_embeddings is a 2D array
+#         if job_desc_embeddings.ndim > 2:
+#             job_desc_embeddings = job_desc_embeddings.mean(axis=1)
 
-        # Calculate the cosine similarity between the job description and resume embeddings
-        similarity_score = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
-        similarity_score = np.around(similarity_score * 100, 2)
+#         # Calculate the cosine similarity between the job description and resume embeddings
+#         similarity_score = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
+#         similarity_score = np.around(similarity_score * 100, 2)
         
-        top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
+#         top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
 
-        # Prepare the results
-        top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
+#         # Prepare the results
+#         top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
 
-        return top_matches
+#         return top_matches
 
-    except Exception as e:
-        print(f"Error calculating similarity scores: {e}")
-        return []
+#     except Exception as e:
+#         print(f"Error calculating similarity scores: {e}")
+#         return []
 
-def find_matching_jobs(preprocessed_resume, top_n):
-    jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
-    docs = jobs_collection.stream()
+# def find_matching_jobs(preprocessed_resume, top_n):
+#     jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
+#     docs = jobs_collection.stream()
 
-    preprocessed_job_desc = []
-    matched_jobs = []
+#     preprocessed_job_desc = []
+#     matched_jobs = []
     
-    for doc in docs:
-        job = doc.to_dict()
-        full_description = " ".join([job[field] for field in ['title', 'desc', 'qualification', 'req']])
-        full_description = preprocess_text(full_description)
-        preprocessed_job_desc.append(full_description)
+#     for doc in docs:
+#         job = doc.to_dict()
+#         full_description = " ".join([job[field] for field in ['title', 'desc', 'qualification', 'req']])
+#         full_description = preprocess_text(full_description)
+#         preprocessed_job_desc.append(full_description)
 
-        matched_jobs.append(job)
+#         matched_jobs.append(job)
         
-        # Calculate top matching jobs
-    top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
+#         # Calculate top matching jobs
+#     top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
 
-    # Select top matching jobs from Firestore data
-    matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
+#     # Select top matching jobs from Firestore data
+#     matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
 
-    return matched_jobs
+#     return matched_jobs
   
 def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name):
     
