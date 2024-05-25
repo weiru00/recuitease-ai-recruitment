@@ -108,12 +108,12 @@ const ManagerDashboard = () => {
 
   const handleUpdateStatus = async (applicationID, newStatus) => {
     try {
-      const response = await fetch("/api/approve_user", {
+      const response = await fetch(`api/update-application-status?uid=${uid}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ uid: applicationID, status: newStatus }),
+        body: JSON.stringify({ applicationID, status: newStatus }),
       });
       const data = await response.json();
       if (response.ok) {
@@ -122,7 +122,7 @@ const ManagerDashboard = () => {
         throw new Error(data.error);
       }
     } catch (error) {
-      console.error("Failed to update user status:", error.message);
+      console.error("Failed to update application status:", error.message);
     }
   };
 
@@ -151,9 +151,14 @@ const ManagerDashboard = () => {
       </span>
     );
   };
-  // const pendingUsers = users.filter(
-  //   (user) => user.register_status === "pending"
-  // );
+
+  const pendingApps = applications.filter((app) => app.status === "Forwarded");
+
+  const hiredApps = applications.filter((app) => app.status === "Onboard");
+
+  const interviewApps = applications.filter(
+    (app) => app.status === "Interview"
+  );
 
   // const approvedUsers = filteredUsers.filter(
   //   (newuser) => newuser.register_status === "approved" && newuser.uid !== uid
@@ -329,10 +334,11 @@ const ManagerDashboard = () => {
             <img src={dashboard2} alt="job icon" className="z-40" />
           </div> */}
 
+          {/* Pending Applicants */}
           <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto p-4">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Pending Applicants ({applications.length})
+                Pending Applicants ({pendingApps.length})
               </h5>
             </div>
 
@@ -346,6 +352,9 @@ const ManagerDashboard = () => {
                     </th>
                     <th scope="col" className="py-3 px-6">
                       Applied Position
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Status
                     </th>
                     <th scope="col" className="py-3 px-4">
                       Score
@@ -362,8 +371,8 @@ const ManagerDashboard = () => {
                     <th scope="col" className="py-3 px-3"></th>
                   </tr>
                 </thead>
-                {applications.length > 0 ? (
-                  applications.map((app) => (
+                {pendingApps.length > 0 ? (
+                  pendingApps.map((app) => (
                     <tbody>
                       <tr
                         key={app.applicationID}
@@ -380,6 +389,7 @@ const ManagerDashboard = () => {
                           {app.applicantFName} {app.applicantLName}
                         </td>
                         <td className="py-4 px-6">{app.jobTitle}</td>
+                        <td className="py-4 px-6">{app.status}</td>
                         <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
                           {app.score}%
                         </td>
@@ -477,7 +487,10 @@ const ManagerDashboard = () => {
                                 <li>
                                   <a
                                     onClick={() =>
-                                      openForwardForm(app.applicationID)
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Onboard"
+                                      )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
                                   >
@@ -496,7 +509,7 @@ const ManagerDashboard = () => {
                                         clipRule="evenodd"
                                       />
                                     </svg>
-                                    Shortlist
+                                    Hire
                                   </a>
                                 </li>
                                 <li>
@@ -539,6 +552,336 @@ const ManagerDashboard = () => {
                 )}
               </table>
             </div>
+          </div>
+
+          {/* Interview applicants */}
+          <div className="col-span-2 border-2 border-gray-100 rounded-2xl h-auto p-4">
+            <div className="flex justify-between mb-4">
+              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
+                Pending Interviews ({interviewApps.length})
+              </h5>
+            </div>
+
+            <div className="relative">
+              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                {interviewApps.length > 0 ? (
+                  interviewApps.map((app) => (
+                    <tbody>
+                      <tr
+                        key={app.applicationID}
+                        className="bg-white hover:bg-gray-50"
+                      >
+                        <td className="py-2 pl-4 pr-1">
+                          <img
+                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
+                            src={app.applicantPic || user}
+                            alt="Profile Picture"
+                          />
+                        </td>
+                        <td className="py-4 pl-2 pr-6">
+                          {app.applicantFName} {app.applicantLName}
+                        </td>
+                        <td className="py-4 px-6">{app.jobTitle}</td>
+                        <td className="py-4 px-6">{app.status}</td>
+                        <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
+                          {app.score}%
+                        </td>
+                        <td className="py-4 px-3 max-w-96">{app.feedbackHR}</td>
+                        {/* <td className="py-4 px-3">{app.status}</td> */}
+                        <td className="py-4 px-3">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(app.resume)
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            // to="/talents"
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                        </td>
+                        <td className="py-4 px-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(app.applicationID)}
+                            className="relative p-1.5 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          >
+                            <span className="sr-only">View status</span>
+                            <img src={option} className="h-6" alt="icon" />
+                            <div
+                              className={`${
+                                showDropdown[app.applicationID]
+                                  ? "opacity-100 visible"
+                                  : "opacity-0 invisible"
+                              } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                              style={{
+                                top: showDropdown[app.applicationID]?.top || 0,
+                                left:
+                                  showDropdown[app.applicationID]?.left || 0,
+                                zIndex: 9999,
+                              }}
+                              id="dropdown"
+                            >
+                              <div className="py-3 px-4 bg-purple-50">
+                                <span className="block text-sm font-semibold text-gray-900 ">
+                                  Select Hiring Status
+                                </span>
+                              </div>
+                              <ul
+                                className="py-1 text-gray-700 dark:text-gray-300"
+                                aria-labelledby="dropdown"
+                              >
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Interview"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Schedule Interview
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Onboard"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Hire
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Reject"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Decline
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  ))
+                ) : (
+                  <NoResult desc={"No user"} />
+                )}
+              </table>
+            </div>
+          </div>
+
+          {/* Hired Applicants */}
+          <div className="col-span-2 border-2 border-gray-100 rounded-2xl h-auto p-4">
+            <div className="flex justify-between mb-4">
+              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
+                Hires ({hiredApps.length})
+              </h5>
+            </div>
+
+            <div className="flex flex-col items-left justify-center px-3">
+              <ul role="list" className="divide-y divide-purple-200">
+                {hiredApps.length > 0 ? (
+                  hiredApps.map((app) => (
+                    <li
+                      key={app.applicationID}
+                      className="flex justify-between gap-x-6 py-4"
+                    >
+                      <div className="flex min-w-0 gap-x-4">
+                        <img
+                          className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                          src={app.applicantPic || user}
+                          alt="Profile Picture"
+                        />
+                        <div className="min-w-0 flex-auto">
+                          <p className="text-md font-semibold leading-6 text-gray-900">
+                            {app.applicantFName} {app.applicantLName}
+                          </p>
+                          <p className="mt-1 truncate text-sm leading-5 text-gray-500">
+                            {app.email} | {app.jobTitle}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                        <div className="mt-1 flex items-center gap-x-1.5">
+                          <div className="flex-none rounded-full bg-emerald-500/20 p-1">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          </div>
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(app.resume)
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            // to="/talents"
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                        </div>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <NoResult desc={"No pending users"} />
+                )}
+              </ul>
+            </div>
+
+            {/* <div className="relative">
+              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                {hiredApps.length > 0 ? (
+                  hiredApps.map((app) => (
+                    <tbody>
+                      <tr
+                        key={app.applicationID}
+                        className="bg-white hover:bg-gray-50"
+                      >
+                        <td className="py-2 pl-4 pr-1">
+                          <img
+                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
+                            src={app.applicantPic || user}
+                            alt="Profile Picture"
+                          />
+                        </td>
+                        <td className="py-4 pl-2 pr-6">
+                          {app.applicantFName} {app.applicantLName}
+                        </td>
+                        <td className="py-4 px-6">{app.jobTitle}</td>
+                        <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
+                          {app.score}%
+                        </td>
+                        <td className="py-4 px-3">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(app.resume)
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            // to="/talents"
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                        </td>
+                      </tr>
+                    </tbody>
+                  ))
+                ) : (
+                  <NoResult desc={"No user"} />
+                )}
+              </table>
+            </div> */}
           </div>
         </div>
       </main>

@@ -77,6 +77,7 @@ const ForwardForm = ({ onCloseModal, applicationID }) => {
     formData.append("applicationID", applicationID);
     formData.append("managerID", managerID);
     formData.append("feedbackHR", feedbackHR);
+    formData.append("status", "Forwarded");
 
     try {
       const response = await fetch("/api/forward-application", {

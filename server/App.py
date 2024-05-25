@@ -862,7 +862,8 @@ def get_forwarded_applications():
                     app_data['applicantFName'] = user_data.get('firstName', 'Unknown') 
                     app_data['applicantLName'] = user_data.get('lastName', 'Unknown')
                     app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
-                                    
+                    app_data['email'] = user_data.get('email', 'Unknown')
+            
             app_list.append(app_data)
 
         return jsonify(app_list), 200
