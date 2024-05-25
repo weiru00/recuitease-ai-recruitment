@@ -895,9 +895,9 @@ def apply_job():
             job_desc_text = get_job_description(jobId)
             
             knn_model, vectorizer, label_encoder = load_model_components()
-            predicted_category = predict_categories(resume_text, knn_model, vectorizer, label_encoder)
+            predicted_category = predict_categories([resume_text], knn_model, vectorizer, label_encoder)
 
-            score = calculate_similarity_scores(resume_text, job_desc_text)
+            score = calculate_similarity_scores([resume_text], job_desc_text)
             # print("Score here", score)
 
             # Add additional data to application data
@@ -908,7 +908,7 @@ def apply_job():
                 'jobID': jobId,
                 'status':"Applied",
                 'score':score,
-                'predicted_category':predicted_category,
+                'predicted_category':predicted_category.tolist(),
             })
 
             app_ref = db.collection('applications').add(app_data)

@@ -99,7 +99,7 @@ def get_embeddings(text, model, tokenizer, device):
     return embeddings
 
 # # For recruiter
-def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
+def calculate_similarity_scores(resumes, preprocessed_job_descs):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -110,9 +110,11 @@ def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
         model = AutoModel.from_pretrained(model_name)
         model.to(device)
 
+        preprocessed_resume = [preprocess(resume) for resume in resumes]
+
         # Generate embeddings for the job description and the resume
         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
-        resume_embedding = get_embeddings(preprocessed_resumes, model, tokenizer, device)
+        resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
 
         # Calculate the cosine similarity between the job description and resume embeddings
         similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
