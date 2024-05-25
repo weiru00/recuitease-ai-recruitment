@@ -29,6 +29,7 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
           postedAt: "",
           jobMode: "",
           salary: "",
+          category: "",
           recruiterID: uid,
         };
 
@@ -229,6 +230,67 @@ const JobForm = ({ isOpen, isClose, mode, jobData }) => {
                         <option value="Remote">Remote</option>
                         <option value="On-site">On-site</option>
                         <option value="Hybrid">Hybrid</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="category"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Category
+                      </label>
+                      <select
+                        id="category"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                        value={job.category}
+                        onChange={(e) =>
+                          setJob({ ...job, category: e.target.value })
+                        }
+                      >
+                        <option defaultValue="">Select Job Category</option>
+                        <option value="Advocate">Advocate</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Automation Testing">
+                          Automation Testing
+                        </option>
+                        <option value="Blockchain">Blockchain</option>
+                        <option value="Business Analyst">
+                          Business Analyst
+                        </option>
+                        <option value="Civil Engineer">Civil Engineer</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Database">Database</option>
+                        <option value="DevOps Engineer">DevOps Engineer</option>
+                        <option value="DotNet Developer">
+                          DotNet Developer
+                        </option>
+                        <option value="ETL Developer">ETL Developer</option>
+                        <option value="Electrical Engineering">
+                          Electrical Engineering
+                        </option>
+                        <option value="HR">HR</option>
+                        <option value="Hadoop">Hadoop</option>
+                        <option value="Health and fitness">
+                          Health and fitness
+                        </option>
+                        <option value="Java Developer">Java Developer</option>
+                        <option value="Mechanical Engineer">
+                          Mechanical Engineer
+                        </option>
+                        <option value="Network Security Engineer">
+                          Network Security Engineer
+                        </option>
+                        <option value="Operations Manager">
+                          Operations Manager
+                        </option>
+                        <option value="PMO">PMO</option>
+                        <option value="Python Developer">
+                          Python Developer
+                        </option>
+                        <option value="SAP Developer">SAP Developer</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Testing">Testing</option>
+                        <option value="Web Designing">Web Designing</option>
                       </select>
                     </div>
                     <div className="sm:col-span-2 mb-3">

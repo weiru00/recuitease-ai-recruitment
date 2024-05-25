@@ -897,7 +897,12 @@ def apply_job():
             knn_model, vectorizer, label_encoder = load_model_components()
             predicted_category = predict_categories([resume_text], knn_model, vectorizer, label_encoder)
 
-            score = calculate_similarity_scores([resume_text], job_desc_text)
+            job_doc = db.collection('jobListings').document(jobId).get()
+            job_category = job_doc.to_dict().get('category', '')
+            
+            scores = calculate_similarity_scores([resume_text], job_desc_text, predicted_category, job_category, similarity_weight=0.6, category_weight=0.4)
+            score = scores[0]
+            # score = calculate_similarity_scores([resume_text], job_desc_text)
             # print("Score here", score)
 
             # Add additional data to application data
@@ -945,7 +950,7 @@ def match_jobs():
         predicted_category = predict_categories([resume_text], knn_model, vectorizer, label_encoder)
 
         # Retrieve jobs from Firestore and match
-        matched_jobs = find_matching_jobs([resume_text], top_n=10)
+        matched_jobs = find_matching_jobs([resume_text], predicted_category, top_n=10)
         # print("matched jobs: ", matched_jobs)
 
         response_data = {

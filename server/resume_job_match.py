@@ -99,7 +99,7 @@ def get_embeddings(text, model, tokenizer, device):
     return embeddings
 
 # # For recruiter
-def calculate_similarity_scores(resumes, preprocessed_job_descs):
+def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.6, category_weight=0.4):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -110,16 +110,28 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs):
         model = AutoModel.from_pretrained(model_name)
         model.to(device)
 
-        preprocessed_resume = [preprocess(resume) for resume in resumes]
+        preprocessed_resumes = [preprocess(resume) for resume in resumes]
 
         # Generate embeddings for the job description and the resume
         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
-        resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
-
+        # resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
+        resume_embeddings = [get_embeddings(resume, model, tokenizer, device) for resume in preprocessed_resumes]
+       
+        similarity_scores = [cosine_similarity(job_desc_embedding, resume_embedding)[0][0] for resume_embedding in resume_embeddings]
+        similarity_scores = [np.around(score * 100, 2) for score in similarity_scores]
         # Calculate the cosine similarity between the job description and resume embeddings
-        similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
+        # similarity_scores = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
+        # similarity_scores = np.around(similarity_scores * 100, 2)
+        
+        category_match_score = 1.0 if predicted_category == job_category else 0.0
 
-        return round(similarity_score * 100, 2)
+        # Combine scores
+        final_scores = [
+            similarity_weight * similarity_score + category_weight * category_match_score
+            for similarity_score in similarity_scores
+        ]
+
+        return final_scores
 
     except Exception as e:
         print(f"Error calculating similarity scores: {e}")
@@ -138,7 +150,7 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs):
 #     except Exception as e:
 #         print(f"Error calculating similarity scores: {e}")
     
-def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=10):
+def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,  predicted_category, job_categories, similarity_weight=0.6, category_weight=0.4, top_n=10):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -158,13 +170,22 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
             job_desc_embeddings = job_desc_embeddings.mean(axis=1)
 
         # Calculate the cosine similarity between the job description and resume embeddings
-        similarity_score = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
-        similarity_score = np.around(similarity_score * 100, 2)
+        similarity_scores = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
+        similarity_scores = np.around(similarity_scores * 100, 2)
         
-        top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
+        category_match_scores = [1.0 if predicted_category == job_category else 0.0 for job_category in job_categories]
+
+        final_scores = [
+            similarity_weight * similarity_score + category_weight * category_match_score
+            for similarity_score, category_match_score in zip(similarity_scores, category_match_scores)
+                ]
+        
+        # top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
+        top_matching_indices = np.argsort(final_scores)[-top_n:][::-1]
 
         # Prepare the results
-        top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
+        # top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
+        top_matches = [(int(index), final_scores[index]) for index in top_matching_indices]
 
         return top_matches
 
@@ -172,14 +193,15 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
         print(f"Error calculating similarity scores: {e}")
         return []
 
-def find_matching_jobs(resumes, top_n):
+def find_matching_jobs(resumes, predicted_category, top_n):
     jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
     docs = jobs_collection.stream()
 
     preprocessed_resume = [preprocess(resume) for resume in resumes]
     preprocessed_job_desc = []
     matched_jobs = []
-    
+    job_categories = []
+
     for doc in docs:
         job = doc.to_dict()
         job['id'] = doc.id
@@ -188,6 +210,7 @@ def find_matching_jobs(resumes, top_n):
         preprocessed_job_desc.append(full_description)
 
         matched_jobs.append(job)
+        job_categories.append(job.get('category', ''))
         
         recruiter_doc = db.collection('users').document(job['recruiterID']).get()
         if recruiter_doc.exists:
@@ -209,7 +232,8 @@ def find_matching_jobs(resumes, top_n):
             job['companyLogoUrl'] = 'Logo Unavailable' 
         
     # Calculate top matching jobs
-    top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
+    # top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
+    top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, predicted_category, job_categories, top_n=top_n)
 
     # Select top matching jobs from Firestore data
     matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
