@@ -1,10 +1,9 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
 import DashNavbar from "./DashNavbar";
 import NoResult from "./NoResult";
 import { ApplicantSidebar } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
-import { useLocation, Link } from "react-router-dom";
 import { dashboard, user } from "../assets";
 
 const JobPostings = () => {
@@ -86,13 +85,16 @@ const JobPostings = () => {
       setViewMatchedJobs(true); // Automatically switch to viewing matched jobs
     } catch (error) {
       console.error("Error fetching matching jobs:", error);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await fetch(`api/joblistings?role=${role}&uid=${uid}`);
+        const response = await fetch(
+          `/api/joblistings?role=${role}&uid=${uid}`
+        );
         const jobList = await response.json();
         setJobs(jobList);
       } catch (error) {
@@ -125,9 +127,7 @@ const JobPostings = () => {
       // Check if job's salary falls within the selected range
       const salaryMatch = selectedRange
         ? job.salary >= selectedRange.min && job.salary <= selectedRange.max
-        : true; // If no range is selected, consider all jobs
-
-      // const salaryMatch = job.salary === salaryRange || salaryRange === "";
+        : true;
 
       return searchMatch && jobTypeMatch && salaryMatch;
     });
@@ -164,32 +164,6 @@ const JobPostings = () => {
     setSalaryRange(e.target.value);
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="text-center">
-  //       <div role="status">
-  //         <svg
-  //           aria-hidden="true"
-  //           className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
-  //           viewBox="0 0 100 101"
-  //           fill="none"
-  //           xmlns="http://www.w3.org/2000/svg"
-  //         >
-  //           <path
-  //             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-  //             fill="currentColor"
-  //           />
-  //           <path
-  //             d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-  //             fill="currentFill"
-  //           />
-  //         </svg>
-  //         <span className="sr-only">Loading...</span>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="font-body">
       <div className="antialiased bg-white dark:bg-gray-900">
@@ -215,14 +189,10 @@ const JobPostings = () => {
               </div>
               <div className="bg-white shadow-md rounded-xl p-6 w-1/3 h-auto">
                 {loading && (
-                  <div
-                    role="status"
-                    // class="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2"
-                    className="text-center"
-                  >
+                  <div role="status" className="text-center">
                     <svg
                       aria-hidden="true"
-                      class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
+                      className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-purple-600"
                       viewBox="0 0 100 101"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -236,7 +206,7 @@ const JobPostings = () => {
                         fill="currentFill"
                       />
                     </svg>
-                    <span class="sr-only">Loading...</span>
+                    <span className="sr-only">Loading...</span>
                   </div>
                 )}
                 <form onSubmit={handleSubmit}>
@@ -296,7 +266,7 @@ const JobPostings = () => {
                           >
                             <path
                               fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414z"
                               clipRule="evenodd"
                             ></path>
                           </svg>
@@ -332,12 +302,16 @@ const JobPostings = () => {
                   </button>
                 </div>
               </div>
-              <img className="flex z-[5] h-60" src={dashboard}></img>
+              <img
+                className="flex z-[5] h-60"
+                src={dashboard}
+                alt="Dashboard"
+              ></img>
             </div>
           )}
 
           <div className="grid grid-cols-6 sm:grid-cols-2 lg:grid-cols-6 gap-6 mb-6 mx-6 pt-6">
-            {/* Filter and Seacrh Section */}
+            {/* Filter and Search Section */}
             <div className="col-span-2 border-2 rounded-xl border-gray-100 bg-white dark:border-gray-600 h-auto px-5 py-4">
               {/* Search bar */}
               <h6 className="text-md font-bold mb-2 dark:text-white">Search</h6>
@@ -399,7 +373,6 @@ const JobPostings = () => {
               </div>
               <div className="flex items-center mb-6">
                 <input
-                  // checked
                   id="checked-checkbox"
                   type="checkbox"
                   value="Internship"
@@ -420,7 +393,6 @@ const JobPostings = () => {
                 <h6 className="text-md font-bold mb-2 dark:text-white">
                   Salary
                 </h6>
-
                 <label
                   htmlFor="salary"
                   className="text-md font-bold dark:text-white"
@@ -428,7 +400,7 @@ const JobPostings = () => {
                 <select
                   id="salary"
                   value={salaryRange}
-                  onChange={(e) => setSalaryRange(e.target.value)}
+                  onChange={handleSalaryChange}
                   className="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                 >
                   <option defaultValue>Salary Range</option>
@@ -437,17 +409,12 @@ const JobPostings = () => {
                       {range.label}
                     </option>
                   ))}
-                  {/* <option value="Below RM3,000">Below RM3,000</option>
-                  <option value="RM3,000 ~ RM5,999">RM3,000 ~ RM5,999</option>
-                  <option value="RM6,000 ~ RM9,999">RM6,000 ~ RM9,999</option>
-                  <option value="Above RM10,000">Above RM10,000</option> */}
                 </select>
               </form>
             </div>
 
             {/* Jobs Section */}
-
-            <div href="#" className="col-span-4 overflow-auto">
+            <div className="col-span-4 overflow-auto">
               {role === "applicant" && (
                 <div className="items-center ">
                   {viewMatchedJobs ? (
@@ -488,7 +455,6 @@ const JobPostings = () => {
                 </div>
               )}
 
-              {/* new */}
               <div>
                 {role === "applicant" ? (
                   viewMatchedJobs ? (
@@ -496,7 +462,7 @@ const JobPostings = () => {
                       matchedJobs.map(([job, score]) => (
                         <Link
                           key={job.id}
-                          className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
+                          className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
                           to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                         >
                           <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
@@ -535,11 +501,6 @@ const JobPostings = () => {
                                 </li>
                               </ul>
                             </div>
-                            {/* <div className="col-span-2 grid justify-items-center content-center">
-                            <span className="bg-purple-100 text-purple-600 text-sm font-bold me-2 px-2.5 py-0.5 mb-2 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                              {score.toFixed(2)}%
-                            </span>
-                          </div> */}
                           </div>
                         </Link>
                       ))
@@ -551,9 +512,8 @@ const JobPostings = () => {
                     )
                   ) : filteredJobs.length > 0 ? (
                     filteredJobs.map((job) => (
-                      <div className="py-1">
+                      <div className="py-1" key={job.id}>
                         <Link
-                          key={job.id}
                           className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 my-3"
                           // onClick={() => openUpdateForm(job)}
                           to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
@@ -609,9 +569,8 @@ const JobPostings = () => {
                   />
                 ) : filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <div className="py-1">
+                    <div className="py-1" key={job.id}>
                       <Link
-                        key={job.id}
                         className="col-span-1 bg-white dark:border-gray-600 h-auto min-h-20 my-3"
                         // onClick={() => openUpdateForm(job)}
                         to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
