@@ -21,6 +21,7 @@ const JobPostings = () => {
   const [updateTrigger, setUpdateTrigger] = useState(false);
   const [resume, setResume] = useState(null);
   const [matchedJobs, setMatchedJobs] = useState([]); // Holds matched jobs after resume upload
+  const [predictedCategory, setPredictedCategory] = useState([]);
   const [viewMatchedJobs, setViewMatchedJobs] = useState(false); // Flag to toggle view
   const [searchQuery, setSearchQuery] = useState("");
   const [jobType, setJobType] = useState({
@@ -80,7 +81,8 @@ const JobPostings = () => {
 
       const matchingJobs = await response.json();
       setLoading(false);
-      setMatchedJobs(matchingJobs); // Update matched jobs
+      setMatchedJobs(matchingJobs.matched_jobs); // Update matched jobs
+      setPredictedCategory(matchingJobs.predicted_category);
       setViewMatchedJobs(true); // Automatically switch to viewing matched jobs
     } catch (error) {
       console.error("Error fetching matching jobs:", error);
@@ -447,10 +449,26 @@ const JobPostings = () => {
 
             <div href="#" className="col-span-4 overflow-auto">
               {role === "applicant" && (
-                <div className="items-center border-2 rounded-xl border-purple-50 px-4 py-1 mb-2 ">
+                <div className="items-center ">
+                  {viewMatchedJobs ? (
+                    <div className="mb-3 pl-2">
+                      <h5 className="bg-purple-100 text-gray-500 text-md font-medium me-2 px-2.5 py-2 rounded-full ">
+                        Recommended:{" "}
+                        <span className="bg-purple-100 text-purple-600 font-bold me-2 pl-3">
+                          {predictedCategory}
+                        </span>{" "}
+                      </h5>
+                    </div>
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
+              )}
+              {role === "applicant" && (
+                <div className="items-center rounded-xl border-purple-50 px-4 py-0.5 mb-1 ">
                   {viewMatchedJobs ? (
                     <div className="flex justify-between">
-                      <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
+                      <h5 className="text-lg font-semibold text-purple-700 mb-1 mt-2">
                         Top Matching Jobs
                       </h5>
                       <button
@@ -463,12 +481,13 @@ const JobPostings = () => {
                       </button>
                     </div>
                   ) : (
-                    <h5 className="text-xl font-bold dark:text-white mb-3 mt-2">
+                    <h5 className="text-lg font-semibold text-purple-700 mb-1 mt-2">
                       All Jobs
                     </h5>
                   )}
                 </div>
               )}
+
               {/* new */}
               <div>
                 {role === "applicant" ? (
@@ -478,13 +497,12 @@ const JobPostings = () => {
                         <Link
                           key={job.id}
                           className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
-                          // onClick={() => openUpdateForm(job)}
                           to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
                         >
                           <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
-                            <div className="col-span-2 grid justify-items-center content-center">
+                            <div className="col-span-2 grid my-1 justify-items-center content-center">
                               <img
-                                className="rounded-t-lg"
+                                className="rounded-full w-14 h-14"
                                 src={job.companyLogoUrl || user}
                                 alt="logo"
                               />
@@ -498,7 +516,6 @@ const JobPostings = () => {
                                   {job.title}
                                 </h5>
                               </a>
-
                               <ul className="flex flex-wrap text-sm font-medium text-center justify-between text-gray-500 dark:text-gray-400">
                                 <li>
                                   <p className="inline-block pr-8 py-2">
@@ -644,48 +661,6 @@ const JobPostings = () => {
                   />
                 )}
               </div>
-              {/* ori below */}
-              {/* {(viewMatchedJobs ? matchedJobs : jobs).map(([job, score]) => (
-                <Link
-                  key={job.id}
-                  className="col-span-1  bg-white dark:border-gray-600 h-auto min-h-20 mb-3"
-                  // onClick={() => openUpdateForm(job)}
-                  to={`/jobdescription?uid=${uid}&role=${role}&jobId=${job.id}`}
-                >
-                  <div className="grid grid-cols-10 bg-white border-2 border-gray-100 rounded-xl hover:border-purple-400 dark:bg-gray-800 dark:border-gray-700">
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      <img className="rounded-t-lg" src={discord} alt="" />
-                    </div>
-                    <div className="px-4 py-3 col-span-8">
-                      <a href="#">
-                        <h5 className="mb-2 text-md font-bold tracking-tight text-gray-900 dark:text-white">
-                          {job.title}
-                        </h5>
-                      </a>
-
-                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                        <li>
-                          <p className="text-black font-bold inline-block pr-8 py-2">
-                            Meta
-                          </p>
-                          <p className="inline-block pr-8 py-2">{job.type}</p>
-                          <p className="text-purple-600 inline-block pr-8 py-2">
-                            RM5,000
-                          </p>
-                          <p className="inline-block pr-8 py-2">
-                            {job.postedAt}
-                          </p>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                        {score.toFixed(2)}%
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))} */}
             </div>
           </div>
         </main>

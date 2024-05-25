@@ -2,8 +2,12 @@ from flask import request, Flask, jsonify
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from firebase_config import db, bucket
+import firebase_admin
+from firebase_admin import auth
 from resume_job_match import fetch_pdf_text, find_matching_jobs, calculate_similarity_scores, get_job_description
 # from resume_parser import resumeparse
+from kNN import predict_categories
+from resume_job_match import load_model_components
 
 from flask_mail import Mail, Message
 from flask_cors import CORS
@@ -879,8 +883,6 @@ def apply_job():
 
         if resume_file and resume_file.filename.endswith('.pdf'):
             filename = secure_filename(resume_file.filename)
-            # Upload the resume to Firebase Storage
-            # bucket = storage.bucket()
             blob = bucket.blob(f'resumes/{uid}/{filename}')
             blob.upload_from_string(
                 resume_file.read(), content_type=resume_file.content_type
@@ -888,11 +890,13 @@ def apply_job():
             blob.make_public()
             resume_url = blob.public_url
             
-            # Preprocess the resume text
+            # Preprocessed
             resume_text = fetch_pdf_text(blob.name)
-            
             job_desc_text = get_job_description(jobId)
             
+            knn_model, vectorizer, label_encoder = load_model_components()
+            predicted_category = predict_categories(resume_text, knn_model, vectorizer, label_encoder)
+
             score = calculate_similarity_scores(resume_text, job_desc_text)
             # print("Score here", score)
 
@@ -904,6 +908,7 @@ def apply_job():
                 'jobID': jobId,
                 'status':"Applied",
                 'score':score,
+                'predicted_category':predicted_category,
             })
 
             app_ref = db.collection('applications').add(app_data)
@@ -936,12 +941,20 @@ def match_jobs():
         resume_text = fetch_pdf_text(blob.name)
         # resume_text = resumeparse.read_file(blob.name)
         # print("resume parse in App.py: ", resume_text)
-        
+        knn_model, vectorizer, label_encoder = load_model_components()
+        predicted_category = predict_categories([resume_text], knn_model, vectorizer, label_encoder)
+
         # Retrieve jobs from Firestore and match
-        matched_jobs = find_matching_jobs(resume_text, top_n=10)
+        matched_jobs = find_matching_jobs([resume_text], top_n=10)
         # print("matched jobs: ", matched_jobs)
 
-        return jsonify(matched_jobs)
+        response_data = {
+            'matched_jobs':matched_jobs,
+            'predicted_category': predicted_category.tolist(),
+        }
+        
+        print(response_data)
+        return jsonify(response_data)
 
 # # Function to fetch and preprocess text from a PDF in Firebase Storage
 # def fetch_pdf_text(file_path):

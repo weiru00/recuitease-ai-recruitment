@@ -41,7 +41,7 @@ def load_and_preprocess_data(file_path):
 
 # Train and save the kNN model, vectorizer, and label encoder
 def train_and_save_model(df, model_path, vectorizer_path, label_encoder_path):
-    vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
+    vectorizer = TfidfVectorizer(stop_words='english', max_features=2000)
     X = vectorizer.fit_transform(df['cleaned_resume'])
     
     label_encoder = LabelEncoder()
