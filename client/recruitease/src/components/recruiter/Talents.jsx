@@ -6,6 +6,9 @@ import { useLocation } from "react-router-dom";
 import { user, option, talents } from "../../assets";
 import StatusModal from "../StatusModal";
 import ForwardForm from "./ForwardForm";
+import { Tooltip } from "react-tooltip";
+
+// import EmailPreview from "./EmailPreview";
 
 const Talents = () => {
   const location = useLocation();
@@ -16,11 +19,36 @@ const Talents = () => {
   const [applications, setApplications] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showForwardForm, setShowForwardForm] = useState(false);
+  // const [showEmailPreview, setShowEmailPreview] = useState(false);
+  // const [emailContent, setEmailContent] = useState("");
+  // const [subject, setSubject] = useState("");
+  // const [applicantEmail, setApplicantEmail] = useState("");
   const [status, setStatus] = useState("");
   const [applicationID, setApplicationID] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
   const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showPendingTalents, setShowPendingTalents] = useState(true);
+  const [showApprovedTalents, setShowApprovedTalents] = useState(false);
+  const [showRejectedTalents, setShowRejectedTalents] = useState(false);
+
+  const openPendingTalents = () => {
+    setShowApprovedTalents(false);
+    setShowRejectedTalents(false);
+    setShowPendingTalents(true);
+  };
+
+  const openApprovedTalents = () => {
+    setShowPendingTalents(false);
+    setShowRejectedTalents(false);
+    setShowApprovedTalents(true);
+  };
+
+  const openRejectedTalents = () => {
+    setShowPendingTalents(false);
+    setShowApprovedTalents(false);
+    setShowRejectedTalents(true);
+  };
 
   const toggleDropdown = (appId) => {
     setShowDropdown((prev) => ({
@@ -44,18 +72,34 @@ const Talents = () => {
     setApplicationID(applicationID);
   };
 
+  // const closeEmailPreview = () => setShowEmailPreview(false);
+
+  // const openEmailPreview = (applicationID, status) => {
+  //   setShowEmailPreview(true);
+  //   setApplicationID(applicationID);
+  //   setStatus(status);
+  // };
+
   const handleConfirmStatus = async () => {
     closeStatusModal();
     handleStatusChange(applicationID, status);
   };
 
-  const topTalents = applications
+  const pendingTalents = applications.filter(
+    (app) => app.status === "Review" || app.status === "Applied"
+  );
+
+  const hiredTalents = applications.filter((app) => app.status === "Onboard");
+
+  const rejectedTalents = applications.filter((app) => app.status === "Reject");
+
+  const topTalents = pendingTalents
     .filter((app) => app.score > 60)
     .sort((a, b) => b.score - a.score);
 
   const topTalentIds = topTalents.map((app) => app.applicationID);
 
-  const sortedByTimeApplications = applications
+  const sortedByTimeApplications = pendingTalents
     .filter((app) => !topTalentIds.includes(app.applicationID)) // Exclude top talents
     .sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
 
@@ -113,7 +157,6 @@ const Talents = () => {
           console.log(
             `Status updated to "Review" for application ${applicationId}`
           );
-          // Here you might want to update your component's state to reflect the change
         })
         .catch((error) => {
           console.error("Failed to update application status:", error);
@@ -155,24 +198,56 @@ const Talents = () => {
       );
 
       console.log("Status updated successfully:", data);
-      // You can add code here to update the UI accordingly
     } catch (error) {
       console.error("Error updating application status:", error);
     }
   };
 
   const handleStatusChange = (applicationID, newStatus) => {
+    // if (newStatus === "Interview") {
+    //   // Open the email preview modal with meeting link input
+    //   const selectedApplication = applications.find(
+    //     (app) => app.applicationID === applicationID
+    //   );
+    //   const emailContent = `
+    //     <div style="font-size: 14px;">
+    //     Dear Applicant,
+    //     <br><br>We are pleased to inform you that after reviewing your application for the <b>${selectedApplication.jobTitle}</b> position at <b>${selectedApplication.companyName}</b>, we would like to invite you to the next stage of our recruitment process: interview session.
+    //     <br><br>This is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.
+    //     <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
+    //     <br><br>Best Regards,
+    //     <br><br><b>${selectedApplication.senderName}</b>
+    //     <br>Hiring Team
+    //     <br><b>${selectedApplication.companyName}</b>
+    //     </div>`;
+    //   const subject = `Invitation to Interview - ${selectedApplication.jobTitle}, ${selectedApplication.companyName}`;
+    //   const applicantEmail = selectedApplication.email;
+    //   setEmailContent(emailContent);
+    //   setSubject(subject);
+    //   setApplicantEmail(applicantEmail);
+    //   openEmailPreview(applicationID);
+    // } else {
     updateApplicationStatus(applicationID, newStatus)
       .then(() => {
-        // Handle successful status update here, such as updating local state to reflect the change
         console.log(
           `Status updated to ${newStatus} for application ${applicationID}`
         );
       })
       .catch((error) => {
-        // Handle error here
         console.error("Failed to update application status:", error);
       });
+    //   }
+    // };
+
+    // const handleSendEmail = (meetingLink) => {
+    //   updateApplicationStatus(applicationID, "Interview", meetingLink)
+    //     .then(() => {
+    //       closeEmailPreview();
+    //       console.log(`Interview email sent with meeting link: ${meetingLink}`);
+    //     })
+    //     .catch((error) => {
+    //       console.error("Failed to send interview email:", error);
+    //     });
   };
 
   if (loading) {
@@ -229,11 +304,9 @@ const Talents = () => {
 
   return (
     <div className="font-body antialiased bg-white dark:bg-gray-900">
-      {/* <DashNavbar /> */}
-
       <Sidebar />
-      <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-8 mx-6 px-10 py-6 z-40">
+      <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-8">
+        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-8 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
             <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
               Find Talents
@@ -248,597 +321,995 @@ const Talents = () => {
             </div>
           </div>
           <img className="flex z-[5] h-60" src={talents}></img>
-        </div>
-        {/* Top Talents */}
-        <div className="grid grid-cols-1 justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-14 px-5 py-4">
-          <div className="flex items-center">
-            <h5 className="text-lg font-semibold dark:text-white">
-              Top Talents
-            </h5>
-          </div>
-          <form className="flex items-center max-w-sm">
-            <label htmlFor="simple-search" className="sr-only">
-              Search
-            </label>
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <svg
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 18 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                id="simple-search"
-                className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                placeholder="Search job name..."
-                value={searchQueryTopTalents}
-                onChange={handleSearchChangeTopTalents}
-              />
+        </div> */}
+
+        <nav className="font-body bg-white border-gray-200">
+          <div className="max-w-screen-xl flex justify-center flex-wrap items-center mx-auto px-4 ">
+            <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1 ">
+              <ul className="flex flex-row font-medium text-sm p-4 md:p-0 mt-4 space-x-8 rtl:space-x-reverse ">
+                <li>
+                  <a
+                    href="#"
+                    onClick={openPendingTalents}
+                    className={`block px-3 py-1.5 text-gray-800 hover:text-purple-700 focus:bg-purple-600 focus:text-white rounded-2xl ${
+                      showPendingTalents ? "bg-purple-600 text-white" : ""
+                    }`}
+                  >
+                    Pending
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    onClick={openApprovedTalents}
+                    className={`block px-3 py-1.5 text-gray-800 hover:text-purple-700 focus:bg-purple-600 focus:text-white rounded-2xl ${
+                      showApprovedTalents ? "bg-purple-600 text-white" : ""
+                    }`}
+                  >
+                    Approved
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    onClick={openRejectedTalents}
+                    className={`block px-3 py-1.5 text-gray-800 hover:text-purple-700 focus:bg-purple-600 focus:text-white rounded-2xl ${
+                      showRejectedTalents ? "bg-purple-600 text-white" : ""
+                    }`}
+                  >
+                    Rejected
+                  </a>
+                </li>
+              </ul>
             </div>
-            <button
-              type="submit"
-              className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-            >
-              <svg
-                className="w-4 h-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
-              <span className="sr-only">Search</span>
-            </button>
-          </form>
-          <div href="#" className="col-span-4">
-            {filteredTopTalents.length > 0 ? (
-              filteredTopTalents.map((app) => (
-                <div
-                  key={app.applicationID}
-                  className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
+          </div>
+        </nav>
+
+        {/* Pending Section */}
+        {showPendingTalents && (
+          <div>
+            {/* Top Talents */}
+            <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-5 py-4">
+              <div className="flex items-center">
+                <h5 className="text-lg font-semibold text-purple-600">
+                  Top Talents ({filteredTopTalents.length})
+                </h5>
+              </div>
+              <form className="flex items-center max-w-sm">
+                <label htmlFor="simple-search" className="sr-only">
+                  Search
+                </label>
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="simple-search"
+                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="Search job name..."
+                    value={searchQueryTopTalents}
+                    onChange={handleSearchChangeTopTalents}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
                 >
-                  <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      <img
-                        className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                        src={app.applicantPic || user}
-                        alt="Profile Pic"
-                      ></img>
-                    </div>
-                    <div className="px-2 py-3 col-span-6">
-                      <div className="flex">
-                        <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                          {app.applicantFName}
-                        </h5>
-                        <div>
-                          <ApplicationStatus status={app.status} />
-                          {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
-                          {app.status}
-                        </span> */}
+                  <svg
+                    className="w-4 h-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                  <span className="sr-only">Search</span>
+                </button>
+              </form>
+              <div href="#" className="col-span-4">
+                {filteredTopTalents.length > 0 ? (
+                  filteredTopTalents.map((app) => (
+                    <div
+                      key={app.applicationID}
+                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
+                    >
+                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <img
+                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                            src={app.applicantPic || user}
+                            alt="Profile Pic"
+                          ></img>
                         </div>
-                      </div>
-
-                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                        <li>
-                          <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                            {app.jobTitle}
-                          </span>
-
-                          <p className="inline-block pr-8 py-2 text-xs">
-                            {new Intl.DateTimeFormat("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "2-digit",
-                            }).format(new Date(app.appliedAt))}
-                          </p>
-                        </li>
-                      </ul>
-                    </div>
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                        {app.score}%
-                      </span>
-                    </div>
-                    <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                      <button
-                        onClick={() =>
-                          viewResumeAndUpdateStatus(
-                            app.applicationID,
-                            app.resume,
-                            app.status
-                          )
-                        }
-                        // onClick={() => window.open(app.resume, "_blank")}
-                        // to="/talents"
-                        className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                      >
-                        <svg
-                          className="w-5 h-5 me-2 text-purple-600"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                          />
-                        </svg>
-                        View Resume
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleDropdown(app.applicationID)}
-                        // data-dropdown-toggle="apps-dropdown"
-                        className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                      >
-                        <span className="sr-only">View status</span>
-                        {/* <!-- Icon --> */}
-                        <img src={option} className="h-6" alt="icon" />
-                        <div
-                          className={`${
-                            showDropdown[app.applicationID]
-                              ? "opacity-100 visible"
-                              : "opacity-0 invisible"
-                          } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
-                          style={{
-                            top: showDropdown[app.applicationID]?.top || 0,
-                            left: showDropdown[app.applicationID]?.left || 0,
-                            zIndex: 9999,
-                          }}
-                          id="dropdown"
-                        >
-                          <div className="py-3 px-4 bg-purple-50">
-                            <span className="block text-sm font-semibold text-gray-900 ">
-                              Select Hiring Status
-                            </span>
+                        <div className="px-2 py-3 col-span-6">
+                          <div className="flex">
+                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                              {app.applicantFName}
+                            </h5>
+                            <div>
+                              <ApplicationStatus status={app.status} />
+                            </div>
                           </div>
-                          {/* Dropdown menu items */}
-                          <ul
-                            className="py-1 text-gray-700 dark:text-gray-300"
-                            aria-labelledby="dropdown"
-                          >
+
+                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
                             <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(app.applicationID, "Review")
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Review
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(
-                                    app.applicationID,
-                                    "Interview"
-                                  )
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-purple-600 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Schedule Interview
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openForwardForm(app.applicationID)
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-green-400 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Shortlist
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(app.applicationID, "Reject")
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-red-500 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Decline
-                              </a>
+                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                                {app.jobTitle}
+                              </span>
+
+                              <p className="inline-block pr-8 py-2 text-xs">
+                                {new Intl.DateTimeFormat("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "2-digit",
+                                }).format(new Date(app.appliedAt))}
+                              </p>
                             </li>
                           </ul>
                         </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <NoResult
-                title={"No result found"}
-                desc={"Try adjusting your search or filters."}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* All Talents */}
-        <div className="grid grid-cols-1 justify-between border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
-          <div className="flex items-center">
-            <h5 className="text-lg font-semibold dark:text-white">
-              Browse All Talents
-            </h5>
-          </div>
-          <form className="flex items-center max-w-sm">
-            <label htmlFor="simple-search-alltalents" className="sr-only">
-              Search
-            </label>
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                <svg
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 18 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                id="simple-search-alltalents"
-                className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                placeholder="Search job name..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-            </div>
-            <button
-              type="submit"
-              className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-            >
-              <svg
-                className="w-4 h-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
-              <span className="sr-only">Search</span>
-            </button>
-          </form>
-          <div href="#" className="col-span-4">
-            {filteredSortedByTimeApplications.length > 0 ? (
-              filteredSortedByTimeApplications.map((app) => (
-                <div
-                  key={app.applicationID}
-                  className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
-                  // onClick={() => openUpdateForm(job)}
-                >
-                  <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      {app.applicantPic ? (
-                        <img
-                          className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                          src={app.applicantPic}
-                          alt="Profile Pic"
-                        />
-                      ) : (
-                        <img
-                          className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                          src={user}
-                          alt="Profile Pic"
-                        ></img>
-                      )}
-                    </div>
-                    <div className="px-2 py-3 col-span-6">
-                      <div className="flex">
-                        <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                          {app.applicantFName}
-                        </h5>
-                        <div>
-                          <ApplicationStatus status={app.status} />
-                          {/* <span class="bg-purple-100 text-purple-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-purple-400 border border-purple-400">
-                          {app.status}
-                        </span> */}
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                            {app.score}%
+                          </span>
+                        </div>
+                        <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(
+                                app.applicationID,
+                                app.resume,
+                                app.status
+                              )
+                            }
+                            className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-5 me-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                            View Resume
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(app.applicationID)}
+                            className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          >
+                            <span className="sr-only">View status</span>
+                            {/* <!-- Icon --> */}
+                            <img src={option} className="h-6" alt="icon" />
+                            <div
+                              className={`${
+                                showDropdown[app.applicationID]
+                                  ? "opacity-100 visible"
+                                  : "opacity-0 invisible"
+                              } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                              style={{
+                                top: showDropdown[app.applicationID]?.top || 0,
+                                left:
+                                  showDropdown[app.applicationID]?.left || 0,
+                                zIndex: 9999,
+                              }}
+                              id="dropdown"
+                            >
+                              <div className="py-3 px-4 bg-purple-50">
+                                <span className="block text-sm font-semibold text-gray-900 ">
+                                  Select Hiring Status
+                                </span>
+                              </div>
+                              {/* Dropdown menu items */}
+                              <ul
+                                className="py-1 text-gray-700 dark:text-gray-300"
+                                aria-labelledby="dropdown"
+                              >
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openForwardForm(app.applicationID)
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Shortlist
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Reject"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Decline
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </button>
                         </div>
                       </div>
-
-                      <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                        <li>
-                          <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                            {app.jobTitle}
-                          </span>
-
-                          <p className="inline-block pr-8 py-2 text-xs">
-                            {new Intl.DateTimeFormat("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "2-digit",
-                            }).format(new Date(app.appliedAt))}
-                          </p>
-                        </li>
-                      </ul>
                     </div>
-                    <div className="col-span-2 grid justify-items-center content-center">
-                      <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                        {app.score}%
-                      </span>
-                    </div>
-                    <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                      <button
-                        onClick={() =>
-                          viewResumeAndUpdateStatus(
-                            app.applicationID,
-                            app.resume,
-                            app.status
-                          )
-                        }
-                        className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                      >
-                        <svg
-                          className="w-5 h-5 me-2 text-purple-600"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                          />
-                        </svg>
-                        View Resume
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleDropdown(app.applicationID)}
-                        data-dropdown-toggle="apps-dropdown"
-                        className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                      >
-                        <span className="sr-only">View Status</span>
-                        {/* <!-- Icon --> */}
-                        <img src={option} className="h-6" alt="icon" />
-                        <div
-                          className={`${
-                            showDropdown[app.applicationID]
-                              ? "opacity-100 visible"
-                              : "opacity-0 invisible"
-                          } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
-                          style={{
-                            top: showDropdown[app.applicationID]?.top || 0,
-                            left: showDropdown[app.applicationID]?.left || 0,
-                            zIndex: 9999,
-                          }}
-                          id="dropdown"
-                        >
-                          <div className="py-3 px-4 bg-purple-50">
-                            <span className="block text-sm font-semibold text-gray-900 ">
-                              Select Hiring Status
-                            </span>
+                  ))
+                ) : (
+                  <NoResult
+                    title={"No result found"}
+                    desc={"Try adjusting your search or filters."}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* All Talents */}
+            <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
+              <div className="flex items-center">
+                <h5 className="text-lg text-purple-600 font-semibold dark:text-white">
+                  Other Talents ({filteredSortedByTimeApplications.length})
+                </h5>
+              </div>
+              <form className="flex items-center max-w-sm">
+                <label htmlFor="simple-search-alltalents" className="sr-only">
+                  Search
+                </label>
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="simple-search-alltalents"
+                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="Search job name..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                  <span className="sr-only">Search</span>
+                </button>
+              </form>
+              <div href="#" className="col-span-4">
+                {filteredSortedByTimeApplications.length > 0 ? (
+                  filteredSortedByTimeApplications.map((app) => (
+                    <div
+                      key={app.applicationID}
+                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
+                      // onClick={() => openUpdateForm(job)}
+                    >
+                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          {app.applicantPic ? (
+                            <img
+                              className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                              src={app.applicantPic}
+                              alt="Profile Pic"
+                            />
+                          ) : (
+                            <img
+                              className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                              src={user}
+                              alt="Profile Pic"
+                            ></img>
+                          )}
+                        </div>
+                        <div className="px-2 py-3 col-span-6">
+                          <div className="flex">
+                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                              {app.applicantFName}
+                            </h5>
+                            <div>
+                              <ApplicationStatus status={app.status} />
+                            </div>
                           </div>
-                          {/* Dropdown menu items */}
-                          <ul
-                            className="py-1 text-gray-700 dark:text-gray-300"
-                            aria-labelledby="dropdown"
-                          >
+
+                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
                             <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(app.applicationID, "Review")
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-yellow-400 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M8 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1h2a2 2 0 0 1 2 2v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Zm6 1h-4v2H9a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2h-1V4Zm-6 8a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm1 3a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Review
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(
-                                    app.applicationID,
-                                    "Interview"
-                                  )
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-purple-600 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Schedule Interview
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openForwardForm(app.applicationID)
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-green-400 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Shortlist
-                              </a>
-                            </li>
-                            <li>
-                              <a
-                                onClick={() =>
-                                  openStatusModal(app.applicationID, "Reject")
-                                }
-                                className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                              >
-                                <svg
-                                  className="w-5 h-5 me-2 text-red-500 dark:text-white"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="24"
-                                  height="24"
-                                  fill="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                Decline
-                              </a>
+                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                                {app.jobTitle}
+                              </span>
+
+                              <p className="inline-block pr-8 py-2 text-xs">
+                                {new Intl.DateTimeFormat("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "2-digit",
+                                }).format(new Date(app.appliedAt))}
+                              </p>
                             </li>
                           </ul>
                         </div>
-                      </button>
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                            {app.score}%
+                          </span>
+                        </div>
+                        <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(
+                                app.applicationID,
+                                app.resume,
+                                app.status
+                              )
+                            }
+                            className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-5 me-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                            View Resume
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(app.applicationID)}
+                            data-dropdown-toggle="apps-dropdown"
+                            className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          >
+                            <span className="sr-only">View Status</span>
+                            {/* <!-- Icon --> */}
+                            <img src={option} className="h-6" alt="icon" />
+                            <div
+                              className={`${
+                                showDropdown[app.applicationID]
+                                  ? "opacity-100 visible"
+                                  : "opacity-0 invisible"
+                              } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                              style={{
+                                top: showDropdown[app.applicationID]?.top || 0,
+                                left:
+                                  showDropdown[app.applicationID]?.left || 0,
+                                zIndex: 9999,
+                              }}
+                              id="dropdown"
+                            >
+                              <div className="py-3 px-4 bg-purple-50">
+                                <span className="block text-sm font-semibold text-gray-900 ">
+                                  Select Hiring Status
+                                </span>
+                              </div>
+                              {/* Dropdown menu items */}
+                              <ul
+                                className="py-1 text-gray-700 dark:text-gray-300"
+                                aria-labelledby="dropdown"
+                              >
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openForwardForm(app.applicationID)
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Shortlist
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Reject"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Decline
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <NoResult
-                title={"No result found"}
-                desc={"Try adjusting your search or filters."}
-              />
-            )}
+                  ))
+                ) : (
+                  <NoResult
+                    title={"No result found"}
+                    desc={"Try adjusting your search or filters."}
+                  />
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Approved Section */}
+        {showApprovedTalents && (
+          <div>
+            <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-5 py-4">
+              <div className="flex items-center">
+                <h5 className="text-lg font-semibold text-purple-600">
+                  Pending Offer letter ({hiredTalents.length})
+                </h5>
+              </div>
+              <form className="flex items-center max-w-sm">
+                <label htmlFor="simple-search" className="sr-only">
+                  Search
+                </label>
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="simple-search"
+                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="Search job name..."
+                    value={searchQueryTopTalents}
+                    onChange={handleSearchChangeTopTalents}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                  <span className="sr-only">Search</span>
+                </button>
+              </form>
+              <div href="#" className="col-span-4">
+                {hiredTalents.length > 0 ? (
+                  hiredTalents.map((app) => (
+                    <div
+                      key={app.applicationID}
+                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-2"
+                    >
+                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg items-center">
+                        <div className="col-span-2 grid justify-items-center content-center  my-1">
+                          <img
+                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                            src={app.applicantPic || user}
+                            alt="Profile Pic"
+                          ></img>
+                          <span className="bg-purple-100 text-purple-600 text-sm font-semibold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                            {app.score}%
+                          </span>
+                        </div>
+                        <div className="px-2 py-3 col-span-6">
+                          <div className="flex">
+                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                              {app.applicantFName}
+                            </h5>
+                            <div>
+                              <ApplicationStatus status={app.status} />
+                            </div>
+                          </div>
+
+                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                            <li>
+                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                                {app.jobTitle}
+                              </span>
+
+                              <p className="inline-block pr-8 py-2 text-xs">
+                                {new Intl.DateTimeFormat("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "2-digit",
+                                }).format(new Date(app.appliedAt))}
+                              </p>
+                            </li>
+                          </ul>
+                        </div>
+                        {/* <div className="flex col-span-2 justify-items-center content-center">
+                          <span>
+                            {app.score}%
+
+                          </span>
+                        </div> */}
+                        <div className="flex justify-items-center content-center my-10 space-x-4 align-items-center">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(
+                                app.applicationID,
+                                app.resume,
+                                app.status
+                              )
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            className="inline-flex items-center justify-center text-center text-gray-700 text-sm font-medium p-2 rounded-xl bg-gray-100  hover:bg-gray-200 hover:text-gray-800 group"
+                          >
+                            <svg
+                              className="w-6 h-6 text-gray-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                            {/* View Resume */}
+                          </button>
+                          <button
+                            // onClick={() =>
+                            //   openEmailPreview(app.applicationID, app.status)
+                            // }
+                            data-tooltip-id="email-tooltip"
+                            data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium p-2 rounded-xl hover:bg-purple-200 hover:text-purple-700 group"
+                          >
+                            <svg
+                              className="w-6 h-6 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeWidth="2"
+                                d="m3.5 5.5 7.893 6.036a1 1 0 0 0 1.214 0L20.5 5.5M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                              />
+                            </svg>
+
+                            {/* Send Offer Letter */}
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                          <Tooltip id="email-tooltip" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <NoResult
+                    title={"No result found"}
+                    desc={"Try adjusting your search or filters."}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Rejected Section */}
+        {showRejectedTalents && (
+          <div>
+            <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-5 py-4">
+              <div className="flex items-center">
+                <h5 className="text-lg font-semibold text-purple-600">
+                  Rejected Talents ({rejectedTalents.length})
+                </h5>
+              </div>
+              <form className="flex items-center max-w-sm">
+                <label htmlFor="simple-search" className="sr-only">
+                  Search
+                </label>
+                <div className="relative w-full">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 18 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="simple-search"
+                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                    placeholder="Search job name..."
+                    value={searchQueryTopTalents}
+                    onChange={handleSearchChangeTopTalents}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                  <span className="sr-only">Search</span>
+                </button>
+              </form>
+              <div href="#" className="col-span-4">
+                {rejectedTalents.length > 0 ? (
+                  rejectedTalents.map((app) => (
+                    <div
+                      key={app.applicationID}
+                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
+                    >
+                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <img
+                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                            src={app.applicantPic || user}
+                            alt="Profile Pic"
+                          ></img>
+                        </div>
+                        <div className="px-2 py-3 col-span-6">
+                          <div className="flex">
+                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
+                              {app.applicantFName}
+                            </h5>
+                            <div>
+                              <ApplicationStatus status={app.status} />
+                            </div>
+                          </div>
+
+                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                            <li>
+                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
+                                {app.jobTitle}
+                              </span>
+
+                              <p className="inline-block pr-8 py-2 text-xs">
+                                {new Intl.DateTimeFormat("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "2-digit",
+                                }).format(new Date(app.appliedAt))}
+                              </p>
+                            </li>
+                          </ul>
+                        </div>
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                            {app.score}%
+                          </span>
+                        </div>
+                        <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(
+                                app.applicationID,
+                                app.resume,
+                                app.status
+                              )
+                            }
+                            className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-5 me-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                            View Resume
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleDropdown(app.applicationID)}
+                            className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+                          >
+                            <span className="sr-only">View status</span>
+                            {/* <!-- Icon --> */}
+                            <img src={option} className="h-6" alt="icon" />
+                            <div
+                              className={`${
+                                showDropdown[app.applicationID]
+                                  ? "opacity-100 visible"
+                                  : "opacity-0 invisible"
+                              } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
+                              style={{
+                                top: showDropdown[app.applicationID]?.top || 0,
+                                left:
+                                  showDropdown[app.applicationID]?.left || 0,
+                                zIndex: 9999,
+                              }}
+                              id="dropdown"
+                            >
+                              <div className="py-3 px-4 bg-purple-50">
+                                <span className="block text-sm font-semibold text-gray-900 ">
+                                  Select Hiring Status
+                                </span>
+                              </div>
+                              {/* Dropdown menu items */}
+                              <ul
+                                className="py-1 text-gray-700 dark:text-gray-300"
+                                aria-labelledby="dropdown"
+                              >
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Interview"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-purple-600 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Offer Letter
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openForwardForm(app.applicationID)
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-green-400 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Shortlist
+                                  </a>
+                                </li>
+                                <li>
+                                  <a
+                                    onClick={() =>
+                                      openStatusModal(
+                                        app.applicationID,
+                                        "Reject"
+                                      )
+                                    }
+                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 me-2 text-red-500 dark:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                    Decline
+                                  </a>
+                                </li>
+                              </ul>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <NoResult
+                    title={"No result found"}
+                    desc={"Try adjusting your search or filters."}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       {showStatusModal && (
         <StatusModal
@@ -854,6 +1325,24 @@ const Talents = () => {
           applicationID={applicationID}
         />
       )}
+      {/* {showEmailPreview && (
+        <EmailPreview
+          applicationID={applicationID}
+          onCloseModal={closeEmailPreview}
+          status={status}
+          // onConfirm={handleConfirmStatus}
+        />
+      )}
+      {showEmailPreview && (
+        <EmailPreview
+          // isOpen={showEmailPreview}
+          onClose={closeEmailPreview}
+          onSendEmail={handleSendEmail}
+          emailContent={emailContent}
+          subject={subject}
+          applicantEmail={applicantEmail}
+        />
+      )} */}
     </div>
   );
 };

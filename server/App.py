@@ -744,6 +744,7 @@ def update_application_status():
         data = request.get_json()
         application_id = data.get('applicationID')
         new_status = data.get('status')
+        # meeting_link = data.get('meetingLink', None)
         subject = "Application Status Update"  # Default subject
         message_text = "Your application status has been updated."  # Default message
 
@@ -795,6 +796,16 @@ def update_application_status():
                 'status': new_status  # Update to the new status
             })
                    
+            # email_template = get_email_template({
+            #     'status': new_status,
+            #     'jobTitle': job_title,
+            #     'companyName': company_name,
+            #     'senderName': sender_name
+            # })
+
+            # Send the email
+            # send_email(applicant_email, sender_email, email_template['subject'], email_template['message_html'])
+            
             # Send the email
             send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
 
@@ -849,8 +860,25 @@ def get_forwarded_applications():
                 job_doc = job_ref.get()
                 if job_doc.exists:
                     job_data = job_doc.to_dict()
+                    recruiter_id = job_data.get('recruiterID', 'Unknown')
                     app_data['jobTitle'] = job_data.get('title', 'Unknown Title')
 
+            if recruiter_id:
+                user_ref = db.collection('users').document(recruiter_id)
+                user_doc = user_ref.get()
+                if user_doc.exists:
+                    user_data = user_doc.to_dict()
+                    company_id = user_data.get('companyID', 'Unknown')
+                    app_data['recruiterFName'] = user_data.get('firstName', 'Unknown') 
+
+            if company_id:
+                company_ref = db.collection('company').document(company_id)
+                company_doc = company_ref.get()
+                if company_doc.exists:
+                    company_data = company_doc.to_dict()
+                    app_data['companyName'] = company_data.get('companyName', 'Unknown') 
+
+                
             # Get applicant details
             applicant_id = app_data.get('applicantID')
 
@@ -961,164 +989,128 @@ def match_jobs():
         
         print(response_data)
         return jsonify(response_data)
-
-# # Function to fetch and preprocess text from a PDF in Firebase Storage
-# def fetch_pdf_text(file_path):
-#     try:
-#         bucket = storage.bucket()
-#         blob = bucket.blob(file_path)
-#         pdf_bytes = blob.download_as_bytes()
-
-#         pdf_reader = PdfReader(io.BytesIO(pdf_bytes))
-#         text = ''
-#         for page in pdf_reader.pages:
-#             text += page.extract_text() + ' '
-#         return preprocess_text(text)
-
-#     except Exception as e:
-#         print(f"Error fetching PDF text: {e}")
-#         return ""
-
-# def preprocess_text(text):
-#     text = text.lower()
-#     text = re.sub(r'\d+', '', text)
-#     text = re.sub(r'[^\w\s]', '', text)
-#     tokens = word_tokenize(text)
-#     tokens = [word for word in tokens if word not in stopwords.words('english')]
-#     return ' '.join(tokens)
-
-# def fetch_resumes_for_job(job_id):
-#     applications_ref = db.collection('applications')
-#     query = applications_ref.where('jobID', '==', job_id)
-#     results = query.stream()
-
-#     resumes = []
-#     for doc in results:
-#         application = doc.to_dict()
-#         resume_url = application.get('resume')
-
-#         if resume_url:
-#             try:
-#                 resume_content = fetch_pdf_text(resume_url)
-#                 resumes.append(resume_content)
-#             except Exception as e:
-#                 print(f"Error fetching resume content for application {doc.id}: {e}")
-#         else:
-#             print(f"No resume found for application {doc.id}")
-
-#     return resumes
-
-# from transformers import AutoTokenizer, AutoModel
-# import torch
-
-# def get_job_description(job_id):
-#     doc_ref = db.collection('jobListings').document(job_id)
-#     doc = doc_ref.get()
-    
-#     if doc.exists:
-#         doc_data = doc.to_dict()
-#         full_description = " ".join([doc_data[field] for field in ['title', 'desc', 'qualification', 'req']])
-#         # Preprocess the full job description to a clean string
-#         full_description = preprocess_text(full_description)
-#         return full_description  # Return the string directly
-#     else:
-#         print("No such job listing document!")
-#         return ""
-    
-# def get_embeddings(text, model, tokenizer, device):
-#     # Tokenize the input text and prepare input tensors
-#     inputs = tokenizer(text, return_tensors="pt", max_length=512, truncation=True, padding='max_length')
-#     inputs = {key: value.to(device) for key, value in inputs.items()}
-
-#     # Generate embeddings using the model
-#     with torch.no_grad():
-#         outputs = model(**inputs)
-    
-#     # Use the mean of the last hidden state as the text embedding
-#     embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
-#     return embeddings
-
-# # For recruiter
-# def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs):
-#     try:
-
-#         device = "cuda" if torch.cuda.is_available() else "cpu"
-
-#         # Load the tokenizer and model from the Hugging Face library
-#         model_name = "bert-base-uncased"
-#         tokenizer = AutoTokenizer.from_pretrained(model_name)
-#         model = AutoModel.from_pretrained(model_name)
-#         model.to(device)
-
-#         # Generate embeddings for the job description and the resume
-#         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
-#         resume_embedding = get_embeddings(preprocessed_resumes, model, tokenizer, device)
-
-#         # Calculate the cosine similarity between the job description and resume embeddings
-#         similarity_score = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
-
-#         return round(similarity_score * 100, 2)
-
-#     except Exception as e:
-#         print(f"Error calculating similarity scores: {e}")
-    
-# def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs, top_n=10):
-#     try:
-
-#         device = "cuda" if torch.cuda.is_available() else "cpu"
-
-#         # Load the tokenizer and model from the Hugging Face library
-#         model_name = "bert-base-uncased"
-#         tokenizer = AutoTokenizer.from_pretrained(model_name)
-#         model = AutoModel.from_pretrained(model_name)
-#         model.to(device)
-
-#         # Generate embeddings for the job description and the resume
-#         job_desc_embeddings = np.array([get_embeddings(job_desc, model, tokenizer, device) for job_desc in preprocessed_job_descs])
-#         resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
-        
-#         # Ensure job_desc_embeddings is a 2D array
-#         if job_desc_embeddings.ndim > 2:
-#             job_desc_embeddings = job_desc_embeddings.mean(axis=1)
-
-#         # Calculate the cosine similarity between the job description and resume embeddings
-#         similarity_score = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
-#         similarity_score = np.around(similarity_score * 100, 2)
-        
-#         top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
-
-#         # Prepare the results
-#         top_matches = [(index, similarity_score[index]) for index in top_matching_indices]
-
-#         return top_matches
-
-#     except Exception as e:
-#         print(f"Error calculating similarity scores: {e}")
-#         return []
-
-# def find_matching_jobs(preprocessed_resume, top_n):
-#     jobs_collection = db.collection('jobListings')  # Assuming your jobs are stored in a 'jobs' collection
-#     docs = jobs_collection.stream()
-
-#     preprocessed_job_desc = []
-#     matched_jobs = []
-    
-#     for doc in docs:
-#         job = doc.to_dict()
-#         full_description = " ".join([job[field] for field in ['title', 'desc', 'qualification', 'req']])
-#         full_description = preprocess_text(full_description)
-#         preprocessed_job_desc.append(full_description)
-
-#         matched_jobs.append(job)
-        
-#         # Calculate top matching jobs
-#     top_matches = calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_desc, top_n)
-
-#     # Select top matching jobs from Firestore data
-#     matched_jobs = [(matched_jobs[index], float(score)) for index, score in top_matches]
-
-#     return matched_jobs
   
+# def send_email(applicant_email, cc_email, subject, message_html, attachments=[]):
+#     msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
+#     msg.html = message_html
+    
+#     for attachment in attachments:
+#         msg.attach(attachment['filename'], attachment['content_type'], attachment['data'])
+
+#     mail.send(msg)
+
+# @app.route('/get-email-template', methods=['POST'])
+# def get_email_template():
+#     data = request.get_json()
+#     new_status = data.get('status')
+#     job_title = data.get('jobTitle')
+#     company_name = data.get('companyName')
+#     sender_name = data.get('senderName')
+    
+#     base_html = """
+#     <html>
+#         <body>
+#             {content}
+#         </body>
+#     </html>
+#     """
+
+#     if new_status == "Onboard":
+#         subject = f"Successful Application - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
+#         <br><br>We look forward to your response.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team<br>
+#         <b>{company_name}</b>
+#         </div>"""
+
+#     elif new_status == "Applied":
+#         subject = f"Application Received - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>Thank you for applying for the <b>{job_title}</b> position at <b>{company_name}</b>. We have successfully received your application and wanted to confirm that it is currently under review by our recruitment team.
+#         <br><br>We appreciate your interest in joining our team and will be carefully reviewing your application along with the others we have received. We aim to complete this process as quickly as possible and will keep you updated on the status of your application.
+#         <br><br>Best Regards,
+#         <br><b>{sender_name}</b>
+#         <br>Hiring Team<br>
+#         <b>{company_name}</b>
+#         </div>"""
+
+#     elif new_status == "Review":
+#         subject = f"Application Status Update - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are writing to let you know that your application for the <b>{job_title}</b> position at <b>{company_name}</b> is currently under review. We are carefully considering your skills and experience among our pool of talented candidates.
+#         <br><br>We appreciate your patience during this process and will keep you updated on your application status.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
+
+#     elif new_status == "Interview":
+#         subject = f"Invitation to Interview - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are pleased to inform you that after reviewing your application for the <b>{job_title}</b> position at <b>{company_name}</b>, we would like to invite you to the next stage of our recruitment process: interview session.
+#         <br><br>This is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.
+#         <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
+
+#     elif new_status == "Reject":
+#         subject = f"Application Status Update - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We would like to thank you for taking the time to apply for the <b>{job_title}</b> position at <b>{company_name}</b>.
+#         <br><br>After careful consideration, we regret to inform you that we will not be moving forward with your application for this role. This decision does not reflect on your qualifications or experiences, which we found impressive, but rather on the competitive nature of the application process and the specific needs for this position.
+#         <br><br>We encourage you to apply for future openings at <b>{company_name}</b> that match your skills and experience.<br><br>We wish you all the best in your job search and future professional endeavors.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
+
+#     final_html_content = base_html.format(content=message_html)
+    
+#     return jsonify({
+#         'subject': subject,
+#         'message_html': final_html_content
+#     })
+
+# @app.route('/send-custom-email', methods=['POST'])
+# def send_custom_email():
+#     data = request.form.to_dict()
+#     applicant_email = data.get('applicantEmail')
+#     cc_email = data.get('ccEmail')
+#     subject = data.get('subject')
+#     message_html = data.get('messageHtml')
+#     attachments = request.files.getlist('attachments')
+
+#     attachment_data = []
+#     for attachment in attachments:
+#         filename = secure_filename(attachment.filename)
+#         attachment_data.append({
+#             'filename': filename,
+#             'content_type': attachment.content_type,
+#             'data': attachment.read()
+#         })
+
+#     send_email(applicant_email, cc_email, subject, message_html, attachment_data)
+
+#     return jsonify({'success': True, 'message': 'Email sent successfully'})
+
 def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name):
     
     base_html = """
