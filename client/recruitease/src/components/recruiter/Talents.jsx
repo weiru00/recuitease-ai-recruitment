@@ -1,5 +1,4 @@
 import React from "react";
-import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import NoResult from "../NoResult";
 import { useState, useEffect, useMemo } from "react";
@@ -36,7 +35,6 @@ const Talents = () => {
     setShowStatusModal(true);
     setStatus(newStatus);
     setApplicationID(applicationID);
-    // handleStatusChange(applicationID, newStatus);
   };
 
   const closeForwardForm = () => setShowForwardForm(false);
@@ -44,17 +42,11 @@ const Talents = () => {
   const openForwardForm = (applicationID) => {
     setShowForwardForm(true);
     setApplicationID(applicationID);
-    // handleStatusChange(applicationID, newStatus);
   };
 
   const handleConfirmStatus = async () => {
     closeStatusModal();
     handleStatusChange(applicationID, status);
-
-    // if (status == "Forwarded") {
-    //   openForwardForm(applicationID);
-    // }
-    // openSuccessModal("updated");
   };
 
   const topTalents = applications
@@ -66,8 +58,6 @@ const Talents = () => {
   const sortedByTimeApplications = applications
     .filter((app) => !topTalentIds.includes(app.applicationID)) // Exclude top talents
     .sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
-
-  // const sortedApplications = applications.sort((a, b) => b.score - a.score);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -113,17 +103,11 @@ const Talents = () => {
     setSearchQueryTopTalents(e.target.value);
   };
 
-  const viewResumeAndUpdateStatus = (applicationId, resumeUrl) => {
+  const viewResumeAndUpdateStatus = (applicationId, resumeUrl, status) => {
     // Open the resume in a new tab
     window.open(resumeUrl, "_blank");
 
-    // Ask the user if they want to mark the application as "Review"
-    const shouldSetToReview = window.confirm(
-      "Do you want to set the status to 'Review' for this application?"
-    );
-
-    if (shouldSetToReview) {
-      // If user confirms, update the application status to "Review"
+    if (status === "Applied")
       updateApplicationStatus(applicationId, "Review")
         .then(() => {
           console.log(
@@ -134,7 +118,6 @@ const Talents = () => {
         .catch((error) => {
           console.error("Failed to update application status:", error);
         });
-    }
   };
 
   const updateApplicationStatus = async (applicationID, newStatus) => {
@@ -380,7 +363,8 @@ const Talents = () => {
                         onClick={() =>
                           viewResumeAndUpdateStatus(
                             app.applicationID,
-                            app.resume
+                            app.resume,
+                            app.status
                           )
                         }
                         // onClick={() => window.open(app.resume, "_blank")}
@@ -680,7 +664,8 @@ const Talents = () => {
                         onClick={() =>
                           viewResumeAndUpdateStatus(
                             app.applicationID,
-                            app.resume
+                            app.resume,
+                            app.status
                           )
                         }
                         className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"

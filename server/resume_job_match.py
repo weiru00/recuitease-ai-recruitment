@@ -131,7 +131,7 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_categ
             for similarity_score in similarity_scores
         ]
 
-        return final_scores
+        return np.around(final_scores, 2)
 
     except Exception as e:
         print(f"Error calculating similarity scores: {e}")
@@ -180,6 +180,8 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
             for similarity_score, category_match_score in zip(similarity_scores, category_match_scores)
                 ]
         
+        final_scores = np.around(final_scores, 2)
+
         # top_matching_indices = similarity_score.argsort()[-top_n:][::-1]
         top_matching_indices = np.argsort(final_scores)[-top_n:][::-1]
 
