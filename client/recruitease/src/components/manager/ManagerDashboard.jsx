@@ -9,6 +9,7 @@ import { Tooltip } from "react-tooltip";
 import DeletionModal from "../DeletionModal";
 import SuccessfulModal from "../SuccessfulModal";
 import NoResult from "../NoResult";
+import InterviewForm from "./InterviewForm";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -26,20 +27,24 @@ const ManagerDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
   const [showStatusModal, setShowStatusModal] = useState(false);
-  // const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showInterviewForm, setShowInterviewForm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const closeStatusModal = () => setShowStatusModal(false);
+
   const openStatusModal = (applicationID, newStatus) => {
     setShowStatusModal(true);
     setSelectedApp(applicationID);
     setStatus(newStatus);
   };
-  // const openDeleteModal = (applicationID) => {
-  //   setShowDeleteModal(true);
-  //   setSelectedApp(applicationID);
-  // };
-  // const closeDeleteModal = () => setShowDeleteModal(false);
+
+  const openInterviewForm = (applicationID) => {
+    setShowInterviewForm(true);
+    setSelectedApp(applicationID);
+  };
+
+  const closeInterviewForm = () => setShowInterviewForm(false);
+
   const openSuccessModal = (desc) => {
     setShowSuccessModal(true);
     setDesc(desc);
@@ -459,9 +464,9 @@ const ManagerDashboard = () => {
                                 <li>
                                   <a
                                     onClick={() =>
-                                      openStatusModal(
-                                        app.applicationID,
-                                        "Interview"
+                                      openInterviewForm(
+                                        app.applicationID
+                                        // "Interview"
                                       )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
@@ -652,10 +657,7 @@ const ManagerDashboard = () => {
                                 <li>
                                   <a
                                     onClick={() =>
-                                      openStatusModal(
-                                        app.applicationID,
-                                        "Interview"
-                                      )
+                                      openInterviewForm(app.applicationID)
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
                                   >
@@ -789,7 +791,6 @@ const ManagerDashboard = () => {
                             }
                             data-tooltip-id="resume-tooltip"
                             data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
-                            // to="/talents"
                             className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
                           >
                             <svg
@@ -892,12 +893,13 @@ const ManagerDashboard = () => {
           status={status}
         />
       )}
-      {/* {showDeleteModal && (
-        <DeletionModal
-          onCloseModal={closeDeleteModal}
-          onConfirm={handleConfirmDelete}
+      {showInterviewForm && (
+        <InterviewForm
+          onCloseModal={closeInterviewForm}
+          applicationID={selectedApp}
+          // onConfirm={handleConfirmDelete}
         />
-      )} */}
+      )}
       {showSuccessModal && (
         <SuccessfulModal
           onCloseModal={handleCloseModal}

@@ -744,7 +744,9 @@ def update_application_status():
         data = request.get_json()
         application_id = data.get('applicationID')
         new_status = data.get('status')
-        # meeting_link = data.get('meetingLink', None)
+        meeting_link = data.get('meetingLink', None)
+        meeting_date = data.get('meetingDate', None)
+        meeting_time = data.get('meetingTime', None)
         subject = "Application Status Update"  # Default subject
         message_text = "Your application status has been updated."  # Default message
 
@@ -758,10 +760,16 @@ def update_application_status():
             recruiter_data = recruiter_doc.to_dict()
             sender_email = recruiter_data.get('email', None)
             sender_name =  recruiter_data.get('firstName', None)
-            company_name =  recruiter_data.get('companyName', None)
+            company_id =  recruiter_data.get('companyID', None)
         else:
             return jsonify({'error': 'Recruiter not found'}), 404
         
+        company_ref = db.collection('company').document(company_id)
+        company_doc = company_ref.get()
+        if company_doc.exists:
+            company_data = company_doc.to_dict()
+            company_name = company_data.get('companyName', None)
+
         # Update the status in Firestore
         application_ref = db.collection('applications').document(application_id)
         # Fetch the current document to get the existing status
@@ -795,24 +803,29 @@ def update_application_status():
                 'prevStatus': current_status,  # Store the current status as previous
                 'status': new_status  # Update to the new status
             })
-                   
-            # email_template = get_email_template({
-            #     'status': new_status,
-            #     'jobTitle': job_title,
-            #     'companyName': company_name,
-            #     'senderName': sender_name
-            # })
-
-            # Send the email
-            # send_email(applicant_email, sender_email, email_template['subject'], email_template['message_html'])
             
+            # if new_status == "Interview":
+            #     interview_details = {
+            #         'meeting_link': meeting_link,
+            #         'meeting_date': meeting_date
+            #     }
+            #     application_ref.collection('interview').add(interview_details)
+                     
+            # if new_status == "Interview":
+            #     interview_ref = application_ref.collection('interview_details').document('details')
+            #     interview_details = {
+            #         'meeting_link': meeting_link,
+            #         'meeting_date': meeting_date
+            #     }
+            #     interview_ref.set(interview_details)       
             # Send the email
-            send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
+            # send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
+            print(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+            send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
 
-            return jsonify({'message': 'Application status updated successfully'}), 200
+            return jsonify({'message': 'Application status updated successfully', 'success': True}), 200
         else:
-            return jsonify({'error': 'Application not found'}), 404
-    
+            return jsonify({'error': 'Application not found', 'success': False}), 404    
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
@@ -898,7 +911,203 @@ def get_forwarded_applications():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-      
+# @app.route("/create-interview", methods=['POST']) 
+# def create_interview():
+#     try:
+#         data = request.get_json()
+#         application_id = data.get('applicationID')
+#         new_status = data.get('status')
+#         meeting_link = data.get('meetingLink', None)
+#         meeting_date = data.get('meetingDate', None)
+        
+#         email_content = f"""
+#         Dear Team,
+
+#         Please join the meeting using the following details:
+
+#         Meeting Link: {meeting_link}
+#         Meeting Date: {meeting_date}
+
+#         Best Regards,
+#         Your Company
+#         """
+
+#         return jsonify({'email_content': email_content})
+    
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+
+# @app.route('/api/preview_email', methods=['POST'])
+# def preview_email():
+#     data = request.json
+#     meeting_link = data.get('meeting_link')
+#     meeting_date = data.get('meeting_date')
+#     status = data.get('status')
+
+#     email_content = f"""
+#     Dear Team,
+
+#     Please join the meeting using the following details:
+
+#     Meeting Link: {meeting_link}
+#     Meeting Date: {meeting_date}
+
+#     Best Regards,
+#     Your Company
+#     """
+
+#     return jsonify({'email_content': email_content})
+
+@app.route('/preview_email', methods=['POST'])
+def preview_email():
+    
+    data = request.json
+    new_status = data.get('status')
+    meeting_link = data.get('meeting_link')
+    meeting_date = data.get('meeting_date')
+    meeting_time = data.get('meeting_time')
+    application_id = data.get('applicationID')
+
+    # Fetch application, recruiter, and job details
+    application_ref = db.collection('applications').document(application_id)
+    doc = application_ref.get()
+    if not doc.exists:
+        return jsonify({'error': 'Application not found'}), 404
+
+    current_app = doc.to_dict()
+    job_id = current_app.get('jobID', None)
+    applicant_id = current_app.get('applicantID', None)
+    manager_id = current_app.get('managerID', None)
+
+    job_ref = db.collection('jobListings').document(job_id)
+    job_doc = job_ref.get()
+    if job_doc.exists:    
+        job_data = job_doc.to_dict()
+        job_title = job_data.get('title', None)
+    else:
+        return jsonify({'error': 'Job not found'}), 404
+
+
+    manager_ref = db.collection('users').document(manager_id)
+    manager_doc = manager_ref.get()
+    if not manager_doc.exists:
+        return jsonify({'error': 'Manager not found'}), 404
+
+    manager_data = manager_doc.to_dict()
+    sender_name = manager_data.get('firstName', None)
+    company_id = manager_data.get('companyID', None)
+    
+    company_ref = db.collection('company').document(company_id)
+    company_doc = company_ref.get()
+    if not company_doc.exists:
+        return jsonify({'error': 'Company not found'}), 404
+
+    company_data = company_doc.to_dict()
+    company_name = company_data.get('companyName', None)
+
+    email_content = generate_email_content(new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+
+    return jsonify({'email_content': email_content})
+
+def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name, meeting_link=None, meeting_date=None, meeting_time=None):
+    try:
+        email_content = generate_email_content(new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+
+        print("Generated Email Content:\n", email_content)
+        
+        subject = f"Application Status Update - {job_title}, {company_name}"
+        
+        msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
+        msg.html = email_content
+
+        mail.send(msg)
+        print("Email successfully sent")
+    except Exception as e:
+        print(f"An error occurred while sending the email: {str(e)}")
+
+def generate_email_content(new_status, job_title, company_name, sender_name, meeting_link=None, meeting_date=None, meeting_time=None):
+    base_html = """
+    <html>
+        <body>
+            {content}
+        </body>
+    </html>
+    """
+
+    if new_status == "Onboard":
+        subject = f"Successful Application - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
+        <br><br>We look forward to your response.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team<br>
+        <b>{company_name}</b>
+        </div>"""
+
+    elif new_status == "Applied":
+        subject = f"Application Received - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>Thank you for applying for the <b>{job_title}</b> position at <b>{company_name}</b>. We have successfully received your application and wanted to confirm that it is currently under review by our recruitment team.
+        <br><br>We appreciate your interest in joining our team and will be carefully reviewing your application along with the others we have received. We aim to complete this process as quickly as possible and will keep you updated on the status of your application.
+        <br><br>Best Regards,
+        <br><b>{sender_name}</b>
+        <br>Hiring Team<br>
+        <b>{company_name}</b>
+        </div>"""
+
+    elif new_status == "Review":
+        subject = f"Application Status Update - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We are writing to let you know that your application for the <b>{job_title}</b> position at <b>{company_name}</b> is currently under review. We are carefully considering your skills and experience among our pool of talented candidates.
+        <br><br>We appreciate your patience during this process and will keep you updated on your application status.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team
+        <br><b>{company_name}</b>
+        </div>"""
+
+    elif new_status == "Interview":
+        subject = f"Invitation to Interview - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We are pleased to inform you that after reviewing your application for the <b>{job_title}</b> position at <b>{company_name}</b>, we would like to invite you to the next stage of our recruitment process: interview session.
+        <br><br>This is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.
+        <br><br>Meeting Link: {meeting_link}
+        <br>Meeting Date: {meeting_date}
+        <br>Meeting Time: {meeting_time}
+        <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team
+        <br><b>{company_name}</b>
+        </div>"""
+
+    elif new_status == "Reject":
+        subject = f"Application Status Update - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We would like to thank you for taking the time to apply for the <b>{job_title}</b> position at <b>{company_name}</b>.
+        <br><br>After careful consideration, we regret to inform you that we will not be moving forward with your application for this role. This decision does not reflect on your qualifications or experiences, which we found impressive, but rather on the competitive nature of the application process and the specific needs for this position.
+        <br><br>We encourage you to apply for future openings at <b>{company_name}</b> that match your skills and experience.<br><br>We wish you all the best in your job search and future professional endeavors.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team
+        <br><b>{company_name}</b>
+        </div>"""
+
+    final_html_content = base_html.format(content=message_html)
+    return final_html_content
+     
 ################### Resume-Job Matching Score ###################
 
 @app.route("/apply-job", methods=['POST'])
@@ -1111,90 +1320,90 @@ def match_jobs():
 
 #     return jsonify({'success': True, 'message': 'Email sent successfully'})
 
-def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name):
+# def send_email(applicant_email, cc_email, new_status, job_title, company_name, sender_name):
     
-    base_html = """
-    <html>
-        <body>
-            {content}
-        </body>
-    </html>
-    """
+#     base_html = """
+#     <html>
+#         <body>
+#             {content}
+#         </body>
+#     </html>
+#     """
     
-    if new_status == "Onboard":
-        subject = f"Successful Application - {job_title}, {company_name}"
-        message_html = f"""
-        <div style="font-size: 14px;">
-        Dear Applicant,
-        <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
-        <br><br>We look forward to your response.
-        <br><br>Best Regards,
-        <br><br><b>{sender_name}</b>
-        <br>Hiring Team<br>
-        <b>{company_name}</b>
-        </div>"""
+#     if new_status == "Onboard":
+#         subject = f"Successful Application - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are thrilled to extend an offer to you to join our team at <b>{company_name}</b> as a <b>{job_title}</b>. We were impressed with your skills and experience and believe you will be a valuable addition to our team.
+#         <br><br>We look forward to your response.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team<br>
+#         <b>{company_name}</b>
+#         </div>"""
         
-    elif new_status == "Applied":
-        subject = f"Application Received - {job_title}, {company_name}"
-        message_html = f"""
-        <div style="font-size: 14px;">
-        Dear Applicant,
-        <br><br>Thank you for applying for the <b>{job_title}</b> position at <b>{company_name}</b>. We have successfully received your application and wanted to confirm that it is currently under review by our recruitment team.
-        <br><br>We appreciate your interest in joining our team and will be carefully reviewing your application along with the others we have received. We aim to complete this process as quickly as possible and will keep you updated on the status of your application.
-        <br><br>Best Regards,
-        <br><b>{sender_name}</b>
-        <br>Hiring Team<br>
-        <b>{company_name}</b>
-        </div>"""
+#     elif new_status == "Applied":
+#         subject = f"Application Received - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>Thank you for applying for the <b>{job_title}</b> position at <b>{company_name}</b>. We have successfully received your application and wanted to confirm that it is currently under review by our recruitment team.
+#         <br><br>We appreciate your interest in joining our team and will be carefully reviewing your application along with the others we have received. We aim to complete this process as quickly as possible and will keep you updated on the status of your application.
+#         <br><br>Best Regards,
+#         <br><b>{sender_name}</b>
+#         <br>Hiring Team<br>
+#         <b>{company_name}</b>
+#         </div>"""
         
-    elif new_status == "Review":
-        subject = f"Application Status Update - {job_title}, {company_name}"
-        message_html = f"""
-        <div style="font-size: 14px;">
-        Dear Applicant,
-        <br><br>We are writing to let you know that your application for the <b>{job_title}</b> position at <b>{company_name}</b> is currently under review. We are carefully considering your skills and experience among our pool of talented candidates.
-        <br><br>We appreciate your patience during this process and will keep you updated on your application status.
-        <br><br>Best Regards,
-        <br><br><b>{sender_name}</b>
-        <br>Hiring Team
-        <br><b>{company_name}</b>
-        </div>"""
+#     elif new_status == "Review":
+#         subject = f"Application Status Update - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are writing to let you know that your application for the <b>{job_title}</b> position at <b>{company_name}</b> is currently under review. We are carefully considering your skills and experience among our pool of talented candidates.
+#         <br><br>We appreciate your patience during this process and will keep you updated on your application status.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
         
-    elif new_status == "Interview":
-        subject = f"Invitation to Interview - {job_title}, {company_name}"
-        message_html = f"""
-        <div style="font-size: 14px;">
-        Dear Applicant,
-        <br><br>We are pleased to inform you that after reviewing your application for the <b>{job_title}</b> position at <b>{company_name}</b>, we would like to invite you to the next stage of our recruitment process: interview session.
-        <br><br>This is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.
-        <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
-        <br><br>Best Regards,
-        <br><br><b>{sender_name}</b>
-        <br>Hiring Team
-        <br><b>{company_name}</b>
-        </div>"""
+#     elif new_status == "Interview":
+#         subject = f"Invitation to Interview - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We are pleased to inform you that after reviewing your application for the <b>{job_title}</b> position at <b>{company_name}</b>, we would like to invite you to the next stage of our recruitment process: interview session.
+#         <br><br>This is a great opportunity for us to learn more about your skills and experiences, as well as for you to understand more about the role and our company.
+#         <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
         
-    elif new_status == "Reject":
-        subject = f"Application Status Update - {job_title}, {company_name}"
-        message_html = f"""
-        <div style="font-size: 14px;">
-        Dear Applicant,
-        <br><br>We would like to thank you for taking the time to apply for the <b>{job_title}</b> position at <b>{company_name}</b>.
-        <br><br>After careful consideration, we regret to inform you that we will not be moving forward with your application for this role. This decision does not reflect on your qualifications or experiences, which we found impressive, but rather on the competitive nature of the application process and the specific needs for this position.
-        <br><br>We encourage you to apply for future openings at <b>{company_name}</b> that match your skills and experience.<br><br>We wish you all the best in your job search and future professional endeavors.
-        <br><br>Best Regards,
-        <br><br><b>{sender_name}</b>
-        <br>Hiring Team
-        <br><b>{company_name}</b>
-        </div>"""
+#     elif new_status == "Reject":
+#         subject = f"Application Status Update - {job_title}, {company_name}"
+#         message_html = f"""
+#         <div style="font-size: 14px;">
+#         Dear Applicant,
+#         <br><br>We would like to thank you for taking the time to apply for the <b>{job_title}</b> position at <b>{company_name}</b>.
+#         <br><br>After careful consideration, we regret to inform you that we will not be moving forward with your application for this role. This decision does not reflect on your qualifications or experiences, which we found impressive, but rather on the competitive nature of the application process and the specific needs for this position.
+#         <br><br>We encourage you to apply for future openings at <b>{company_name}</b> that match your skills and experience.<br><br>We wish you all the best in your job search and future professional endeavors.
+#         <br><br>Best Regards,
+#         <br><br><b>{sender_name}</b>
+#         <br>Hiring Team
+#         <br><b>{company_name}</b>
+#         </div>"""
   
-    final_html_content = base_html.format(content=message_html)
+#     final_html_content = base_html.format(content=message_html)
 
-    msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
+#     msg = Message(subject, sender='recruiteaseofficial@gmail.com', recipients=[applicant_email], cc=[cc_email])
 
-    msg.html = final_html_content
+#     msg.html = final_html_content
 
-    mail.send(msg)
+#     mail.send(msg)
 
 if __name__ == '__main__':
     app.run(debug=True)
