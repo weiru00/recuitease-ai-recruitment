@@ -73,9 +73,15 @@ const ManagerDashboard = () => {
 
   const handleConfirmStatus = async () => {
     closeStatusModal();
-    closeCancelInterviewModal();
+    // closeCancelInterviewModal();
     handleUpdateStatus(selectedApp, status);
     openSuccessModal("updated");
+  };
+
+  const handleConfirmCancel = async () => {
+    closeCancelInterviewModal();
+    handleUpdateStatus(selectedApp, status);
+    openSuccessModal("cancel");
   };
 
   const handleCloseModal = () => {
@@ -94,23 +100,23 @@ const ManagerDashboard = () => {
     window.open(resumeUrl, "_blank");
   };
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        // setLoading(true);
-        const response = await fetch(
-          `/api/get-forwarded-applications?uid=${uid}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setApplications(data);
-      } catch (error) {
-        console.error("Error fetching applications:", error);
+  const fetchApplications = async () => {
+    try {
+      // setLoading(true);
+      const response = await fetch(
+        `/api/get-forwarded-applications?uid=${uid}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
+      const data = await response.json();
+      setApplications(data);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchApplications();
   }, [uid]);
 
@@ -124,8 +130,9 @@ const ManagerDashboard = () => {
         body: JSON.stringify({ applicationID, status: newStatus }),
       });
       const data = await response.json();
-      if (response.ok) {
-        // fetchUsers(); // Refresh user list upon successful update
+      if (data.success) {
+        console.log("update successful");
+        fetchApplications();
       } else {
         throw new Error(data.error);
       }
@@ -167,7 +174,7 @@ const ManagerDashboard = () => {
   const hiredApps = applications.filter((app) => app.status === "Onboard");
 
   const interviewApps = applications.filter(
-    (app) => app.status === "Interview"
+    (app) => app.status === "Interview" || app.status === "Reschedule"
   );
 
   // if (!userData) {
@@ -625,7 +632,7 @@ const ManagerDashboard = () => {
                                           clipRule="evenodd"
                                         />
                                       </svg>
-                                      Cancel Meeting
+                                      Cancel Interview
                                     </a>
                                   </li>
                                 </ul>
@@ -656,7 +663,7 @@ const ManagerDashboard = () => {
       {showCancelInterviewModal && (
         <CancelInterviewModal
           onCloseModal={closeCancelInterviewModal}
-          onConfirm={handleConfirmStatus}
+          onConfirm={handleConfirmCancel}
         />
       )}
       {showInterviewForm && (
@@ -666,6 +673,7 @@ const ManagerDashboard = () => {
           editMode={editMode}
           existingData={selectedInterview}
           status={status}
+          fetchApplications={fetchApplications}
         />
       )}
       {showEditInterviewForm && (
@@ -675,6 +683,7 @@ const ManagerDashboard = () => {
           editMode={editMode}
           existingData={selectedInterview}
           status={status}
+          fetchApplications={fetchApplications}
         />
       )}
       {showSuccessModal && (

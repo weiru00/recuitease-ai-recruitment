@@ -806,7 +806,7 @@ def update_application_status():
                 'status': new_status  # Update to the new status
             })
                                  
-            if new_status == "Interview":
+            if new_status == "Interview" or new_status == "Reschedule":
                 # interview_ref = application_ref.collection('interview').document('details')
                 application_ref.update({
                     'meetingLink': meeting_link,

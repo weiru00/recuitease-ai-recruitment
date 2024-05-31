@@ -9,6 +9,7 @@ const InterviewForm = ({
   editMode = false,
   existingData = {},
   status,
+  fetchApplications,
 }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -77,6 +78,7 @@ const InterviewForm = ({
     if (data.success) {
       onCloseModal;
       setShowSuccessModal(true);
+      fetchApplications();
       console.log("Interview Scheduled successfully");
     } else {
       console.error("Failed to schedule interview");
