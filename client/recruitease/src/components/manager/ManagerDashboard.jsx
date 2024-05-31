@@ -39,19 +39,21 @@ const ManagerDashboard = () => {
     setStatus(newStatus);
   };
 
-  const openInterviewForm = (applicationID) => {
+  const openInterviewForm = (applicationID, newStatus) => {
     setEditMode(false);
     setShowInterviewForm(true);
     setSelectedApp(applicationID);
+    setStatus(newStatus);
   };
 
   const closeInterviewForm = () => setShowInterviewForm(false);
 
-  const openEditInterviewForm = (applicationID, app) => {
+  const openEditInterviewForm = (applicationID, app, newStatus) => {
     setEditMode(true);
     setShowEditInterviewForm(true);
     setSelectedApp(applicationID);
     setSelectedInterview(app);
+    setStatus(newStatus);
   };
 
   const closeEditInterviewForm = () => setShowEditInterviewForm(false);
@@ -331,8 +333,8 @@ const ManagerDashboard = () => {
                                   <a
                                     onClick={() =>
                                       openInterviewForm(
-                                        app.applicationID
-                                        // "Interview"
+                                        app.applicationID,
+                                        "Interview"
                                       )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
@@ -574,7 +576,8 @@ const ManagerDashboard = () => {
                                       onClick={() =>
                                         openEditInterviewForm(
                                           app.applicationID,
-                                          app
+                                          app,
+                                          "Reschedule"
                                         )
                                       }
                                       className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:text-gray-400 dark:hover:text-white"
@@ -594,7 +597,7 @@ const ManagerDashboard = () => {
                                           clipRule="evenodd"
                                         />
                                       </svg>
-                                      Edit Interview
+                                      Reschedule Interview
                                     </a>
                                   </li>
                                   <li>
@@ -662,6 +665,7 @@ const ManagerDashboard = () => {
           applicationID={selectedApp}
           editMode={editMode}
           existingData={selectedInterview}
+          status={status}
         />
       )}
       {showEditInterviewForm && (
@@ -670,6 +674,7 @@ const ManagerDashboard = () => {
           applicationID={selectedApp}
           editMode={editMode}
           existingData={selectedInterview}
+          status={status}
         />
       )}
       {showSuccessModal && (

@@ -1092,6 +1092,26 @@ def generate_email_content(new_status, job_title, company_name, sender_name, mee
         <br><b>{company_name}</b>
         </div>"""
         
+    elif new_status == "Reschedule":
+        subject = f"Interview Rescheduled - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We hope this message finds you well. We are writing to inform you that your interview for the position of {job_title} at {company_name} has been rescheduled.
+        <br><br>We apologize for any inconvenience this may cause and appreciate your flexibility in accommodating the new schedule.
+        <br><br>Here are the new details for your interview:
+        <br><br>Meeting Link: {meeting_link}
+        <br>Meeting Date: {meeting_date}
+        <br>Meeting Time: {meeting_time}
+        <br><br>We look forward to speaking with you and learning more about your qualifications and experiences. If you have any questions or need further assistance, please do not hesitate to contact us.
+        <br><br>Thank you for your understanding.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team
+        <br><b>{company_name}</b>
+        </div>"""
+
+        
     elif new_status == "Cancel Interview":
         subject = f"Interview Cancelled - {job_title}, {company_name}"
         message_html = f"""

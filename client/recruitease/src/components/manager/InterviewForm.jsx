@@ -8,6 +8,7 @@ const InterviewForm = ({
   applicationID,
   editMode = false,
   existingData = {},
+  status,
 }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -18,7 +19,7 @@ const InterviewForm = ({
   const [meetingTime, setMeetingTime] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("Interview");
+  // const [status, setStatus] = useState("Interview");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleOpenModal = () => {
@@ -34,6 +35,7 @@ const InterviewForm = ({
       setMeetingLink(existingData.meetingLink || "");
       setMeetingDate(existingData.meetingDate || "");
       setMeetingTime(existingData.meetingTime || "");
+      // setStatus("Reschedule Interview");
     }
   }, [editMode, existingData]);
 
@@ -123,84 +125,84 @@ const InterviewForm = ({
                     </button>
                   </div>
                   <form onSubmit={handlePreview}>
-                    {status === "Interview" && (
-                      <>
-                        <div className="grid gap-4 mb-4 grid-cols-2">
-                          <div className="col-span-2">
-                            <label
-                              htmlFor="meetingLink"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Meeting Link
-                            </label>
-                            <input
-                              type="text"
-                              id="meetingLink"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
-                              placeholder="E.g: Google Meet Link, Microsoft Teams etc."
-                              required={true}
-                              value={meetingLink}
-                              onChange={(e) => setMeetingLink(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label
-                              htmlFor="meetingDate"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Meeting Date
-                            </label>
-                            <input
-                              type="date"
-                              id="meetingDate"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
-                              value={meetingDate}
-                              onChange={(e) => setMeetingDate(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label
-                              htmlFor="meetingTime"
-                              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Meeting Time
-                            </label>
-                            <input
-                              type="time"
-                              id="meetingTime"
-                              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
-                              value={meetingTime}
-                              onChange={(e) => setMeetingTime(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex justify-between">
-                          <button
-                            type="submit"
-                            className="my-2 inline-flex items-center text-gray-600 bg-gray-100 border-2 border-gray-300 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-xl text-sm px-4 py-2.5 text-center dark:bg-purple-500 dark:hover:bg-purple-600 dark:focus:ring-purple-900"
+                    {/* {status === "Interview" && ( */}
+                    <>
+                      <div className="grid gap-4 mb-4 grid-cols-2">
+                        <div className="col-span-2">
+                          <label
+                            htmlFor="meetingLink"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                           >
-                            Email Preview
-                            <svg
-                              className="w-5 h-5 text-gray-600 ml-2 dark:text-white"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M12 19V5m0 14-4-4m4 4 4-4"
-                              />
-                            </svg>
-                          </button>
+                            Meeting Link
+                          </label>
+                          <input
+                            type="text"
+                            id="meetingLink"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
+                            placeholder="E.g: Google Meet Link, Microsoft Teams etc."
+                            required={true}
+                            value={meetingLink}
+                            onChange={(e) => setMeetingLink(e.target.value)}
+                          />
                         </div>
-                      </>
-                    )}
+                        <div>
+                          <label
+                            htmlFor="meetingDate"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Meeting Date
+                          </label>
+                          <input
+                            type="date"
+                            id="meetingDate"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
+                            value={meetingDate}
+                            onChange={(e) => setMeetingDate(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="meetingTime"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                          >
+                            Meeting Time
+                          </label>
+                          <input
+                            type="time"
+                            id="meetingTime"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
+                            value={meetingTime}
+                            onChange={(e) => setMeetingTime(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <button
+                          type="submit"
+                          className="my-2 inline-flex items-center text-gray-600 bg-gray-100 border-2 border-gray-300 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-xl text-sm px-4 py-2.5 text-center dark:bg-purple-500 dark:hover:bg-purple-600 dark:focus:ring-purple-900"
+                        >
+                          Email Preview
+                          <svg
+                            className="w-5 h-5 text-gray-600 ml-2 dark:text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 19V5m0 14-4-4m4 4 4-4"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </>
+                    {/* )} */}
                   </form>
                   {emailContent && (
                     <div>
