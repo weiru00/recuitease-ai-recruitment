@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-// import SuccessfulModal from "../SuccessfulModal";
 import SuccessfulModal from "../SuccessfulModal";
 import { useLocation } from "react-router-dom";
 import styles from "../../style";
 
-const InterviewForm = ({ onCloseModal, applicationID }) => {
+const InterviewForm = ({
+  onCloseModal,
+  applicationID,
+  editMode = false,
+  existingData = {},
+}) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
@@ -12,7 +16,6 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
   const [meetingLink, setMeetingLink] = useState("");
   const [meetingDate, setMeetingDate] = useState("");
   const [meetingTime, setMeetingTime] = useState("");
-  const [recipient, setRecipient] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("Interview");
@@ -25,6 +28,14 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
   const handleCloseModal = () => {
     setShowSuccessModal(false);
   };
+
+  useEffect(() => {
+    if (editMode && existingData) {
+      setMeetingLink(existingData.meetingLink || "");
+      setMeetingDate(existingData.meetingDate || "");
+      setMeetingTime(existingData.meetingTime || "");
+    }
+  }, [editMode, existingData]);
 
   const handlePreview = async (e) => {
     e.preventDefault();
@@ -73,7 +84,6 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
 
   return (
     <React.Fragment>
-      {/* Overlay */}
       <div>
         <div className="animation-fade-in fixed inset-0 bg-black bg-opacity-40 z-40"></div>
 
@@ -86,9 +96,7 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
           <div className={` ${styles.paddingX} ${styles.flexCenter}`}>
             <div className="xl:max-w-[1000px] w-8/12">
               <div>
-                {/* <!-- Modal content --> */}
                 <div className="animation-sliding-img-down-3 relative p-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-8">
-                  {/* <!-- Modal header --> */}
                   <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Schedule Interview
@@ -114,7 +122,6 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
                       <span className="sr-only">Close modal</span>
                     </button>
                   </div>
-                  {/* <!-- Modal body --> */}
                   <form onSubmit={handlePreview}>
                     {status === "Interview" && (
                       <>
@@ -191,30 +198,6 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
                               />
                             </svg>
                           </button>
-                          {/* <form onSubmit={handleSend}>
-                            <button
-                              type="submit"
-                              className="my-2 inline-flex items-center text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-xl text-sm px-4 py-2.5 text-center dark:bg-purple-500 dark:hover:bg-purple-600 dark:focus:ring-purple-900"
-                            >
-                              <svg
-                                className="w-5 h-5 text-white me-2 dark:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke="currentColor"
-                                  strokeLinecap="round"
-                                  strokeWidth="2"
-                                  d="m3.5 5.5 7.893 6.036a1 1 0 0 0 1.214 0L20.5 5.5M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
-                                />
-                              </svg>
-                              Send Email
-                            </button>
-                          </form> */}
                         </div>
                       </>
                     )}
@@ -256,7 +239,6 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
                       </div>
                     </div>
                   )}
-                  {/* {message && <p>{message}</p>} */}
                 </div>
               </div>
             </div>

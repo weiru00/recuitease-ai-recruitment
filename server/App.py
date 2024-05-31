@@ -805,14 +805,7 @@ def update_application_status():
                 'prevStatus': current_status,  # Store the current status as previous
                 'status': new_status  # Update to the new status
             })
-            
-            # if new_status == "Interview":
-            #     interview_details = {
-            #         'meeting_link': meeting_link,
-            #         'meeting_date': meeting_date
-            #     }
-            #     application_ref.collection('interview').add(interview_details)
-                     
+                                 
             if new_status == "Interview":
                 # interview_ref = application_ref.collection('interview').document('details')
                 application_ref.update({
@@ -820,9 +813,7 @@ def update_application_status():
                     'meetingDate': meeting_date,
                     'meetingTime': meeting_time
                 })
-                # interview_ref.set(interview_details)            # Send the email
-            # send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
-            # print(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+                
             send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
 
             return jsonify({'message': 'Application status updated successfully', 'success': True}), 200
@@ -830,7 +821,7 @@ def update_application_status():
             return jsonify({'error': 'Application not found', 'success': False}), 404    
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    
+        
 @app.route('/forward-application', methods=['POST'])
 def forward_application():
     try:
@@ -1095,6 +1086,21 @@ def generate_email_content(new_status, job_title, company_name, sender_name, mee
         <br>Meeting Date: {meeting_date}
         <br>Meeting Time: {meeting_time}
         <br><br>We will be in touch shortly to arrange a convenient time and date for the interview. In the meantime, if you have any questions, please do not hesitate to contact us.
+        <br><br>Best Regards,
+        <br><br><b>{sender_name}</b>
+        <br>Hiring Team
+        <br><b>{company_name}</b>
+        </div>"""
+        
+    elif new_status == "Cancel Interview":
+        subject = f"Interview Cancelled - {job_title}, {company_name}"
+        message_html = f"""
+        <div style="font-size: 14px;">
+        Dear Applicant,
+        <br><br>We regret to inform you that your scheduled interview for the position of {job_title} at {company_name} has been cancelled due to unforeseen circumstances.
+        <br><br>We apologize for any inconvenience this may cause. We value your interest in our company and appreciate the time you have invested in the application process.
+        <br><br>We will make a quick arrangement on rescheduling a new interview session, please do not hesitate to contact us.
+        <br><br>Thank you for your understanding.
         <br><br>Best Regards,
         <br><br><b>{sender_name}</b>
         <br>Hiring Team
