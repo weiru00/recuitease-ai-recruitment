@@ -15,6 +15,7 @@ import track from "./track.svg";
 import talents from "./talents.svg";
 import nodata from "./nodata.svg";
 import appliedjob from "./appliedjob.svg";
+import admin from "./admin.svg";
 
 export {
   logo,
@@ -34,4 +35,5 @@ export {
   talents,
   nodata,
   appliedjob,
+  admin,
 };

@@ -57,6 +57,7 @@ const InterviewForm = ({ onCloseModal, applicationID }) => {
         status,
         meetingLink,
         meetingDate,
+        meetingTime,
       }),
     });
     const data = await response.json();

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../admin/Sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { appliedjob, option, user } from "../../assets";
+import { admin, option, user } from "../../assets";
 import StatusModal from "../StatusModal";
 import { Tooltip } from "react-tooltip";
 import DeletionModal from "../DeletionModal";
@@ -205,11 +205,11 @@ const ManagerDashboard = () => {
             <span className="text-purple-700 font-semibold">Dashboard</span>
           </h5>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mx-6 mt-4">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mx-6 mt-4">
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {numberOfManagers} */}
+                01
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Managers
@@ -220,7 +220,7 @@ const ManagerDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {numberOfHRs} */}
+                01
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 HR/Recruiters
@@ -231,7 +231,7 @@ const ManagerDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl dark:border-gray-600 h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {approvedUsers.length} */}
+                01
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Total Users
@@ -239,108 +239,10 @@ const ManagerDashboard = () => {
             </div>
             <img src={appliedjob} alt="job icon" />
           </div>
-        </div>
+        </div> */}
         <div className="grid grid-cols-4 sm:grid-cols-1 lg:grid-cols-4 gap-6 mb-6 mx-6 mt-4">
-          {/* <div className="col-span-4 justify-between border-2 border-gray-100 rounded-2xl h-auto py-4 px-6">
-            <h5 className="text-md font-medium text-purple-700 px-3 py-1.5 rounded-lg bg-purple-50">
-              Applicants
-            </h5>
-
-            <div className="flex flex-col items-left justify-center px-1">
-              <ul role="list" className="divide-y divide-purple-100">
-                {applications.length > 0 ? (
-                  applications.map((app) => (
-                    <div
-                      key={app.applicationID}
-                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-4"
-                    >
-                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                        <div className="col-span-2 grid justify-items-center content-center">
-                          <img
-                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                            src={app.applicantPic || user}
-                            alt="Profile Pic"
-                          ></img>
-                        </div>
-                        <div className="px-2 py-3 col-span-6">
-                          <div className="flex">
-                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                              {app.applicantFName}
-                            </h5>
-                            <div>
-                              <ApplicationStatus status={app.status} />
-                            </div>
-                          </div>
-
-                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                            <li>
-                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                                {app.jobTitle}
-                              </span>
-
-                              <p className="inline-block pr-8 py-2 text-xs">
-                                {new Intl.DateTimeFormat("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "2-digit",
-                                }).format(new Date(app.appliedAt))}
-                              </p>
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="col-span-2 grid justify-items-center content-center">
-                          <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                            {app.score}%
-                          </span>
-                        </div>
-                        <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                          <button
-                            onClick={() =>
-                              viewResumeAndUpdateStatus(
-                                app.applicationID,
-                                app.resume
-                              )
-                            }
-                            className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                          >
-                            <svg
-                              className="w-5 h-5 me-2 text-purple-600"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                              />
-                            </svg>
-                            View Resume
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <NoResult
-                    title={"No result found"}
-                    desc={"Try adjusting your search or filters."}
-                  />
-                )}
-              </ul>
-            </div>
-          </div> */}
-          {/* <div className="justify-center border-gray-100 rounded-2xl max-h-48 z-50">
-            <img src={dashboard2} alt="job icon" className="z-40" />
-          </div> */}
-
           {/* Pending Applicants */}
-          <div className="col-span-4 border-2 border-gray-100 rounded-2xl h-auto p-4">
+          <div className="col-span-3 border-2 border-gray-100 rounded-2xl h-auto p-4">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
                 Pending Applicants ({pendingApps.length})
@@ -559,15 +461,131 @@ const ManagerDashboard = () => {
             </div>
           </div>
 
+          <div className="col-span-1 border-2 border-gray-100 z-40 bg-purple-600 bg-opacity-95 rounded-2xl h-auto p-4">
+            <img className="z-[50] h-auto mb-2" src={admin}></img>
+            <h1 className="text-white font-bold text-3xl text-center">
+              Admin .
+            </h1>
+          </div>
           {/* Interview applicants */}
-          <div className="col-span-2 border-2 border-gray-100 rounded-2xl h-auto p-4">
+          <div className="col-span-4  border-gray-100 rounded-2xl h-auto">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Pending Interviews ({interviewApps.length})
+                Upcoming Interviews ({interviewApps.length})
               </h5>
             </div>
 
-            <div className="relative">
+            <div className="flex flex-col items-left justify-center px-3">
+              <ul
+                role="list"
+                className="grid grid-cols-2 divide-y gap-y-4 divide-purple-200 gap-x-4"
+              >
+                {interviewApps.length > 0 ? (
+                  interviewApps.map((app) => (
+                    <li
+                      key={app.applicationID}
+                      className="flex justify-between  py-4 items-center shadow-md rounded-xl  px-3 bg-purple-50"
+                    >
+                      <div className="flex min-w-0 gap-x-4 items-center ">
+                        <img
+                          className="h-14 w-14 flex-none rounded-full bg-gray-50"
+                          src={app.applicantPic || user}
+                          alt="Profile Picture"
+                        />
+                        <div className="min-w-0 flex-auto">
+                          <p className="text-md font-semibold leading-6 text-gray-900">
+                            {app.applicantFName} {app.applicantLName}
+                          </p>
+                          <p className="mt-0.5 mb-1 truncate text-sm leading-5 text-gray-500">
+                            {app.email} | {app.jobTitle}
+                          </p>
+                          <span className="inline-flex mt-1 truncate text-sm leading-5 text-purple-600">
+                            <svg
+                              className="w-[20px] h-[20px] me-1 text-purple-600 dark:text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1"
+                                d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                              />
+                            </svg>
+                            {app.meetingDate} {app.meetingTime}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
+                        <div className="mt-1 flex items-center gap-x-1.5">
+                          <a
+                            href={app.meetingLink}
+                            data-tooltip-id="link-tooltip"
+                            data-tooltip-content="Meeting Link" // onClick={() => window.open(app.resume, "_blank")}
+                            className="inline-flex items-center justify-center text-center bg-purple-600 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-700 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M13.213 9.787a3.391 3.391 0 0 0-4.795 0l-3.425 3.426a3.39 3.39 0 0 0 4.795 4.794l.321-.304m-.321-4.49a3.39 3.39 0 0 0 4.795 0l3.424-3.426a3.39 3.39 0 0 0-4.794-4.795l-1.028.961"
+                              />
+                            </svg>
+                          </a>
+                          <button
+                            onClick={() =>
+                              viewResumeAndUpdateStatus(app.resume)
+                            }
+                            data-tooltip-id="resume-tooltip"
+                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
+                          >
+                            <svg
+                              className="w-5 h-6 me-2 ml-2 text-purple-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                              />
+                            </svg>
+                          </button>
+                          <Tooltip id="resume-tooltip" />
+                          <Tooltip id="link-tooltip" />
+                        </div>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <NoResult desc={"No pending users"} />
+                )}
+              </ul>
+            </div>
+
+            {/* <div className="relative">
               <table className="w-full text-sm text-left text-gray-500 rounded-xl">
                 {interviewApps.length > 0 ? (
                   interviewApps.map((app) => (
@@ -592,15 +610,13 @@ const ManagerDashboard = () => {
                           {app.score}%
                         </td>
                         <td className="py-4 px-3 max-w-96">{app.feedbackHR}</td>
-                        {/* <td className="py-4 px-3">{app.status}</td> */}
                         <td className="py-4 px-3">
                           <button
                             onClick={() =>
                               viewResumeAndUpdateStatus(app.resume)
                             }
                             data-tooltip-id="resume-tooltip"
-                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
-                            // to="/talents"
+                            data-tooltip-content="View Resume" 
                             className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
                           >
                             <svg
@@ -746,11 +762,11 @@ const ManagerDashboard = () => {
                   <NoResult desc={"No user"} />
                 )}
               </table>
-            </div>
+            </div> */}
           </div>
 
           {/* Hired Applicants */}
-          <div className="col-span-2 border-2 border-gray-100 rounded-2xl h-auto p-4">
+          {/* <div className="col-span-2 border-2 border-gray-100 rounded-2xl h-auto p-4">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
                 Hires ({hiredApps.length})
@@ -821,69 +837,7 @@ const ManagerDashboard = () => {
                 )}
               </ul>
             </div>
-
-            {/* <div className="relative">
-              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
-                {hiredApps.length > 0 ? (
-                  hiredApps.map((app) => (
-                    <tbody>
-                      <tr
-                        key={app.applicationID}
-                        className="bg-white hover:bg-gray-50"
-                      >
-                        <td className="py-2 pl-4 pr-1">
-                          <img
-                            className="h-10 w-10 flex-none rounded-full bg-gray-50"
-                            src={app.applicantPic || user}
-                            alt="Profile Picture"
-                          />
-                        </td>
-                        <td className="py-4 pl-2 pr-6">
-                          {app.applicantFName} {app.applicantLName}
-                        </td>
-                        <td className="py-4 px-6">{app.jobTitle}</td>
-                        <td className="py-4 px-4 text-purple-500 text-md font-bold me-2">
-                          {app.score}%
-                        </td>
-                        <td className="py-4 px-3">
-                          <button
-                            onClick={() =>
-                              viewResumeAndUpdateStatus(app.resume)
-                            }
-                            data-tooltip-id="resume-tooltip"
-                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
-                            // to="/talents"
-                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium w-auto p-1.5 rounded-xl hover:bg-purple-200 hover:text-purple-600 group"
-                          >
-                            <svg
-                              className="w-5 h-6 me-2 ml-2 text-purple-600"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                              />
-                            </svg>
-                          </button>
-                          <Tooltip id="resume-tooltip" />
-                        </td>
-                      </tr>
-                    </tbody>
-                  ))
-                ) : (
-                  <NoResult desc={"No user"} />
-                )}
-              </table>
-            </div> */}
-          </div>
+          </div> */}
         </div>
       </main>
       {showStatusModal && (

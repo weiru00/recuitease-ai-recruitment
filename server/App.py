@@ -500,10 +500,12 @@ def get_job_details(job_id):
             
             if user_doc.exists:
                 user_details = user_doc.to_dict()
-                job_details['companyName'] = user_details.get('companyName')
+                company_id = user_details.get('companyID')
                 
-            else:
-                job_details['companyName'] = 'Unavailable company name'
+                company_doc = db.collection('company').document(company_id).get()
+                if company_doc.exists:
+                    company_details = company_doc.to_dict()
+                    job_details['companyName'] = company_details.get('companyName')
 
         else:
             return jsonify({'error': 'Job not found'}), 404
@@ -811,16 +813,16 @@ def update_application_status():
             #     }
             #     application_ref.collection('interview').add(interview_details)
                      
-            # if new_status == "Interview":
-            #     interview_ref = application_ref.collection('interview_details').document('details')
-            #     interview_details = {
-            #         'meeting_link': meeting_link,
-            #         'meeting_date': meeting_date
-            #     }
-            #     interview_ref.set(interview_details)       
-            # Send the email
+            if new_status == "Interview":
+                # interview_ref = application_ref.collection('interview').document('details')
+                application_ref.update({
+                    'meetingLink': meeting_link,
+                    'meetingDate': meeting_date,
+                    'meetingTime': meeting_time
+                })
+                # interview_ref.set(interview_details)            # Send the email
             # send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name )
-            print(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+            # print(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
             send_email(applicant_email, sender_email, new_status, job_title, company_name, sender_name, meeting_link, meeting_date, meeting_time)
 
             return jsonify({'message': 'Application status updated successfully', 'success': True}), 200
@@ -905,6 +907,14 @@ def get_forwarded_applications():
                     app_data['applicantPic'] = user_data.get('profilePicUrl', 'Unavailable')
                     app_data['email'] = user_data.get('email', 'Unknown')
             
+            # interview_ref = application_ref.collection('interview').document('details')
+            # interview_doc = interview_ref.get()
+            # if interview_doc.exists():
+            #     interview_data = interview_doc.to_dict()
+            #     app_data['meetingLink'] = interview_data.get('meeting_link', 'No link')
+            #     app_data['meetingDate'] = interview_data.get('meeting_date', 'No date')
+            #     app_data['meetingTime'] = interview_data.get('meeting_time', 'No time')
+                
             app_list.append(app_data)
 
         return jsonify(app_list), 200
