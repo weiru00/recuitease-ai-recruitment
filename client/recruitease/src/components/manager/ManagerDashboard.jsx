@@ -134,7 +134,7 @@ const ManagerDashboard = () => {
       const meetingDateTime = new Date(`${app.meetingDate}T${app.meetingTime}`);
       const differenceInMilliseconds = meetingDateTime - currentDateTime;
 
-      if (differenceInMilliseconds < 0 && status === "Interview") {
+      if (differenceInMilliseconds < 0) {
         completed.push(app);
       } else {
         pending.push(app);
@@ -194,6 +194,14 @@ const ManagerDashboard = () => {
 
   const pendingApps = applications.filter(
     (app) => app.status === "Forwarded" || app.status === "Cancel Interview"
+  );
+
+  const pendingInterviewApps = pendingInterviews.filter(
+    (app) => app.status === "Interview" || app.status === "Reschedule"
+  );
+
+  const completedInterviewApps = completedInterviews.filter(
+    (app) => app.status === "Interview" || app.status === "Reschedule"
   );
 
   // if (!userData) {
@@ -463,7 +471,7 @@ const ManagerDashboard = () => {
           <div className="col-span-2  border-gray-100 rounded-2xl h-auto border-2 px-3 py-5">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Upcoming Interviews ({pendingInterviews.length})
+                Upcoming Interviews ({pendingInterviewApps.length})
               </h5>
             </div>
 
@@ -472,8 +480,8 @@ const ManagerDashboard = () => {
                 role="list"
                 className="grid grid-cols-1 divide-y gap-y-4 divide-purple-200 gap-x-4"
               >
-                {pendingInterviews.length > 0 ? (
-                  pendingInterviews.map((app) => (
+                {pendingInterviewApps.length > 0 ? (
+                  pendingInterviewApps.map((app) => (
                     <li
                       key={app.applicationID}
                       className="flex justify-between  py-4 items-center shadow-md rounded-xl px-3 bg-white"
@@ -675,7 +683,7 @@ const ManagerDashboard = () => {
           <div className="col-span-2  border-gray-100 rounded-2xl h-auto border-2 px-3 py-5">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Completed Interviews ({completedInterviews.length})
+                Completed Interviews ({completedInterviewApps.length})
               </h5>
             </div>
 
@@ -684,8 +692,8 @@ const ManagerDashboard = () => {
                 role="list"
                 className="grid grid-cols-1 divide-y gap-y-4 divide-purple-200 gap-x-4"
               >
-                {completedInterviews.length > 0 ? (
-                  completedInterviews.map((app) => (
+                {completedInterviewApps.length > 0 ? (
+                  completedInterviewApps.map((app) => (
                     <li
                       key={app.applicationID}
                       className="flex justify-between  py-4 items-center shadow-md rounded-xl  px-3 bg-purple-50 bg-opacity-75"
