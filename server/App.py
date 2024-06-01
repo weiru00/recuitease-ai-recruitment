@@ -680,7 +680,18 @@ def get_applications():
                         
                         race_counter[user_data.get('race', 'Not Stated')] += 1
                         gender_counter[user_data.get('gender', 'Not Stated')] += 1
-                        
+                
+                # Fetch manager details
+                manager_id = app_data.get('managerID')
+                if manager_id:
+                    user_ref = db.collection('users').document(manager_id)
+                    user_doc = user_ref.get()
+                    if user_doc.exists:
+                        user_data = user_doc.to_dict()
+                        app_data['managerFName'] = user_data.get('firstName', 'Unknown') 
+                        app_data['managerLName'] = user_data.get('lastName', 'Unknown')
+                        app_data['managerPosition'] = user_data.get('position', 'Unknown')
+
                 applications.append(app_data)
 
         race_counts = [{"race": race, "count": count} for race, count in race_counter.items()]
