@@ -581,7 +581,7 @@ def get_user_data():
             for app in apps:
                 job_applied_counter += 1
                 status = app.to_dict().get('status', '')
-                if status == "Onboard":
+                if status == "Offer":
                     job_offer_counter += 1
                 elif status == "Reject":
                     job_reject_counter += 1
@@ -1036,7 +1036,7 @@ def generate_email_content(new_status, job_title, company_name, sender_name, mee
     </html>
     """
 
-    if new_status == "Onboard":
+    if new_status == "Offer":
         subject = f"Successful Application - {job_title}, {company_name}"
         message_html = f"""
         <div style="font-size: 14px;">

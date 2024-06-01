@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import Sidebar from "../admin/Sidebar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { admin, option, user } from "../../assets";
@@ -30,6 +31,8 @@ const ManagerDashboard = () => {
   const [showEditInterviewForm, setShowEditInterviewForm] = useState(false);
   const [showCancelInterviewModal, setShowCancelInterviewModal] =
     useState(false);
+  const [completedInterviews, setCompletedInterviews] = useState([]);
+  const [pendingInterviews, setPendingInterviews] = useState([]);
 
   const closeStatusModal = () => setShowStatusModal(false);
 
@@ -118,7 +121,29 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     fetchApplications();
-  }, [uid]);
+
+    const now = new Date();
+    const currentDateTime = new Date(
+      `${format(now, "yyyy-MM-dd")}T${format(now, "HH:mm")}`
+    );
+
+    const completed = [];
+    const pending = [];
+
+    applications.forEach((app) => {
+      const meetingDateTime = new Date(`${app.meetingDate}T${app.meetingTime}`);
+      const differenceInMilliseconds = meetingDateTime - currentDateTime;
+
+      if (differenceInMilliseconds < 0 && status === "Interview") {
+        completed.push(app);
+      } else {
+        pending.push(app);
+      }
+    });
+
+    setCompletedInterviews(completed);
+    setPendingInterviews(pending);
+  }, [uid, applications]);
 
   const handleUpdateStatus = async (applicationID, newStatus) => {
     try {
@@ -145,7 +170,7 @@ const ManagerDashboard = () => {
     switch (status) {
       case "Review":
         return "bg-yellow-100 text-yellow-800 border-yellow-400";
-      case "Onboard":
+      case "Accept":
         return "bg-green-100 text-green-800 border-green-400";
       case "Reject":
         return "bg-red-100 text-red-800 border-red-400";
@@ -169,12 +194,6 @@ const ManagerDashboard = () => {
 
   const pendingApps = applications.filter(
     (app) => app.status === "Forwarded" || app.status === "Cancel Interview"
-  );
-
-  const hiredApps = applications.filter((app) => app.status === "Onboard");
-
-  const interviewApps = applications.filter(
-    (app) => app.status === "Interview" || app.status === "Reschedule"
   );
 
   // if (!userData) {
@@ -369,7 +388,7 @@ const ManagerDashboard = () => {
                                     onClick={() =>
                                       openStatusModal(
                                         app.applicationID,
-                                        "Onboard"
+                                        "Accept"
                                       )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
@@ -440,24 +459,24 @@ const ManagerDashboard = () => {
               Admin .
             </h1>
           </div>
-          {/* Interview applicants */}
-          <div className="col-span-4  border-gray-100 rounded-2xl h-auto">
+          {/* Pending Interview applicants */}
+          <div className="col-span-2  border-gray-100 rounded-2xl h-auto border-2 px-3 py-5">
             <div className="flex justify-between mb-4">
               <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
-                Upcoming Interviews ({interviewApps.length})
+                Upcoming Interviews ({pendingInterviews.length})
               </h5>
             </div>
 
             <div className="flex flex-col items-left justify-center px-3">
               <ul
                 role="list"
-                className="grid grid-cols-2 divide-y gap-y-4 divide-purple-200 gap-x-4"
+                className="grid grid-cols-1 divide-y gap-y-4 divide-purple-200 gap-x-4"
               >
-                {interviewApps.length > 0 ? (
-                  interviewApps.map((app) => (
+                {pendingInterviews.length > 0 ? (
+                  pendingInterviews.map((app) => (
                     <li
                       key={app.applicationID}
-                      className="flex justify-between  py-4 items-center shadow-md rounded-xl  px-3 bg-purple-50"
+                      className="flex justify-between  py-4 items-center shadow-md rounded-xl px-3 bg-white"
                     >
                       <div className="flex min-w-0 gap-x-4 items-center ">
                         <img
@@ -641,6 +660,89 @@ const ManagerDashboard = () => {
                           </td>
                           <Tooltip id="resume-tooltip" />
                           <Tooltip id="link-tooltip" />
+                        </div>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <NoResult desc={"No pending users"} />
+                )}
+              </ul>
+            </div>
+          </div>
+
+          {/* Completed interview */}
+          <div className="col-span-2  border-gray-100 rounded-2xl h-auto border-2 px-3 py-5">
+            <div className="flex justify-between mb-4">
+              <h5 className="pl-3 text-purple-700 font-semibold text-lg content-center">
+                Completed Interviews ({completedInterviews.length})
+              </h5>
+            </div>
+
+            <div className="flex flex-col items-left justify-between px-3">
+              <ul
+                role="list"
+                className="grid grid-cols-1 divide-y gap-y-4 divide-purple-200 gap-x-4"
+              >
+                {completedInterviews.length > 0 ? (
+                  completedInterviews.map((app) => (
+                    <li
+                      key={app.applicationID}
+                      className="flex justify-between  py-4 items-center shadow-md rounded-xl  px-3 bg-purple-50 bg-opacity-75"
+                    >
+                      <div className="flex min-w-0 gap-x-4 items-center ">
+                        <img
+                          className="h-14 w-14 flex-none rounded-full bg-gray-50"
+                          src={app.applicantPic || user}
+                          alt="Profile Picture"
+                        />
+                        <div className="min-w-0 flex-auto">
+                          <p className="text-md font-semibold leading-6 text-gray-900">
+                            {app.applicantFName} {app.applicantLName}
+                          </p>
+                          <p className="mt-0.5 mb-1 truncate text-sm leading-5 text-gray-500">
+                            {app.email} | {app.jobTitle}
+                          </p>
+                          <span className="inline-flex mt-1 truncate text-sm leading-5 text-gray-600">
+                            <svg
+                              className="w-[20px] h-[20px] me-1 text-gray-600 dark:text-white"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1"
+                                d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                              />
+                            </svg>
+                            {app.meetingDate} {app.meetingTime}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="hidden shrink-0 sm:flex sm:flex-col sm:items-end ">
+                        <div className="mt-1 flex items-center gap-x-1.5">
+                          <button
+                            onClick={() =>
+                              openStatusModal(app.applicationID, "Accept")
+                            }
+                            className="inline-flex items-center justify-center text-center bg-purple-600 text-white text-sm font-medium w-auto py-2 px-3 rounded-xl hover:bg-purple-700 group"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() =>
+                              openStatusModal(app.applicationID, "Decline")
+                            }
+                            className="inline-flex items-center justify-center text-center bg-white text-gray-600 text-sm font-medium w-auto py-2 px-3 mr-2 rounded-xl hover:bg-gray-200 group"
+                          >
+                            Reject
+                          </button>
                         </div>
                       </div>
                     </li>
