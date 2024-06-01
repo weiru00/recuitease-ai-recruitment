@@ -733,10 +733,16 @@ def track_applications():
                     user_doc = db.collection('users').document(recruiter_id).get()
                     if user_doc.exists:
                         user_details = user_doc.to_dict()
-                        application['companyName'] = user_details.get('companyName')
+                        company_id = user_details.get('companyID')
+                        
+                        if company_id:
+                            company_doc = db.collection('company').document(company_id).get()
+                            if company_doc.exists:
+                                company_details= company_doc.to_dict()
+                                application['companyName'] = company_details.get('companyName')                            
                         
                     else:
-                        application['companyName'] = 'Unavailable company name'
+                        company_id = 'Unavailable company ID'
                 else:
                     application['jobTitle'] = 'Job no longer exists'
                     application['jobType'] = 'Unavailable'
