@@ -6,6 +6,8 @@ import SuccessfulModal from "./SuccessfulModal";
 import { ApplicantSidebar, ApplicationForm } from "./applicant";
 import { Sidebar, JobForm } from "./recruiter";
 import { useLocation, useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const JobDescription = () => {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ const JobDescription = () => {
   const [updateTrigger, setUpdateTrigger] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   const openDeleteModal = () => setShowDeleteModal(true);
   const closeDeleteModal = () => setShowDeleteModal(false);
@@ -91,6 +94,26 @@ const JobDescription = () => {
       fetchJobDetails();
     }
   }, [jobId]);
+
+  const checkIfApplied = async () => {
+    try {
+      const q = query(
+        collection(db, "applications"),
+        where("jobID", "==", jobId),
+        where("applicantID", "==", uid)
+      );
+      const querySnapshot = await getDocs(q);
+      setHasApplied(!querySnapshot.empty);
+    } catch (error) {
+      console.error("Error checking application status:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (jobId && uid) {
+      checkIfApplied();
+    }
+  }, [jobId, uid]);
 
   const renderRequirements = (requirements) => {
     return requirements
@@ -163,13 +186,23 @@ const JobDescription = () => {
               </div>
             ) : (
               <div>
-                <button
-                  type="button"
-                  className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-                  onClick={() => openApplicationForm(jobDetails)}
-                >
-                  Apply Job
-                </button>
+                {hasApplied ? (
+                  <button
+                    type="button"
+                    className="focus:outline-none text-white bg-gray-500 font-medium rounded-lg text-sm px-5 py-2.5 "
+                    // onClick={() => openApplicationForm(jobDetails)}
+                  >
+                    Applied
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="focus:outline-none text-white bg-purple-600 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+                    onClick={() => openApplicationForm(jobDetails)}
+                  >
+                    Apply Job
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -336,6 +369,7 @@ const JobDescription = () => {
           isClose={() => {
             closeForm();
           }}
+          checkIfApplied={checkIfApplied}
         />
       )}
       {showDeleteModal && (
