@@ -84,7 +84,7 @@ const OfferForm = ({
                 <div className="animation-sliding-img-down-3 relative p-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-8">
                   <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Send Offer Letter
+                      Job Offer Letter
                     </h3>
                     <button
                       onClick={onCloseModal}
@@ -109,13 +109,13 @@ const OfferForm = ({
                   </div>
                   <form onSubmit={handleSend}>
                     <>
-                      <div className="grid gap-4 mb-4 grid-cols-2">
+                      {/* <div className="grid gap-4 mb-4 grid-cols-2">
                         <div className="col-span-2">
                           <label
                             htmlFor="offerLetter"
                             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                           >
-                            Attach Offer Letter
+                            Job Offer Confirmation Letter
                           </label>
                           <input
                             type="text"
@@ -127,7 +127,7 @@ const OfferForm = ({
                             onChange={(e) => setOfferLetter(e.target.value)}
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </>
                     {emailContent && (
                       <div>
