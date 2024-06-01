@@ -36,10 +36,11 @@ const ManagerDashboard = () => {
 
   const closeStatusModal = () => setShowStatusModal(false);
 
-  const openStatusModal = (applicationID, newStatus) => {
+  const openStatusModal = (applicationID, newStatus, desc) => {
     setShowStatusModal(true);
     setSelectedApp(applicationID);
     setStatus(newStatus);
+    setDesc(desc);
   };
 
   const openInterviewForm = (applicationID, newStatus) => {
@@ -396,7 +397,8 @@ const ManagerDashboard = () => {
                                     onClick={() =>
                                       openStatusModal(
                                         app.applicationID,
-                                        "Accept"
+                                        "Accept",
+                                        "Are you sure to ACCEPT this applicant? This will be reverted to the recruiter."
                                       )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
@@ -416,7 +418,7 @@ const ManagerDashboard = () => {
                                         clipRule="evenodd"
                                       />
                                     </svg>
-                                    Hire
+                                    Accept
                                   </a>
                                 </li>
                                 <li>
@@ -424,7 +426,8 @@ const ManagerDashboard = () => {
                                     onClick={() =>
                                       openStatusModal(
                                         app.applicationID,
-                                        "Reject"
+                                        "Reject",
+                                        "Are you sure to REJECT this applicant? This will be reverted to the recruiter."
                                       )
                                     }
                                     className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
@@ -444,7 +447,7 @@ const ManagerDashboard = () => {
                                         clipRule="evenodd"
                                       />
                                     </svg>
-                                    Decline
+                                    Reject
                                   </a>
                                 </li>
                               </ul>
@@ -737,7 +740,11 @@ const ManagerDashboard = () => {
                         <div className="mt-1 flex items-center gap-x-1.5">
                           <button
                             onClick={() =>
-                              openStatusModal(app.applicationID, "Accept")
+                              openStatusModal(
+                                app.applicationID,
+                                "Accept",
+                                "Are you sure to ACCEPT this applicant? This will be reverted to the recruiter."
+                              )
                             }
                             className="inline-flex items-center justify-center text-center bg-purple-600 text-white text-sm font-medium w-auto py-2 px-3 rounded-xl hover:bg-purple-700 group"
                           >
@@ -745,7 +752,11 @@ const ManagerDashboard = () => {
                           </button>
                           <button
                             onClick={() =>
-                              openStatusModal(app.applicationID, "Decline")
+                              openStatusModal(
+                                app.applicationID,
+                                "Decline",
+                                "Are you sure to REJECT this applicant? This will be reverted to the recruiter."
+                              )
                             }
                             className="inline-flex items-center justify-center text-center bg-white text-gray-600 text-sm font-medium w-auto py-2 px-3 mr-2 rounded-xl hover:bg-gray-200 group"
                           >
@@ -768,6 +779,7 @@ const ManagerDashboard = () => {
           onCloseModal={closeStatusModal}
           onConfirm={handleConfirmStatus}
           status={status}
+          desc={desc}
         />
       )}
       {showCancelInterviewModal && (

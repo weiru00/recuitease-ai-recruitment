@@ -7,6 +7,7 @@ import { user, option, talents } from "../../assets";
 import StatusModal from "../StatusModal";
 import ForwardForm from "./ForwardForm";
 import { Tooltip } from "react-tooltip";
+import OfferForm from "./OfferForm";
 
 // import EmailPreview from "./EmailPreview";
 
@@ -19,10 +20,6 @@ const Talents = () => {
   const [applications, setApplications] = useState([]);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showForwardForm, setShowForwardForm] = useState(false);
-  // const [showEmailPreview, setShowEmailPreview] = useState(false);
-  // const [emailContent, setEmailContent] = useState("");
-  // const [subject, setSubject] = useState("");
-  // const [applicantEmail, setApplicantEmail] = useState("");
   const [status, setStatus] = useState("");
   const [applicationID, setApplicationID] = useState("");
   const [showDropdown, setShowDropdown] = useState({});
@@ -31,6 +28,8 @@ const Talents = () => {
   const [showPendingTalents, setShowPendingTalents] = useState(true);
   const [showApprovedTalents, setShowApprovedTalents] = useState(false);
   const [showRejectedTalents, setShowRejectedTalents] = useState(false);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [emailContent, setEmailContent] = useState("");
 
   const openPendingTalents = () => {
     setShowApprovedTalents(false);
@@ -49,6 +48,15 @@ const Talents = () => {
     setShowApprovedTalents(false);
     setShowRejectedTalents(true);
   };
+
+  const openOfferForm = (applicationID, newStatus) => {
+    setShowOfferForm(true);
+    setApplicationID(applicationID);
+    setStatus(newStatus);
+    // handlePreview();
+  };
+
+  const closeOfferForm = () => setShowOfferForm(false);
 
   const toggleDropdown = (appId) => {
     setShowDropdown((prev) => ({
@@ -89,7 +97,7 @@ const Talents = () => {
     (app) => app.status === "Review" || app.status === "Applied"
   );
 
-  const hiredTalents = applications.filter((app) => app.status === "Onboard");
+  const hiredTalents = applications.filter((app) => app.status === "Accept");
 
   const rejectedTalents = applications.filter((app) => app.status === "Reject");
 
@@ -103,27 +111,43 @@ const Talents = () => {
     .filter((app) => !topTalentIds.includes(app.applicationID)) // Exclude top talents
     .sort((a, b) => new Date(a.appliedAt) - new Date(b.appliedAt));
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `/api/get-applications?recruiterID=${recruiterID}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        setApplications(data.applications);
-      } catch (error) {
-        console.error("Error fetching applications:", error);
-      } finally {
-        setLoading(false);
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `/api/get-applications?recruiterID=${recruiterID}`
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
+      const data = await response.json();
+      setApplications(data.applications);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchApplications();
   }, [recruiterID]);
+
+  // const handlePreview = async (e) => {
+  //   e.preventDefault();
+  //   const response = await fetch("/api/preview_email", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       applicationID,
+  //       status,
+  //     }),
+  //   });
+  //   const data = await response.json();
+  //   setEmailContent(data.email_content);
+  // };
 
   const filterApplications = (apps, query) => {
     return apps.filter((app) =>
@@ -999,9 +1023,9 @@ const Talents = () => {
                             {/* View Resume */}
                           </button>
                           <button
-                            // onClick={() =>
-                            //   openEmailPreview(app.applicationID, app.status)
-                            // }
+                            onClick={() =>
+                              openOfferForm(app.applicationID, app.status)
+                            }
                             data-tooltip-id="email-tooltip"
                             data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
                             className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium p-2 rounded-xl hover:bg-purple-200 hover:text-purple-700 group"
@@ -1325,24 +1349,14 @@ const Talents = () => {
           applicationID={applicationID}
         />
       )}
-      {/* {showEmailPreview && (
-        <EmailPreview
+      {showOfferForm && (
+        <OfferForm
+          onCloseModal={closeOfferForm}
           applicationID={applicationID}
-          onCloseModal={closeEmailPreview}
           status={status}
-          // onConfirm={handleConfirmStatus}
+          fetchApplications={fetchApplications}
         />
       )}
-      {showEmailPreview && (
-        <EmailPreview
-          // isOpen={showEmailPreview}
-          onClose={closeEmailPreview}
-          onSendEmail={handleSendEmail}
-          emailContent={emailContent}
-          subject={subject}
-          applicantEmail={applicantEmail}
-        />
-      )} */}
     </div>
   );
 };

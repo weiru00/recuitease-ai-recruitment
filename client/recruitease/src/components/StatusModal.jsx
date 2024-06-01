@@ -1,6 +1,6 @@
 import React from "react";
 
-const statusModal = ({ onCloseModal, onConfirm, status }) => {
+const statusModal = ({ onCloseModal, onConfirm, status, desc }) => {
   return (
     <div
       className="font-body animation-sliding-img-down-3 fixed inset-0 bg-gray-600 bg-opacity-50 z-[60] overflow-y-auto h-full w-full"
@@ -52,7 +52,8 @@ const statusModal = ({ onCloseModal, onConfirm, status }) => {
           </h3>
           <div className="mt-2 px-7 py-3">
             <p className="text-sm text-gray-500">
-              Are you sure you want to set this user as "{status}"?
+              {/* Are you sure you want to set this user as "{status}"? */}
+              {desc}
             </p>
           </div>
         </div>
