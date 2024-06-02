@@ -5,7 +5,7 @@ import "flowbite";
 const DonutChart = ({ title, chartData }) => {
   const options = {
     series: chartData.map((data) => data.data),
-    colors: ["#7E3BF2", "#AC94FA"],
+    colors: ["#7E3AF2", "#4533a9"],
     chart: {
       height: 400,
       width: "100%",
@@ -86,12 +86,14 @@ const DonutChart = ({ title, chartData }) => {
 
   return (
     <div className=" w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
-      <h1>{title}</h1>
+      <h1 className="text-md font-semibold leading-none text-purple-600 dark:text-white pe-1">
+        {title}
+      </h1>
       <ApexCharts
         options={options}
         series={options.series}
         type="donut"
-        height={400}
+        height={250}
       />
     </div>
   );

@@ -68,8 +68,8 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
       ),
     },
     {
-      name: "Onboard",
-      status: "Onboard",
+      name: "Offered",
+      status: "Offer",
       icon: (isActiveOrCompleted) => (
         <svg
           className={`w-3.5 h-3.5 ${

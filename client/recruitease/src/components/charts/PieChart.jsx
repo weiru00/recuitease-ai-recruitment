@@ -5,7 +5,7 @@ import "flowbite";
 const PieChart = ({ title, chartData }) => {
   const options = {
     series: chartData.map((data) => data.data),
-    colors: ["#7E3AF2", "#AC94FA", "#DCD7FE"],
+    colors: ["#7E3AF2", "#4533a9", "#9d3af2"],
     chart: {
       height: 400,
       width: "100%",
@@ -41,12 +41,14 @@ const PieChart = ({ title, chartData }) => {
 
   return (
     <div className="font-body w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
-      <h1>{title}</h1>
+      <h1 className="text-md font-semibold leading-none text-purple-600 dark:text-white pe-1">
+        {title}
+      </h1>
       <ApexCharts
         options={options}
         series={options.series}
         type="pie"
-        height={400}
+        height={250}
       />
     </div>
   );

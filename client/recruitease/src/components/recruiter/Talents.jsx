@@ -576,7 +576,7 @@ const Talents = () => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  Shortlist
+                                  Forward to Manager
                                 </a>
                               </li>
                               <li>
@@ -605,7 +605,7 @@ const Talents = () => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  Decline
+                                  Reject
                                 </a>
                               </li>
                             </ul>
@@ -843,7 +843,7 @@ const Talents = () => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  Shortlist
+                                  Forward to Manager
                                 </a>
                               </li>
                               <li>
@@ -872,7 +872,7 @@ const Talents = () => {
                                       clipRule="evenodd"
                                     />
                                   </svg>
-                                  Decline
+                                  Reject
                                 </a>
                               </li>
                             </ul>
@@ -1320,7 +1320,7 @@ const Talents = () => {
                       <button
                         type="button"
                         onClick={() =>
-                          openOfferForm(app.applicationID, app.status)
+                          openOfferForm(app.applicationID, "Offered")
                         }
                         data-tooltip-id="email-tooltip"
                         data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
@@ -1769,7 +1769,7 @@ const Talents = () => {
                                     clipRule="evenodd"
                                   />
                                 </svg>
-                                Shortlist
+                                Forward to Manager
                               </a>
                             </li>
                             <li>
@@ -1798,7 +1798,7 @@ const Talents = () => {
                                     clipRule="evenodd"
                                   />
                                 </svg>
-                                Decline
+                                Reject
                               </a>
                             </li>
                           </ul>

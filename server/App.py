@@ -1048,7 +1048,7 @@ def generate_email_content(new_status, job_title, position, company_name, sender
     </html>
     """
 
-    if new_status == "Accept":
+    if new_status == "Offered":
         subject = f"Successful Application - {job_title}, {company_name}"
         message_html = f"""
         <div style="font-size: 14px;">

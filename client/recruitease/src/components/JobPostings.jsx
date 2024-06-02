@@ -166,7 +166,7 @@ const JobPostings = () => {
 
   return (
     <div className="font-body">
-      <div className="antialiased bg-white dark:bg-gray-900">
+      <div className="antialiased bg-gray-50 dark:bg-gray-900">
         {/* <DashNavbar /> */}
 
         {role === "applicant" ? <ApplicantSidebar /> : <Sidebar />}

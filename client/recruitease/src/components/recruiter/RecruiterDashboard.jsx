@@ -5,10 +5,12 @@ import DashNavbar from "../DashNavbar";
 import Sidebar from "./Sidebar";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { dashboard } from "../../assets";
+import { appliedjob } from "../../assets";
 import FunnelChart from "../charts/FunnelChart";
 import PieChart from "../charts/PieChart";
 import DonutChart from "../charts/DonutChart";
+import BarChart from "../charts/BarChart";
+import RadialChart from "../charts/RadialChart";
 
 const RecruiterDashboard = () => {
   const location = useLocation();
@@ -122,7 +124,7 @@ const RecruiterDashboard = () => {
       <Sidebar />
 
       <main className="p-4 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-14">
-        <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-4 mx-6 px-10 py-6 z-40">
+        {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')]  h-48 mb-4 mx-6 px-10 py-6 z-40">
           <div className="items-center ">
             <h5 className="text-2xl font-bold dark:text-white mb-6 mt-3">
               Welcome Back, {userData.firstName}
@@ -137,13 +139,60 @@ const RecruiterDashboard = () => {
             </div>
           </div>
           <img className="flex z-[5] h-60" src={dashboard}></img>
+        </div> */}
+        <div className="mb-6 mx-6">
+          <h5 className="text-2xl font-semibold text-gray-500">
+            {/* Welcome Back,{" "} */}
+            <span className="text-purple-700 font-semibold">Dashboard</span>
+          </h5>
         </div>
-        <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
+        {/* <div className="bg-white border-2 border-gray-100 rounded-2xl dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6 mt-4"> */}
+        {/* <div className="flex items-center">
+            <h5 className="text-xl font-semibold dark:text-white">
+              Your Stats
+            </h5>
+          </div> */}
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mx-6 mt-4">
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {/* {userData.number_of_applications} */} 02
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Jobs Posted
+              </dd>
+            </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {/* {userData.number_of_offers} */} 01
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Hires Made
+              </dd>
+            </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+            <div className="flex flex-col items-left justify-center px-3">
+              <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
+                {/* {userData.number_of_interviews} */} 01
+              </dt>
+              <dd className="font-medium text-gray-400 dark:text-gray-400">
+                Total Applicants
+              </dd>
+            </div>
+            <img src={appliedjob} alt="job icon" />
+          </div>
+        </div>
+        {/* <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
           <div className="flex items-center">
             <h5 className="text-xl font-bold dark:text-white">Your Stats</h5>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mt-4">
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
+            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
               <div className="flex flex-col items-center justify-center">
                 <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
                 <dd className="font-medium text-gray-500 dark:text-gray-400">
@@ -174,7 +223,7 @@ const RecruiterDashboard = () => {
                 </Link>
               </div>
             </div>
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
+            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
               <div className="flex flex-col items-center justify-center">
                 <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
                 <dd className="font-medium text-gray-500 dark:text-gray-400">
@@ -206,7 +255,7 @@ const RecruiterDashboard = () => {
                 </Link>
               </div>
             </div>
-            <div className="border-2 border-gray-100 rounded-lg dark:border-gray-600 h-auto p-5">
+            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
               <div className="flex flex-col items-center justify-center">
                 <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
                 <dd className="font-medium text-gray-500 dark:text-gray-400">
@@ -237,9 +286,14 @@ const RecruiterDashboard = () => {
               </div>
             </div>
           </div>
-        </div>
-        <div className="grid grid-cols-3 gap-6 mb-6 mx-6">
-          <div className="col-span-1 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
+        </div> */}
+        <div className="grid grid-cols-5 grid-rows-4 gap-6 mb-6 mx-6">
+          <div className="col-span-3 row-span-4 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
+            <BarChart title="Application Distribution" chartData={statusData} />
+            {/* <BarChart chartData={statusData} /> */}
+          </div>
+          {/* <div className="col-span-1 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto"></div> */}
+          <div className="col-span-2 row-span-2 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
             {/* <h1>My Sales Data</h1> */}
             {/* <BarChart /> */}
             <DonutChart
@@ -248,13 +302,8 @@ const RecruiterDashboard = () => {
               // labels={raceData.name}
             />
           </div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
-            <FunnelChart
-              title="Application Distribution"
-              chartData={statusData}
-            />
-          </div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72">
+
+          <div className="col-span-2 row-span-2 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
             <PieChart
               title="Race Distribution"
               chartData={raceData}
@@ -262,12 +311,11 @@ const RecruiterDashboard = () => {
             />
           </div>
         </div>
-        <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-96 mb-6 mx-6"></div>
-        <div className="grid grid-cols-2 gap-6 mx-6">
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
-          <div className="border-2 rounded-lg border-gray-100 dark:border-gray-600 h-48 md:h-72"></div>
+        <div className="border-2 rounded-lg border-gray-100  h-96 mb-6 mx-6"></div>
+        <div className="grid grid-rows-3 grid-flow-col gap-6 mb-6 mx-6">
+          <div className="row-span-3 border-2 rounded-lg border-gray-100  h-auto"></div>
+          <div className="col-span-1 border-2 rounded-lg border-gray-100  h-auto"></div>
+          <div className="col-span-1 border-2 rounded-lg border-gray-100  h-auto"></div>
         </div>
       </main>
     </div>

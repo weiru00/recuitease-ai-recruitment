@@ -8,7 +8,7 @@ const FunnelChart = ({ title, chartData }) => {
     colors: ["#5521B5", "#6C2BD9", "#7E3AF2", "#9061F9", "#AC94FA", "#CABFFD"],
     chart: {
       type: "bar",
-      height: 350,
+      height: 250,
     },
     plotOptions: {
       bar: {
@@ -68,9 +68,9 @@ const FunnelChart = ({ title, chartData }) => {
   ];
 
   return (
-    <div className="font-body w-full bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
+    <div className="font-body w-auto bg-white rounded-lg shadow dark:bg-gray-800 p-4 md:p-6">
       <h1>{title}</h1>
-      <ApexCharts options={options} series={series} type="bar" height={350} />
+      <ApexCharts options={options} series={series} type="bar" height={320} />
     </div>
   );
 };
