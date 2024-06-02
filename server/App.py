@@ -648,11 +648,15 @@ def get_applications():
         race_counter = Counter()
         gender_counter = Counter()
         status_counter = Counter()
+        hires_counter = 0
         
         jobs_ref = db.collection('jobListings').where('recruiterID', '==', recruiter_id)
-        jobs = jobs_ref.stream()
+        jobs = list(jobs_ref.stream())  # Convert generator to list
+        
+        jobs_counter = len(jobs)
 
         applications = []
+        unique_applicant_ids = set()
         for job in jobs:
             job_id = job.id
             job_data = job.to_dict()  # Get job data
@@ -665,11 +669,16 @@ def get_applications():
                 app_data = app.to_dict()
                 app_data['applicationID'] = app.id  # Include the application ID in the data
                 app_data['jobTitle'] = job_title
-                status_counter[app_data.get('status', 'Not Stated')] += 1
+                status = app_data.get('status', 'Not Stated')
+                # status_counter[app_data.get('status', 'Not Stated')] += 1
+                status_counter[status] += 1
+                if status == "Offered":
+                    hires_counter += 1
                 
                 # Fetch applicant details
                 applicant_id = app_data.get('applicantID')
                 if applicant_id:
+                    unique_applicant_ids.add(applicant_id)
                     user_ref = db.collection('users').document(applicant_id)
                     user_doc = user_ref.get()
                     if user_doc.exists:
@@ -698,7 +707,11 @@ def get_applications():
         gender_counts = [{"gender": gender, "count": count} for gender, count in gender_counter.items()]
         status_counts = [{"status": status, "count": count} for status, count in status_counter.items()]
 
-        return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts}), 200
+        total_applicants = len(unique_applicant_ids)
+
+        return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts, "jobsCounts": jobs_counter, "hiresCounts": hires_counter, "applicantsCounts": total_applicants}), 200
+        # return jsonify({"success": True, "applications": applications, "raceCounts": race_counts,"genderCounts": gender_counts, "statusCounts": status_counts, "hiresCounts": hires_counter, "applicantsCounts": total_applicants}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

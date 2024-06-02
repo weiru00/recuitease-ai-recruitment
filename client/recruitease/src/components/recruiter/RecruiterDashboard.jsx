@@ -24,6 +24,9 @@ const RecruiterDashboard = () => {
   const [raceData, setRaceData] = useState([]);
   const [genderData, setGenderData] = useState([]);
   const [statusData, setStatusData] = useState([]);
+  const [jobsCounts, setJobsCounts] = useState([]);
+  const [hiresCounts, setHiresCounts] = useState([]);
+  const [applicantsCounts, setApplicantsCounts] = useState([]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -65,6 +68,9 @@ const RecruiterDashboard = () => {
           setRaceData(raceChartData);
           setGenderData(genderChartData);
           setStatusData(statusChartData);
+          setJobsCounts(data.jobsCounts);
+          setHiresCounts(data.hiresCounts);
+          setApplicantsCounts(data.applicantsCounts);
         } else {
           console.error("Failed to fetch application data:", data.error);
         }
@@ -156,7 +162,7 @@ const RecruiterDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {userData.number_of_applications} */} 02
+                {jobsCounts}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Jobs Posted
@@ -167,7 +173,7 @@ const RecruiterDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {userData.number_of_offers} */} 01
+                {hiresCounts}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Hires Made
@@ -178,7 +184,7 @@ const RecruiterDashboard = () => {
           <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
-                {/* {userData.number_of_interviews} */} 01
+                {applicantsCounts}
               </dt>
               <dd className="font-medium text-gray-400 dark:text-gray-400">
                 Total Applicants
