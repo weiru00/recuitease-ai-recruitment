@@ -199,7 +199,7 @@ const ManageProfile = () => {
                     placeholder="flowbite.com"
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
-                    required
+                    required=""
                   />
                 </div>
                 <div>

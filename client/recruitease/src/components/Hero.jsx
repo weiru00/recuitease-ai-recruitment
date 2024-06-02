@@ -18,12 +18,17 @@ const Hero = () => {
         </div>
 
         <p className="max-w-2xl mb-6 font-light text-gray-700 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">
-          Our team of experts uses a methodology to identify the credit cards
-          most likely to fit your needs. We examine annual percentage rates,
-          annual fees.
+          Our platform is designed to streamline your hiring process. Leveraging
+          advanced AI technology, RecruitEase provides insightful analytics to
+          ensure you make the best hiring decisions.
         </p>
         <div className="flex space-x-4">
-          <Button text="Get Started" size="large" type="primary" />
+          <Button
+            text="Get Started"
+            size="large"
+            type="primary"
+            navigateTo="/login"
+          />
           <Button text="Learn More" size="large" type="cancel" />
         </div>
       </div>

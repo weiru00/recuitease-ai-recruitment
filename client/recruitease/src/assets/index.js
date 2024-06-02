@@ -16,6 +16,9 @@ import talents from "./talents.svg";
 import nodata from "./nodata.svg";
 import appliedjob from "./appliedjob.svg";
 import admin from "./admin.svg";
+import feature1 from "./feature1.svg";
+import feature2 from "./feature2.svg";
+import feature3 from "./feature3.svg";
 
 export {
   logo,
@@ -36,4 +39,7 @@ export {
   nodata,
   appliedjob,
   admin,
+  feature1,
+  feature2,
+  feature3,
 };

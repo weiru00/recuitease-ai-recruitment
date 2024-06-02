@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "./Button";
 import styles from "../style";
+import { feature1, feature2, feature3 } from "../assets";
 
 const Features = () => {
   return (
@@ -22,7 +23,7 @@ const Features = () => {
         >
           <img
             className="w-full dark:hidden relative z-[5]"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg"
+            src={feature3}
             alt="dashboard image"
           ></img>
           <img
@@ -40,12 +41,13 @@ const Features = () => {
 
         <div className="mt-4 md:mt-0">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-            Let's create more tools and ideas that brings us together.
+            Intelligent Resume Scoring.
           </h2>
           <p className="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
-            Flowbite helps you connect with friends and communities of people
-            who share your interests. Connecting with your friends and family as
-            well as discovering new ones is easy with features like Groups.
+            Our advanced AI analyzes resumes and assigns scores based on
+            relevance, experience, and skills. This ensures you identify the
+            best candidates quickly and efficiently, saving you valuable time
+            and resources.
           </p>
           <Button text="Explore Now" size="small" type="primary" />
         </div>
@@ -54,12 +56,13 @@ const Features = () => {
       <div className="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 md:grid md:grid-cols-2 sm:py-16 lg:px-6">
         <div className="mt-4 md:mt-0">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-            Let's create more tools and ideas that brings us together.
+            Smart Candidate Matching.
           </h2>
           <p className="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
-            Flowbite helps you connect with friends and communities of people
-            who share your interests. Connecting with your friends and family as
-            well as discovering new ones is easy with features like Groups.
+            RecruitEase leverages powerful algorithms to match candidates to job
+            roles based on their qualifications and experience. This feature
+            enhances the accuracy of candidate selection, ensuring a perfect fit
+            for your team.{" "}
           </p>
           <Button text="Explore Now" size="small" type="primary" />
         </div>
@@ -68,7 +71,7 @@ const Features = () => {
         >
           <img
             className="w-full dark:hidden relative z-[5]"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg"
+            src={feature1}
             alt="dashboard image"
           ></img>
           <img
@@ -91,7 +94,7 @@ const Features = () => {
         >
           <img
             className="w-full dark:hidden relative z-[5]"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/cta/cta-dashboard-mockup.svg"
+            src={feature2}
             alt="dashboard image"
           ></img>
           <img
@@ -108,12 +111,13 @@ const Features = () => {
         </div>
         <div className="mt-4 md:mt-0">
           <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-            Let's create more tools and ideas that brings us together.
+            Comprehensive Analytics{" "}
           </h2>
           <p className="mb-6 font-light text-gray-500 md:text-lg dark:text-gray-400">
-            Flowbite helps you connect with friends and communities of people
-            who share your interests. Connecting with your friends and family as
-            well as discovering new ones is easy with features like Groups.
+            Gain insights into your recruitment process with our detailed
+            analytics dashboard. Track key metrics, identify trends, and make
+            data-driven decisions to continuously improve your hiring
+            strategies.{" "}
           </p>
           <Button text="Explore Now" size="small" type="primary" />
         </div>
