@@ -4,6 +4,7 @@ import { logo } from "../../assets";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { user } from "../../assets";
+import LogoutModal from "../LogoutModal";
 
 import "flowbite";
 
@@ -11,6 +12,13 @@ const Sidebar = () => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const closeModal = () => setShowModal(false);
+
+  const openModal = () => {
+    setShowModal(true);
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -149,7 +157,7 @@ const Sidebar = () => {
             <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
               <li>
                 <a
-                  onClick={handleLogout}
+                  onClick={openModal}
                   href="#"
                   className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-purple-100 dark:hover:bg-gray-700 dark:text-white group"
                 >
@@ -202,6 +210,9 @@ const Sidebar = () => {
             </ul>
           </div>
         </aside>
+        {showModal && (
+          <LogoutModal onCloseModal={closeModal} onConfirm={handleLogout} />
+        )}
       </div>
     );
   }
