@@ -124,7 +124,7 @@ const RecruiterDashboard = () => {
   };
 
   return (
-    <div className="antialiased bg-white dark:bg-gray-900 font-body">
+    <div className="antialiased bg-gray-50 dark:bg-gray-900 font-body">
       {/* <DashNavbar /> */}
 
       <Sidebar />
@@ -159,7 +159,7 @@ const RecruiterDashboard = () => {
             </h5>
           </div> */}
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mx-6 mt-4">
-          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+          <div className="flex justify-between border-2 bg-white border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
                 {jobsCounts}
@@ -170,7 +170,7 @@ const RecruiterDashboard = () => {
             </div>
             <img src={appliedjob} alt="job icon" />
           </div>
-          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+          <div className="flex justify-between border-2 bg-white border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
                 {hiresCounts}
@@ -181,7 +181,7 @@ const RecruiterDashboard = () => {
             </div>
             <img src={appliedjob} alt="job icon" />
           </div>
-          <div className="flex justify-between border-2 border-gray-100 rounded-2xl  h-auto py-5 px-6">
+          <div className="flex justify-between border-2 bg-white border-gray-100 rounded-2xl  h-auto py-5 px-6">
             <div className="flex flex-col items-left justify-center px-3">
               <dt className="mb-2 text-4xl md:text-4xl font-bold text-purple-700">
                 {applicantsCounts}
@@ -193,106 +193,6 @@ const RecruiterDashboard = () => {
             <img src={appliedjob} alt="job icon" />
           </div>
         </div>
-        {/* <div className="bg-white border-2 border-gray-100 rounded-lg dark:bg-gray-600 h-auto px-10 py-6 mb-6 mx-6">
-          <div className="flex items-center">
-            <h5 className="text-xl font-bold dark:text-white">Your Stats</h5>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-6 mt-4">
-            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Active Jobs
-                </dd>
-                <Link
-                  to="/talents"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                    />
-                  </svg>
-                  Edit Status
-                </Link>
-              </div>
-            </div>
-            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Total Jobs Posted
-                </dd>
-
-                <Link
-                  to="/jobpostings"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-auto mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M18 14v4.833A1.166 1.166 0 0 1 16.833 20H5.167A1.167 1.167 0 0 1 4 18.833V7.167A1.166 1.166 0 0 1 5.167 6h4.618m4.447-2H20v5.768m-7.889 2.121 7.778-7.778"
-                    />
-                  </svg>
-                  Manage Jobs
-                </Link>
-              </div>
-            </div>
-            <div className="border-2 border-gray-100 rounded-lg  h-auto p-5">
-              <div className="flex flex-col items-center justify-center">
-                <dt className="mb-2 text-3xl md:text-4xl font-extrabold">2</dt>
-                <dd className="font-medium text-gray-500 dark:text-gray-400">
-                  Hires Made
-                </dd>
-                <Link
-                  to="/talents"
-                  className="inline-flex items-center justify-center text-center bg-white text-purple-600 text-md font-medium w-1/2 mt-5 me-2 px-2.5 py-1 rounded-md dark:bg-gray-700 dark:text-purple-400 border-2 border-purple-600 hover:bg-purple-500 hover:text-white group"
-                >
-                  <svg
-                    className="w-6 h-6 me-2 text-purple-600 group-hover:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeWidth="2"
-                      d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                  </svg>
-                  Find Talents
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div> */}
         <div className="grid grid-cols-5 grid-rows-4 gap-6 mb-6 mx-6">
           <div className="col-span-3 row-span-4 border-2 rounded-lg border-gray-100 dark:border-gray-600 h-auto">
             <BarChart title="Application Distribution" chartData={statusData} />
@@ -316,12 +216,6 @@ const RecruiterDashboard = () => {
               // labels={raceData.name}
             />
           </div>
-        </div>
-        <div className="border-2 rounded-lg border-gray-100  h-96 mb-6 mx-6"></div>
-        <div className="grid grid-rows-3 grid-flow-col gap-6 mb-6 mx-6">
-          <div className="row-span-3 border-2 rounded-lg border-gray-100  h-auto"></div>
-          <div className="col-span-1 border-2 rounded-lg border-gray-100  h-auto"></div>
-          <div className="col-span-1 border-2 rounded-lg border-gray-100  h-auto"></div>
         </div>
       </main>
     </div>

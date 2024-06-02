@@ -299,7 +299,7 @@ const Talents = () => {
   };
 
   return (
-    <div className="font-body antialiased bg-gray-50 dark:bg-gray-900">
+    <div className="font-body antialiased bg-white dark:bg-gray-900">
       <Sidebar />
       <main className="p-2 md:px-10 md:ml-72 md:mr-24 sm:ml-48 sm:mr-24 h-auto pt-8">
         {/* <div className="flex justify-between border-2 rounded-lg border-gray-100 bg-[url('assets/bg.png')] dark:border-gray-600 h-48 mb-8 mx-6 px-10 py-6 z-40">
@@ -365,7 +365,7 @@ const Talents = () => {
         {showPendingTalents && (
           <div>
             {/* Top Talents */}
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-gray-50 border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -428,7 +428,7 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {filteredTopTalents.length > 0 ? (
                   filteredTopTalents.map((app) => (
                     <div
@@ -632,7 +632,7 @@ const Talents = () => {
             </div>
 
             {/* All Talents */}
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2 dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-purple-50 border-gray-100 border-2 dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -693,7 +693,7 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {filteredSortedByTimeApplications.length > 0 ? (
                   filteredSortedByTimeApplications.map((app) => (
                     <div
@@ -901,7 +901,7 @@ const Talents = () => {
         {/* Approved Section */}
         {showApprovedTalents && (
           <div>
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-gray-50 border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -964,7 +964,7 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {filteredHiredTalents.length > 0 ? (
                   filteredHiredTalents.map((app) => (
                     <div
@@ -1119,7 +1119,7 @@ const Talents = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-purple-50 border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -1182,7 +1182,7 @@ const Talents = () => {
                   </button>
                 </form> */}
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {filteredOfferedTalents.length > 0 ? (
                   filteredOfferedTalents.map((app) => (
                     <div
@@ -1315,7 +1315,7 @@ const Talents = () => {
         {/* Rejected Section */}
         {showRejectedTalents && (
           <div>
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-gray-50 border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -1378,7 +1378,7 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {filteredRejectedTalents.length > 0 ? (
                   filteredRejectedTalents.map((app) => (
                     <div
@@ -1619,7 +1619,7 @@ const Talents = () => {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+            <div className="grid grid-cols-1 rounded-xl bg-purple-50 border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
               <div className="flex justify-between">
                 <div className="flex items-center">
                   <h5 className="text-lg font-semibold text-purple-600">
@@ -1627,7 +1627,7 @@ const Talents = () => {
                   </h5>
                 </div>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
                 {rejectedSentTalents.length > 0 ? (
                   rejectedSentTalents.map((app) => (
                     <div
