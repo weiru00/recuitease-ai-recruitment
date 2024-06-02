@@ -30,10 +30,11 @@ const ApplicantDashboard = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const closeStatusModal = () => setShowStatusModal(false);
-  const openStatusModal = (userId, newStatus) => {
+  const openStatusModal = (userId, newStatus, desc) => {
     setShowStatusModal(true);
     setSelectedUser(userId);
     setStatus(newStatus);
+    setDesc(desc);
   };
   const openDeleteModal = (userId) => {
     setShowDeleteModal(true);
@@ -277,7 +278,11 @@ const ApplicantDashboard = () => {
                             className="text-xs text-white bg-purple-700 rounded-xl px-3 py-2 hover:bg-purple-800"
                             // onClick={openStatusModal}
                             onClick={() =>
-                              openStatusModal(newuser.uid, "approved")
+                              openStatusModal(
+                                newuser.uid,
+                                "approved",
+                                "Are you sure you want to Approve this user account? This action will trigger an approval email to this user."
+                              )
                             }
                           >
                             Approve
@@ -286,7 +291,11 @@ const ApplicantDashboard = () => {
                             className="text-xs text-purple-700 bg-purple-100 rounded-xl px-3 py-2 hover:bg-purple-200"
                             // onClick={openStatusModal}
                             onClick={() =>
-                              openStatusModal(newuser.uid, "decline")
+                              openStatusModal(
+                                newuser.uid,
+                                "decline",
+                                "Are you sure you want to REJECT this user account? This action will trigger a rejection email to this user."
+                              )
                             }
                           >
                             Decline
@@ -407,6 +416,7 @@ const ApplicantDashboard = () => {
           onCloseModal={closeStatusModal}
           onConfirm={handleConfirmStatus}
           status={status}
+          desc={desc}
         />
       )}
       {showDeleteModal && (

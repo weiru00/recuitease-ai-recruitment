@@ -49,7 +49,12 @@ const Features = () => {
             best candidates quickly and efficiently, saving you valuable time
             and resources.
           </p>
-          <Button text="Explore Now" size="small" type="primary" />
+          <Button
+            text="Explore Now"
+            size="small"
+            type="primary"
+            navigateTo="/login"
+          />
         </div>
       </div>
 
@@ -64,7 +69,12 @@ const Features = () => {
             enhances the accuracy of candidate selection, ensuring a perfect fit
             for your team.{" "}
           </p>
-          <Button text="Explore Now" size="small" type="primary" />
+          <Button
+            text="Explore Now"
+            size="small"
+            type="primary"
+            navigateTo="/login"
+          />
         </div>
         <div
           className={`flex-1 flex ${styles.flexCenter} md:my-0 my-8 relative`}
@@ -119,7 +129,12 @@ const Features = () => {
             data-driven decisions to continuously improve your hiring
             strategies.{" "}
           </p>
-          <Button text="Explore Now" size="small" type="primary" />
+          <Button
+            text="Explore Now"
+            size="small"
+            type="primary"
+            navigateTo="/login"
+          />
         </div>
       </div>
     </section>
