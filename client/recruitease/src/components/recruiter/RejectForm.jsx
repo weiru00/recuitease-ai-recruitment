@@ -3,7 +3,7 @@ import SuccessfulModal from "../SuccessfulModal";
 import { useLocation } from "react-router-dom";
 import styles from "../../style";
 
-const OfferForm = ({
+const RejectForm = ({
   onCloseModal,
   applicationID,
   status,
@@ -13,7 +13,6 @@ const OfferForm = ({
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
 
-  const [offerLetter, setOfferLetter] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const [message, setMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -56,9 +55,9 @@ const OfferForm = ({
       onCloseModal();
       setShowSuccessModal(true);
       fetchApplications();
-      console.log("Offer sent successfully");
+      console.log("Email sent successfully");
     } else {
-      console.error("Failed to send offer letter");
+      console.error("Failed to send rejection letter");
     }
     setMessage(data.message);
   };
@@ -84,7 +83,7 @@ const OfferForm = ({
                 <div className="animation-sliding-img-down-3 relative p-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-8">
                   <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Job Offer Letter
+                      Job Rejection Letter
                     </h3>
                     <button
                       onClick={onCloseModal}
@@ -108,27 +107,7 @@ const OfferForm = ({
                     </button>
                   </div>
                   <form onSubmit={handleSend}>
-                    <>
-                      {/* <div className="grid gap-4 mb-4 grid-cols-2">
-                        <div className="col-span-2">
-                          <label
-                            htmlFor="offerLetter"
-                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                          >
-                            Job Offer Confirmation Letter
-                          </label>
-                          <input
-                            type="text"
-                            id="offerLetter"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-600 focus:border-purple-600 block w-full p-2.5"
-                            placeholder="E.g: Google Meet Link, Microsoft Teams etc."
-                            required=""
-                            value={offerLetter}
-                            onChange={(e) => setOfferLetter(e.target.value)}
-                          />
-                        </div>
-                      </div> */}
-                    </>
+                    <></>
                     {emailContent && (
                       <div>
                         <h2 className="text-purple-700 font-semibold px-2 py-2">
@@ -177,11 +156,11 @@ const OfferForm = ({
           onCloseModal={handleCloseModal}
           onCloseForm={onCloseModal}
           title={`Email Sent`}
-          desc={`The job offer email is sent to the applicant.`}
+          desc={`The job rejection email is sent to the applicant.`}
         />
       )}
     </React.Fragment>
   );
 };
 
-export default OfferForm;
+export default RejectForm;

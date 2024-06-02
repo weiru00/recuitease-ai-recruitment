@@ -42,7 +42,7 @@ const InterviewForm = ({
 
   const handlePreview = async (e) => {
     e.preventDefault();
-    const response = await fetch("/api/preview_email", {
+    const response = await fetch(`/api/preview_email?uid=${uid}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

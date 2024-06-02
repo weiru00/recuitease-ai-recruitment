@@ -935,16 +935,88 @@ def get_forwarded_applications():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# @app.route('/preview_email', methods=['POST'])
+# def preview_email():
+    
+#     data = request.json
+#     new_status = data.get('status')
+#     meeting_link = data.get('meeting_link')
+#     meeting_date = data.get('meeting_date')
+#     meeting_time = data.get('meeting_time')
+#     application_id = data.get('applicationID')
+#     # print('Received preview email request:', data)
+
+#     # Fetch application, recruiter, and job details
+#     application_ref = db.collection('applications').document(application_id)
+#     doc = application_ref.get()
+#     if not doc.exists:
+#         return jsonify({'error': 'Application not found'}), 404
+
+#     current_app = doc.to_dict()
+#     job_id = current_app.get('jobID', None)
+#     applicant_id = current_app.get('applicantID', None)
+#     manager_id = current_app.get('managerID', None)
+
+#     job_ref = db.collection('jobListings').document(job_id)
+#     job_doc = job_ref.get()
+#     if job_doc.exists:    
+#         job_data = job_doc.to_dict()
+#         job_title = job_data.get('title', None)
+#     else:
+#         return jsonify({'error': 'Job not found'}), 404
+
+#     manager_ref = db.collection('users').document(manager_id)
+#     manager_doc = manager_ref.get()
+#     if not manager_doc.exists:
+#         return jsonify({'error': 'Manager not found'}), 404
+
+#     manager_data = manager_doc.to_dict()
+#     sender_name = manager_data.get('firstName', None)
+#     company_id = manager_data.get('companyID', None)
+#     position = manager_data.get('position', None)
+    
+#     company_ref = db.collection('company').document(company_id)
+#     company_doc = company_ref.get()
+#     if not company_doc.exists:
+#         return jsonify({'error': 'Company not found'}), 404
+
+#     company_data = company_doc.to_dict()
+#     company_name = company_data.get('companyName', None)
+
+#     email_content = generate_email_content(new_status, job_title, position, company_name, sender_name, meeting_link, meeting_date, meeting_time)
+
+#     return jsonify({'email_content': email_content})
+
 @app.route('/preview_email', methods=['POST'])
 def preview_email():
     
+    sender_id = request.args.get('uid')
+
+    if sender_id:
+        sender_ref = db.collection('users').document(sender_id)
+        sender_doc = sender_ref.get()
+        if sender_doc.exists:
+            sender_data = sender_doc.to_dict()
+            sender_name = sender_data.get('firstName', 'None')
+            company_id = sender_data.get('companyID', 'None')
+            position = sender_data.get('position', 'None')
+        else:
+            sender_name = ''
+            company_id = 'None'
+            position = 'Staff'
+    else:
+        sender_name = ''
+        company_id = 'None'
+        position = 'Staff'
+
     data = request.json
     new_status = data.get('status')
     meeting_link = data.get('meeting_link')
     meeting_date = data.get('meeting_date')
     meeting_time = data.get('meeting_time')
     application_id = data.get('applicationID')
-    
+    # print('Received preview email request:', data)
+
     # Fetch application, recruiter, and job details
     application_ref = db.collection('applications').document(application_id)
     doc = application_ref.get()
@@ -954,7 +1026,7 @@ def preview_email():
     current_app = doc.to_dict()
     job_id = current_app.get('jobID', None)
     applicant_id = current_app.get('applicantID', None)
-    manager_id = current_app.get('managerID', None)
+    # manager_id = current_app.get('managerID', None)
 
     job_ref = db.collection('jobListings').document(job_id)
     job_doc = job_ref.get()
@@ -963,29 +1035,22 @@ def preview_email():
         job_title = job_data.get('title', None)
     else:
         return jsonify({'error': 'Job not found'}), 404
-
-
-    manager_ref = db.collection('users').document(manager_id)
-    manager_doc = manager_ref.get()
-    if not manager_doc.exists:
-        return jsonify({'error': 'Manager not found'}), 404
-
-    manager_data = manager_doc.to_dict()
-    sender_name = manager_data.get('firstName', None)
-    company_id = manager_data.get('companyID', None)
-    position = manager_data.get('position', None)
     
-    company_ref = db.collection('company').document(company_id)
-    company_doc = company_ref.get()
-    if not company_doc.exists:
-        return jsonify({'error': 'Company not found'}), 404
+    if company_id != 'None':
+        company_ref = db.collection('company').document(company_id)
+        company_doc = company_ref.get()
+        if not company_doc.exists:
+            return jsonify({'error': 'Company not found'}), 404
 
-    company_data = company_doc.to_dict()
-    company_name = company_data.get('companyName', None)
+        company_data = company_doc.to_dict()
+        company_name = company_data.get('companyName', 'None')
+    else:
+        company_name = 'None'
 
     email_content = generate_email_content(new_status, job_title, position, company_name, sender_name, meeting_link, meeting_date, meeting_time)
 
     return jsonify({'email_content': email_content})
+
 
 @app.route('/preview_offer_email', methods=['POST'])
 def preview_offer_email():
@@ -1152,7 +1217,7 @@ def generate_email_content(new_status, job_title, position, company_name, sender
         <br><b>{company_name}</b>
         </div>"""
 
-    elif new_status == "Reject":
+    elif new_status == "Reject Sent":
         subject = f"Application Status Update - {job_title}, {company_name}"
         message_html = f"""
         <div style="font-size: 14px;">
