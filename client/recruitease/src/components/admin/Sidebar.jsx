@@ -93,16 +93,23 @@ const Sidebar = () => {
             {userData.user_info.role == "admin" && (
               <img
                 className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
-                // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                src={userData.company_info.companyLogoUrl || user}
+                // src={userData.company_info.companyLogoUrl || user}
+                src={
+                  `${userData.company_info.companyLogoUrl}?v=${Date.now()}` ||
+                  user
+                }
+                // src={companyLogoUrl || user}
                 alt="logo"
               ></img>
             )}
             {userData.user_info.role == "manager" && (
               <img
                 className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
-                // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-                src={userData.user_info.profilePicUrl || user}
+                // src={profilePicUrl || user}
+                // src={userData.user_info.profilePicUrl || user}
+                src={
+                  `${userData.user_info.profilePicUrl}?v=${Date.now()}` || user
+                }
                 alt="logo"
               ></img>
             )}

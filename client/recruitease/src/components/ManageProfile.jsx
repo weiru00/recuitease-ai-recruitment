@@ -3,12 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import AdminSidebar from "./admin/Sidebar";
 import RecruiterSidebar from "./recruiter/Sidebar";
 import ApplicantSidebar from "./applicant/ApplicantSidebar";
-
 import SuccessfulModal from "./SuccessfulModal";
-import { login } from "../assets";
 
 const ManageProfile = () => {
-  const [companyLogo, setCompanyLogo] = useState(null); // Assuming you'll handle file uploads
+  const [companyLogo, setCompanyLogo] = useState(null);
+  const [companyLogoUrl, setCompanyLogoUrl] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [website, setWebsite] = useState("");
   const [companySize, setCompanySize] = useState("");
@@ -18,13 +17,11 @@ const ManageProfile = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [imageVersion, setImageVersion] = useState(Date.now());
 
-  // Recruiter
   const [position, setPosition] = useState("");
-
-  //  Applicant
   const [gender, setGender] = useState("");
   const [race, setRace] = useState("");
-  const [profilePic, setprofilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
+  const [profilePicUrl, setProfilePicUrl] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +37,6 @@ const ManageProfile = () => {
   };
 
   useEffect(() => {
-    // Fetch the user's existing profile information
     const fetchProfileData = async () => {
       try {
         const response = await fetch(`/api/user-info?uid=${uid}`);
@@ -48,17 +44,17 @@ const ManageProfile = () => {
         if (response.ok) {
           setFirstName(data.user_info.firstName);
           setLastName(data.user_info.lastName);
-
           setGender(data.user_info.gender);
           setRace(data.user_info.race);
           setPosition(data.user_info.position);
+          setProfilePicUrl(data.user_info.profilePicUrl);
 
           if (data.company_info) {
-            // Check if there is company data
             setCompanyName(data.company_info.companyName);
             setWebsite(data.company_info.website);
             setCompanySize(data.company_info.companySize);
             setCompanyDescription(data.company_info.companyDescription);
+            setCompanyLogoUrl(data.company_info.companyLogoUrl);
           }
         } else {
           throw new Error("Failed to fetch profile data");
@@ -72,15 +68,13 @@ const ManageProfile = () => {
   }, [uid]);
 
   const handleLogoChange = (event) => {
-    // Assuming you're handling file uploads for the logo
     const file = event.target.files[0];
     setCompanyLogo(file);
   };
 
-  const handleProfilePic = (event) => {
-    // Assuming you're handling file uploads for the logo
+  const handleProfilePicChange = (event) => {
     const file = event.target.files[0];
-    setprofilePic(file);
+    setProfilePic(file);
   };
 
   const handleSubmit = async (event) => {
@@ -95,12 +89,11 @@ const ManageProfile = () => {
     formData.append("companyDescription", companyDescription);
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
-
     formData.append("position", position);
     formData.append("gender", gender);
     formData.append("race", race);
-    if (profilePic) formData.append("profilePic", profilePic);
 
+    if (profilePic) formData.append("profilePic", profilePic);
     if (companyLogo) formData.append("companyLogo", companyLogo);
 
     try {
@@ -111,8 +104,12 @@ const ManageProfile = () => {
 
       const data = await response.json();
       if (data.success) {
+        setImageVersion(Date.now());
+        if (data.profilePicUrl)
+          setProfilePicUrl(`${data.profilePicUrl}?v=${imageVersion}`);
+        if (data.companyLogoUrl)
+          setCompanyLogoUrl(`${data.companyLogoUrl}?v=${imageVersion}`);
         openSuccessModal();
-        navigate(`/manage-profile?uid=${uid}&role=${role}`);
       } else {
         console.error("Failed to update user data");
       }
@@ -151,6 +148,17 @@ const ManageProfile = () => {
                     Company Logo
                   </label>
                   <div>
+                    {/* {companyLogoUrl && (
+                      <img
+                        src={`${companyLogoUrl}?v=${imageVersion}`}
+                        alt="Company Logo"
+                        className="mb-3 w-20 h-20 object-cover rounded-full"
+                      />
+                    )}
+                    <p className="text-xs font-medium text-purple-700 my-2">
+                      ** The changes will be reflected on the Sidebar
+                      afterwards.
+                    </p> */}
                     <input
                       className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                       aria-describedby="file_input_help"
@@ -332,13 +340,24 @@ const ManageProfile = () => {
                     Profile Picture
                   </label>
                   <div>
+                    {/* {profilePicUrl && (
+                      <img
+                        src={`${profilePicUrl}?v=${imageVersion}`}
+                        alt="Profile Picture"
+                        className="mb-3 w-20 h-20 object-cover rounded-full"
+                      />
+                    )}
+                    <p className="text-xs font-medium text-purple-700 my-2">
+                      ** The changes will be reflected on the Sidebar
+                      afterwards.
+                    </p> */}
                     <input
                       className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                       aria-describedby="file_input_help"
                       id="file_input"
                       type="file"
                       accept=".jpg, .png"
-                      onChange={handleProfilePic}
+                      onChange={handleProfilePicChange}
                     />
                   </div>
                 </div>
@@ -440,7 +459,7 @@ const ManageProfile = () => {
             isClose();
           }}
           title={`Profile Updated`}
-          desc={`Your profile has been successfully.`}
+          desc={`Your profile has been successfully updated.`}
         />
       )}
     </div>

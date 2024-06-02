@@ -5,7 +5,7 @@ import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import "flowbite";
 
-const Sidebar = () => {
+const Sidebar = ({ profilePicUrl }) => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
@@ -110,8 +110,9 @@ const Sidebar = () => {
         <div className="mt-14 text-center text-gray-500 dark:text-gray-400">
           <img
             className="mx-auto mb-4 w-20 h-20 rounded-full border-4 border-purple-600"
-            // src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/bonnie-green.png"
-            src={userData.user_info.profilePicUrl || user}
+            // src={profilePicUrl || user}
+            src={`${userData.user_info.profilePicUrl}?v=${Date.now()}` || user}
+            // src={userData.user_info.profilePicUrl || user}
             alt="Profile Picture"
           ></img>
           <h3 className="mb-10 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
