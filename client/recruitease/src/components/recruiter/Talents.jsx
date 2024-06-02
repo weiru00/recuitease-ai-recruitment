@@ -26,6 +26,8 @@ const Talents = () => {
   const [showDropdown, setShowDropdown] = useState({});
   const [searchQueryTopTalents, setSearchQueryTopTalents] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryApproved, setSearchQueryApproved] = useState("");
+  const [searchQueryRejected, setSearchQueryRejected] = useState("");
   const [showPendingTalents, setShowPendingTalents] = useState(true);
   const [showApprovedTalents, setShowApprovedTalents] = useState(false);
   const [showRejectedTalents, setShowRejectedTalents] = useState(false);
@@ -82,14 +84,6 @@ const Talents = () => {
     setApplicationID(applicationID);
   };
 
-  // const closeEmailPreview = () => setShowEmailPreview(false);
-
-  // const openEmailPreview = (applicationID, status) => {
-  //   setShowEmailPreview(true);
-  //   setApplicationID(applicationID);
-  //   setStatus(status);
-  // };
-
   const handleConfirmStatus = async () => {
     closeStatusModal();
     handleStatusChange(applicationID, status);
@@ -100,6 +94,8 @@ const Talents = () => {
   );
 
   const hiredTalents = applications.filter((app) => app.status === "Accept");
+
+  const offeredTalents = applications.filter((app) => app.status === "Offered");
 
   const rejectedTalents = applications.filter((app) => app.status === "Reject");
 
@@ -135,22 +131,6 @@ const Talents = () => {
     fetchApplications();
   }, [recruiterID]);
 
-  // const handlePreview = async (e) => {
-  //   e.preventDefault();
-  //   const response = await fetch("/api/preview_email", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       applicationID,
-  //       status,
-  //     }),
-  //   });
-  //   const data = await response.json();
-  //   setEmailContent(data.email_content);
-  // };
-
   const filterApplications = (apps, query) => {
     return apps.filter((app) =>
       app.jobTitle.toLowerCase().includes(query.toLowerCase())
@@ -165,7 +145,19 @@ const Talents = () => {
     return filterApplications(sortedByTimeApplications, searchQuery);
   }, [sortedByTimeApplications, searchQuery]);
 
-  const handleSearchChange = (e) => {
+  const filteredHiredTalents = useMemo(() => {
+    return filterApplications(hiredTalents, searchQueryApproved);
+  }, [hiredTalents, searchQueryApproved]);
+
+  const filteredOfferedTalents = useMemo(() => {
+    return filterApplications(offeredTalents, searchQueryApproved);
+  }, [offeredTalents, searchQueryApproved]);
+
+  const filteredRejectedTalents = useMemo(() => {
+    return filterApplications(rejectedTalents, searchQueryRejected);
+  }, [rejectedTalents, searchQueryRejected]);
+
+  const handleSearchChange = (e, setSearchQuery) => {
     setSearchQuery(e.target.value);
   };
 
@@ -395,7 +387,9 @@ const Talents = () => {
                       className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                       placeholder="Search job name..."
                       value={searchQueryTopTalents}
-                      onChange={handleSearchChangeTopTalents}
+                      onChange={(e) =>
+                        handleSearchChange(e, setSearchQueryTopTalents)
+                      }
                     />
                   </div>
                   <button
@@ -660,7 +654,7 @@ const Talents = () => {
                       className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                       placeholder="Search job name..."
                       value={searchQuery}
-                      onChange={handleSearchChange}
+                      onChange={(e) => handleSearchChange(e, setSearchQuery)}
                     />
                   </div>
                   <button
@@ -890,81 +884,89 @@ const Talents = () => {
                 )}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* OLD */}
-            {/* <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 px-5 py-4">
-              <div className="flex items-center">
-                <h5 className="text-lg text-purple-600 font-semibold dark:text-white">
-                  Other Talents ({filteredSortedByTimeApplications.length})
-                </h5>
-              </div>
-              <form className="flex items-center max-w-sm">
-                <label htmlFor="simple-search-alltalents" className="sr-only">
-                  Search
-                </label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+        {/* Approved Section */}
+        {showApprovedTalents && (
+          <div>
+            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+              <div className="flex justify-between">
+                <div className="flex items-center">
+                  <h5 className="text-lg font-semibold text-purple-600">
+                    Pending Offer Letters ({filteredHiredTalents.length})
+                  </h5>
+                </div>
+                <form className="flex items-center max-w-sm">
+                  <label htmlFor="search-pending-offer" className="sr-only">
+                    Search
+                  </label>
+                  <div className="relative w-full">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <svg
+                        className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 18 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="search-pending-offer"
+                      className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                      placeholder="Search job name..."
+                      value={searchQueryApproved}
+                      onChange={(e) =>
+                        handleSearchChange(e, setSearchQueryApproved)
+                      }
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
+                  >
                     <svg
-                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      className="w-4 h-4"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
-                      viewBox="0 0 18 20"
+                      viewBox="0 0 20 20"
                     >
                       <path
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                       />
                     </svg>
-                  </div>
-                  <input
-                    type="text"
-                    id="simple-search-alltalents"
-                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                    placeholder="Search job name..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                  <span className="sr-only">Search</span>
-                </button>
-              </form>
-              <div href="#" className="col-span-4">
-                {filteredSortedByTimeApplications.length > 0 ? (
-                  filteredSortedByTimeApplications.map((app) => (
+                    <span className="sr-only">Search</span>
+                  </button>
+                </form>
+              </div>
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+                {filteredHiredTalents.length > 0 ? (
+                  filteredHiredTalents.map((app) => (
                     <div
                       key={app.applicationID}
-                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600  h-auto min-h-20 mt-4"
+                      className="bg-white p-6 rounded-lg shadow-lg w-auto"
                     >
-                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg dark:bg-gray-800 dark:border-gray-700">
-                        <div className="col-span-2 grid justify-items-center content-center">
+                      <div className="flex justify-between">
+                        <div className="flex items-center">
                           {app.applicantPic ? (
                             <img
-                              className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                              className="w-12 h-12 rounded-full"
                               src={app.applicantPic}
-                              alt="Profile Pic"
+                              alt="Profile"
                             />
                           ) : (
                             <img
@@ -973,156 +975,127 @@ const Talents = () => {
                               alt="Profile Pic"
                             ></img>
                           )}
-                        </div>
-                        <div className="px-2 py-3 col-span-6">
-                          <div className="flex">
-                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                              {app.applicantFName}
-                            </h5>
-                            <div>
-                              <ApplicationStatus status={app.status} />
-                            </div>
+                          <div className="ml-4">
+                            <h3 className="text-purple-600 text-md font-semibold">
+                              {app.applicantFName} {app.applicantLName}
+                            </h3>
+                            <p className="text-gray-500 text-sm">
+                              {new Intl.DateTimeFormat("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "2-digit",
+                              }).format(new Date(app.appliedAt))}
+                            </p>
                           </div>
-
-                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                            <li>
-                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                                {app.jobTitle}
-                              </span>
-
-                              <p className="inline-block pr-8 py-2 text-xs">
-                                {new Intl.DateTimeFormat("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "2-digit",
-                                }).format(new Date(app.appliedAt))}
-                              </p>
-                            </li>
-                          </ul>
                         </div>
                         <div className="col-span-2 grid justify-items-center content-center">
                           <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
                             {app.score}%
                           </span>
                         </div>
-                        <div className="flex col-span-10 justify-items-center content-center mx-20 mb-4 space-x-2">
-                          <button
-                            onClick={() =>
-                              viewResumeAndUpdateStatus(
-                                app.applicationID,
-                                app.resume,
-                                app.status
-                              )
-                            }
-                            className="inline-flex items-center justify-center text-center bg-purple-50 text-purple-600 text-sm font-medium w-full py-1 rounded-md dark:bg-gray-700 border-2 border-purple-400 hover:bg-purple-100 hover:text-purple-600 group"
-                          >
-                            <svg
-                              className="w-5 h-5 me-2 text-purple-600"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                              />
-                            </svg>
-                            View Resume
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => toggleDropdown(app.applicationID)}
-                            data-dropdown-toggle="apps-dropdown"
-                            className="relative p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-                          >
-                            <span className="sr-only">View Status</span>
-                            <img src={option} className="h-6" alt="icon" />
-                            <div
-                              className={`${
-                                showDropdown[app.applicationID]
-                                  ? "opacity-100 visible"
-                                  : "opacity-0 invisible"
-                              } absolute my-4 w-56 text-base list-none bg-white divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl transition-opacity duration-300`}
-                              style={{
-                                top: showDropdown[app.applicationID]?.top || 0,
-                                left:
-                                  showDropdown[app.applicationID]?.left || 0,
-                                zIndex: 9999,
-                              }}
-                              id="dropdown"
-                            >
-                              <div className="py-3 px-4 bg-purple-50">
-                                <span className="block text-sm font-semibold text-gray-900 ">
-                                  Select Hiring Status
-                                </span>
-                              </div>
-                              <ul
-                                className="py-1 text-gray-700 dark:text-gray-300"
-                                aria-labelledby="dropdown"
-                              >
-                                <li>
-                                  <a
-                                    onClick={() =>
-                                      openForwardForm(app.applicationID)
-                                    }
-                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                                  >
-                                    <svg
-                                      className="w-5 h-5 me-2 text-green-400 dark:text-white"
-                                      aria-hidden="true"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="24"
-                                      height="24"
-                                      fill="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    Shortlist
-                                  </a>
-                                </li>
-                                <li>
-                                  <a
-                                    onClick={() =>
-                                      openStatusModal(
-                                        app.applicationID,
-                                        "Reject"
-                                      )
-                                    }
-                                    className="flex py-2 px-4 text-sm hover:bg-purple-100 dark:hover:bg-purple-600 dark:hover:text-white"
-                                  >
-                                    <svg
-                                      className="w-5 h-5 me-2 text-red-500 dark:text-white"
-                                      aria-hidden="true"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="24"
-                                      height="24"
-                                      fill="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm7.707-3.707a1 1 0 0 0-1.414 1.414L10.586 12l-2.293 2.293a1 1 0 1 0 1.414 1.414L12 13.414l2.293 2.293a1 1 0 0 0 1.414-1.414L13.414 12l2.293-2.293a1 1 0 0 0-1.414-1.414L12 10.586 9.707 8.293Z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    Decline
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                          </button>
+                      </div>
+                      <div className="mt-6">
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Job Applied:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.jobTitle}
+                          </h4>
                         </div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Status:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.status}
+                          </h4>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Accepted by:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.managerFName} {app.managerLName} (
+                            {app.managerPosition})
+                          </h4>
+                        </div>
+
+                        <div className="flex items-center mt-7 mb-2">
+                          <div className="w-2 h-2 rounded-full bg-purple-600 mr-2"></div>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.predicted_category}
+                          </h4>
+
+                          <div>
+                            <p className="text-purple-500 bg-purple-100 font-medium ml-2 me-2 px-2 py-0.5 rounded-full text-xs">
+                              AI-Recommended Job
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex border-t border-gray-300 pt-2">
+                        <button
+                          onClick={() =>
+                            viewResumeAndUpdateStatus(
+                              app.applicationID,
+                              app.resume,
+                              app.status
+                            )
+                          }
+                          data-tooltip-id="resume-tooltip"
+                          data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                          className="flex-1 inline-flex justify-center bg-white text-gray-600 py-1 text-sm border-r border-gray-300 hover:bg-gray-50 hover:rounded-xl"
+                        >
+                          <svg
+                            className="w-5 h-5 me-2 text-gray-600"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                            />
+                          </svg>
+                          VIEW RESUME
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openOfferForm(app.applicationID, "Offered")
+                          }
+                          data-tooltip-id="email-tooltip"
+                          data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
+                          className="relative inline-flex flex-1 py-1 text-purple-600 rounded-lg hover:text-purple-900 hover:bg-purple-100 justify-center focus:ring-4 focus:ring-gray-300 hover:rounded-xl"
+                        >
+                          <svg
+                            className="w-5 h-5 me-2 text-purple-600"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeWidth="2"
+                              d="m3.5 5.5 7.893 6.036a1 1 0 0 0 1.214 0L20.5 5.5M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                            />
+                          </svg>
+                          OFFER LETTER
+                        </button>
                       </div>
                     </div>
                   ))
@@ -1133,396 +1106,187 @@ const Talents = () => {
                   />
                 )}
               </div>
-            </div> */}
-            {/* END OF OLD */}
-          </div>
-        )}
+            </div>
 
-        {/* Approved Section */}
-        {showApprovedTalents && (
-          <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
-            <div className="flex justify-between">
-              <div className="flex items-center">
-                <h5 className="text-lg font-semibold text-purple-600">
-                  Pending Offer Letters ({hiredTalents.length})
-                </h5>
-              </div>
-              <form className="flex items-center max-w-sm">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
-                </label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <div className="grid grid-cols-1 rounded-xl border-gray-100 border-2  dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-6 py-6">
+              <div className="flex justify-between">
+                <div className="flex items-center">
+                  <h5 className="text-lg font-semibold text-purple-600">
+                    Offer Sent ({filteredOfferedTalents.length})
+                  </h5>
+                </div>
+                {/* <form className="flex items-center max-w-sm">
+                  <label htmlFor="search-offered" className="sr-only">
+                    Search
+                  </label>
+                  <div className="relative w-full">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <svg
+                        className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 18 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="search-offered"
+                      className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
+                      placeholder="Search job name..."
+                      value={searchQueryApproved}
+                      onChange={(e) =>
+                        handleSearchChange(e, setSearchQueryApproved)
+                      }
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
+                  >
                     <svg
-                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      className="w-4 h-4"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
-                      viewBox="0 0 18 20"
+                      viewBox="0 0 20 20"
                     >
                       <path
                         stroke="currentColor"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
                       />
                     </svg>
-                  </div>
-                  <input
-                    type="text"
-                    id="simple-search"
-                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                    placeholder="Search job name..."
-                    value={searchQueryTopTalents}
-                    onChange={handleSearchChangeTopTalents}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                  <span className="sr-only">Search</span>
-                </button>
-              </form>
-            </div>
-            <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
-              {hiredTalents.length > 0 ? (
-                hiredTalents.map((app) => (
-                  <div
-                    key={app.applicationID}
-                    className="bg-white p-6 rounded-lg shadow-lg w-auto"
-                  >
-                    <div className="flex justify-between">
-                      <div className="flex items-center">
-                        {app.applicantPic ? (
-                          <img
-                            className="w-12 h-12 rounded-full"
-                            src={app.applicantPic}
-                            alt="Profile"
-                          />
-                        ) : (
-                          <img
-                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                            src={user}
-                            alt="Profile Pic"
-                          ></img>
-                        )}
-                        <div className="ml-4">
-                          <h3 className="text-purple-600 text-md font-semibold">
-                            {app.applicantFName} {app.applicantLName}
-                          </h3>
-                          <p className="text-gray-500 text-sm">
-                            {new Intl.DateTimeFormat("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "2-digit",
-                            }).format(new Date(app.appliedAt))}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="col-span-2 grid justify-items-center content-center">
-                        <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
-                          {app.score}%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <div className="flex items-center mb-2">
-                        <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
-                        <h4 className="text-gray-500 font-normal text-sm me-2">
-                          Job Applied:{" "}
-                        </h4>
-                        <h4 className="text-gray-800 font-medium text-sm">
-                          {app.jobTitle}
-                        </h4>
-                      </div>
-                      <div className="flex items-center mb-2">
-                        <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
-                        <h4 className="text-gray-500 font-normal text-sm me-2">
-                          Status:{" "}
-                        </h4>
-                        <h4 className="text-gray-800 font-medium text-sm">
-                          {app.status}
-                        </h4>
-                      </div>
-                      <div className="flex items-center mb-2">
-                        <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
-                        <h4 className="text-gray-500 font-normal text-sm me-2">
-                          Accepted by:{" "}
-                        </h4>
-                        <h4 className="text-gray-800 font-medium text-sm">
-                          {app.managerFName} {app.managerLName} (
-                          {app.managerPosition})
-                        </h4>
-                      </div>
-
-                      <div className="flex items-center mt-7 mb-2">
-                        <div className="w-2 h-2 rounded-full bg-purple-600 mr-2"></div>
-                        <h4 className="text-gray-800 font-medium text-sm">
-                          {app.predicted_category}
-                        </h4>
-
-                        <div>
-                          <p className="text-purple-500 bg-purple-100 font-medium ml-2 me-2 px-2 py-0.5 rounded-full text-xs">
-                            AI-Recommended Job
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex border-t border-gray-300 pt-2">
-                      <button
-                        onClick={() =>
-                          viewResumeAndUpdateStatus(
-                            app.applicationID,
-                            app.resume,
-                            app.status
-                          )
-                        }
-                        data-tooltip-id="resume-tooltip"
-                        data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
-                        className="flex-1 inline-flex justify-center bg-white text-gray-600 py-1 text-sm border-r border-gray-300 hover:bg-gray-50 hover:rounded-xl"
-                      >
-                        <svg
-                          className="w-5 h-5 me-2 text-gray-600"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                          />
-                        </svg>
-                        VIEW RESUME
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openOfferForm(app.applicationID, "Offered")
-                        }
-                        data-tooltip-id="email-tooltip"
-                        data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
-                        className="relative inline-flex flex-1 py-1 text-purple-600 rounded-lg hover:text-purple-900 hover:bg-purple-100 justify-center focus:ring-4 focus:ring-gray-300 hover:rounded-xl"
-                      >
-                        <svg
-                          className="w-5 h-5 me-2 text-purple-600"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeWidth="2"
-                            d="m3.5 5.5 7.893 6.036a1 1 0 0 0 1.214 0L20.5 5.5M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
-                          />
-                        </svg>
-                        OFFER LETTER
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <NoResult
-                  title={"No result found"}
-                  desc={"Try adjusting your search or filters."}
-                />
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* OLD */}
-        {/* {showApprovedTalents && (
-          <div>
-            <div className="grid grid-cols-1 justify-between rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto mb-4 mx-6 mt-10 px-5 py-4">
-              <div className="flex items-center">
-                <h5 className="text-lg font-semibold text-purple-600">
-                  Pending Offer letter ({hiredTalents.length})
-                </h5>
+                    <span className="sr-only">Search</span>
+                  </button>
+                </form> */}
               </div>
-              <form className="flex items-center max-w-sm">
-                <label htmlFor="simple-search" className="sr-only">
-                  Search
-                </label>
-                <div className="relative w-full">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 18 20"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    id="simple-search"
-                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
-                    placeholder="Search job name..."
-                    value={searchQueryTopTalents}
-                    onChange={handleSearchChangeTopTalents}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="p-2.5 ms-2 text-sm font-medium text-white bg-purple-600 rounded-lg border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-                >
-                  <svg
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                  <span className="sr-only">Search</span>
-                </button>
-              </form>
-              <div href="#" className="col-span-4">
-                {hiredTalents.length > 0 ? (
-                  hiredTalents.map((app) => (
+              <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
+                {filteredOfferedTalents.length > 0 ? (
+                  filteredOfferedTalents.map((app) => (
                     <div
                       key={app.applicationID}
-                      className="col-span-1 border-2 rounded-lg border-gray-100 bg-white dark:border-gray-600 h-auto min-h-20 mt-2"
+                      className="bg-white p-6 rounded-lg shadow-lg w-auto"
                     >
-                      <div className="grid grid-cols-10 bg-white border border-gray-100 rounded-lg items-center">
-                        <div className="col-span-2 grid justify-items-center content-center  my-1">
-                          <img
-                            className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
-                            src={app.applicantPic || user}
-                            alt="Profile Pic"
-                          ></img>
-                          <span className="bg-purple-100 text-purple-600 text-sm font-semibold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
+                      <div className="flex justify-between">
+                        <div className="flex items-center">
+                          {app.applicantPic ? (
+                            <img
+                              className="w-12 h-12 rounded-full"
+                              src={app.applicantPic}
+                              alt="Profile"
+                            />
+                          ) : (
+                            <img
+                              className="mx-auto mb-2 w-14 h-14 rounded-full border-4 border-purple-600"
+                              src={user}
+                              alt="Profile Pic"
+                            ></img>
+                          )}
+                          <div className="ml-4">
+                            <h3 className="text-purple-600 text-md font-semibold">
+                              {app.applicantFName} {app.applicantLName}
+                            </h3>
+                            <p className="text-gray-500 text-sm">
+                              {new Intl.DateTimeFormat("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "2-digit",
+                              }).format(new Date(app.appliedAt))}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="col-span-2 grid justify-items-center content-center">
+                          <span className="bg-purple-100 text-purple-600 text-md font-bold me-2 px-2.5 py-0.5 rounded-full dark:bg-purple-900 dark:text-purple-300">
                             {app.score}%
                           </span>
                         </div>
-                        <div className="px-2 py-3 col-span-6">
-                          <div className="flex">
-                            <h5 className="mb-1 text-lg font-semibold tracking-tight me-3 text-gray-900 dark:text-white">
-                              {app.applicantFName}
-                            </h5>
-                            <div>
-                              <ApplicationStatus status={app.status} />
-                            </div>
+                      </div>
+                      <div className="mt-6">
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Job Applied:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.jobTitle}
+                          </h4>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Status:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.status}
+                          </h4>
+                        </div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-2 h-2 rounded-full bg-gray-400 mr-2"></div>
+                          <h4 className="text-gray-500 font-normal text-sm me-2">
+                            Accepted by:{" "}
+                          </h4>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.managerFName} {app.managerLName} (
+                            {app.managerPosition})
+                          </h4>
+                        </div>
+
+                        <div className="flex items-center mt-7 mb-2">
+                          <div className="w-2 h-2 rounded-full bg-purple-600 mr-2"></div>
+                          <h4 className="text-gray-800 font-medium text-sm">
+                            {app.predicted_category}
+                          </h4>
+
+                          <div>
+                            <p className="text-purple-500 bg-purple-100 font-medium ml-2 me-2 px-2 py-0.5 rounded-full text-xs">
+                              AI-Recommended Job
+                            </p>
                           </div>
-
-                          <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-                            <li>
-                              <span className="bg-gray-100 text-gray-800 text-xs font-medium me-5 px-2 py-0.5 rounded-full dark:bg-gray-700 dark:text-gray-300">
-                                {app.jobTitle}
-                              </span>
-
-                              <p className="inline-block pr-8 py-2 text-xs">
-                                {new Intl.DateTimeFormat("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "2-digit",
-                                }).format(new Date(app.appliedAt))}
-                              </p>
-                            </li>
-                          </ul>
                         </div>
-                        <div className="flex justify-items-center content-center my-10 space-x-4 align-items-center">
-                          <button
-                            onClick={() =>
-                              viewResumeAndUpdateStatus(
-                                app.applicationID,
-                                app.resume,
-                                app.status
-                              )
-                            }
-                            data-tooltip-id="resume-tooltip"
-                            data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
-                            className="inline-flex items-center justify-center text-center text-gray-700 text-sm font-medium p-2 rounded-xl bg-gray-100  hover:bg-gray-200 hover:text-gray-800 group"
+                      </div>
+                      <div className="mt-4 flex border-t border-gray-300 pt-2">
+                        <button
+                          onClick={() =>
+                            viewResumeAndUpdateStatus(
+                              app.applicationID,
+                              app.resume,
+                              app.status
+                            )
+                          }
+                          data-tooltip-id="resume-tooltip"
+                          data-tooltip-content="View Resume" // onClick={() => window.open(app.resume, "_blank")}
+                          className="flex-1 inline-flex justify-center bg-white text-gray-600 py-1 text-sm border-r border-gray-300 hover:bg-gray-50 hover:rounded-xl"
+                        >
+                          <svg
+                            className="w-5 h-5 me-2 text-gray-600"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
                           >
-                            <svg
-                              className="w-6 h-6 text-gray-600"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
-                              />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() =>
-                              openOfferForm(app.applicationID, app.status)
-                            }
-                            data-tooltip-id="email-tooltip"
-                            data-tooltip-content="Prepare Offer Letter" // onClick={() => window.open(app.resume, "_blank")}
-                            className="inline-flex items-center justify-center text-center bg-purple-100 text-purple-600 text-sm font-medium p-2 rounded-xl hover:bg-purple-200 hover:text-purple-700 group"
-                          >
-                            <svg
-                              className="w-6 h-6 text-purple-600"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="24"
-                              height="24"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeWidth="2"
-                                d="m3.5 5.5 7.893 6.036a1 1 0 0 0 1.214 0L20.5 5.5M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
-                              />
-                            </svg>
-
-                          </button>
-                          <Tooltip id="resume-tooltip" />
-                          <Tooltip id="email-tooltip" />
-                        </div>
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M10 3v4a1 1 0 0 1-1 1H5m4 6 2 2 4-4m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"
+                            />
+                          </svg>
+                          VIEW RESUME
+                        </button>
                       </div>
                     </div>
                   ))
@@ -1535,8 +1299,7 @@ const Talents = () => {
               </div>
             </div>
           </div>
-        )} */}
-        {/* END OF OLD */}
+        )}
 
         {/* Rejected Section */}
         {showRejectedTalents && (
@@ -1544,7 +1307,7 @@ const Talents = () => {
             <div className="flex justify-between">
               <div className="flex items-center">
                 <h5 className="text-lg font-semibold text-purple-600">
-                  Rejected Applicants ({rejectedTalents.length})
+                  Rejected Applicants ({filteredRejectedTalents.length})
                 </h5>
               </div>
               <form className="flex items-center max-w-sm">
@@ -1574,8 +1337,10 @@ const Talents = () => {
                     id="simple-search"
                     className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-purple-500 dark:focus:border-purple-500"
                     placeholder="Search job name..."
-                    value={searchQueryTopTalents}
-                    onChange={handleSearchChangeTopTalents}
+                    value={searchQueryRejected}
+                    onChange={(e) =>
+                      handleSearchChange(e, setSearchQueryRejected)
+                    }
                   />
                 </div>
                 <button
@@ -1602,8 +1367,8 @@ const Talents = () => {
               </form>
             </div>
             <div href="#" className="grid grid-cols-3 space-x-6 mt-2">
-              {rejectedTalents.length > 0 ? (
-                rejectedTalents.map((app) => (
+              {filteredRejectedTalents.length > 0 ? (
+                filteredRejectedTalents.map((app) => (
                   <div
                     key={app.applicationID}
                     className="bg-white p-6 rounded-lg shadow-lg w-auto"
