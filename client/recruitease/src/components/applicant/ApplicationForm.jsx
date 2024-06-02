@@ -163,7 +163,7 @@ const ApplicationForm = ({ isOpen, isClose, checkIfApplied }) => {
                     {/* <!-- Modal body --> */}
                     <form onSubmit={handleSubmit}>
                       <div className="grid gap-4 mb-4 sm:grid-cols-1">
-                        <div>
+                        {/* <div>
                           <label
                             htmlFor="firstName"
                             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -184,8 +184,8 @@ const ApplicationForm = ({ isOpen, isClose, checkIfApplied }) => {
                             //   })
                             // }
                           ></input>
-                        </div>
-                        <div>
+                        </div> */}
+                        {/* <div>
                           <label
                             htmlFor="lastName"
                             className="block mb-2 text-sm font-medium text-gray-500 dark:text-white"
@@ -206,11 +206,28 @@ const ApplicationForm = ({ isOpen, isClose, checkIfApplied }) => {
                             //   })
                             // }
                           ></input>
-                        </div>
+                        </div> */}
                         <div>
+                          <h5 className="block mb-2 text-md font-medium text-purple-600 dark:text-white">
+                            Things you should know:
+                          </h5>
+                          <div className="bg-purple-50 p-3 rounded-xl">
+                            <p className="text-sm text-gray-800">
+                              - Submit resumes in PDF format.
+                              <br></br>- Avoid using complex layouts or
+                              formatting that could interfere with text
+                              extraction.<br></br>- Use clear, distinct headings
+                              for each section (e.g., "Education," "Experience,"
+                              "Skills").
+                              <br></br>- Avoid using tables, multi-column
+                              layouts, figures, charts or any graphics.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2">
                           <label
                             htmlFor="dropzone-file"
-                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            className="block mb-2 text-md font-bold text-purple-600 dark:text-white"
                           >
                             Upload Resume
                           </label>
