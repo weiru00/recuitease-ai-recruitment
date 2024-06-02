@@ -351,26 +351,26 @@ const ApplicantDashboard = () => {
             </div>
 
             <div className="overflow-x-auto relative">
-              {approvedUsers.length > 0 ? (
-                approvedUsers.map((newuser) => (
-                  <table className="w-full text-sm text-left text-gray-500 rounded-xl">
-                    <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
-                      <tr>
-                        <th scope="col" className="py-3 px-6 "></th>
-                        <th scope="col" className="pl-2 pr-6 px-6 ">
-                          Name
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Email
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Position
-                        </th>
-                        <th scope="col" className="py-3 px-6">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
+              <table className="w-full text-sm text-left text-gray-500 rounded-xl">
+                <thead className="text-md text-purple-700 uppercase bg-purple-100  dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" className="py-3 px-6 "></th>
+                    <th scope="col" className="pl-2 pr-6 px-6 ">
+                      Name
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Email
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Position
+                    </th>
+                    <th scope="col" className="py-3 px-6">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                {approvedUsers.length > 0 ? (
+                  approvedUsers.map((newuser) => (
                     <tbody>
                       {" "}
                       <tr
@@ -402,11 +402,11 @@ const ApplicantDashboard = () => {
                         </td>
                       </tr>
                     </tbody>
-                  </table>
-                ))
-              ) : (
-                <NoResult desc={"No user"} />
-              )}
+                  ))
+                ) : (
+                  <NoResult desc={"No user"} />
+                )}
+              </table>
             </div>
           </div>
         </div>
