@@ -136,7 +136,7 @@ def get_embeddings(text, model, tokenizer, device):
 #     except Exception as e:
 #         print(f"Error calculating similarity scores: {e}")
 
-def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.8, category_weight=0.2):
+def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.6, category_weight=0.4):
     try:
         print("Starting similarity score calculation")
 
@@ -200,7 +200,7 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_categ
 #     except Exception as e:
 #         print(f"Error calculating similarity scores: {e}")
     
-def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,  predicted_category, job_categories, similarity_weight=0.8, category_weight=0.2, top_n=10):
+def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,  predicted_category, job_categories, similarity_weight=0.6, category_weight=0.4, top_n=10):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
