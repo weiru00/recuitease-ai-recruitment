@@ -437,7 +437,10 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {filteredTopTalents.length > 0 ? (
                   filteredTopTalents.map((app) => (
                     <div
@@ -702,7 +705,10 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {filteredSortedByTimeApplications.length > 0 ? (
                   filteredSortedByTimeApplications.map((app) => (
                     <div
@@ -812,7 +818,7 @@ const Talents = () => {
                           data-dropdown-toggle="apps-dropdown"
                           className="relative inline-flex flex-1 py-1 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 justify-center focus:ring-4 focus:ring-gray-300 hover:rounded-xl"
                         >
-                          + <img src={option} className="h-5 me-2" alt="icon" />
+                          <img src={option} className="h-5 me-2" alt="icon" />
                           <div
                             className={`${
                               showDropdown[app.applicationID]
@@ -973,7 +979,10 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {filteredHiredTalents.length > 0 ? (
                   filteredHiredTalents.map((app) => (
                     <div
@@ -1191,7 +1200,10 @@ const Talents = () => {
                   </button>
                 </form> */}
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {filteredOfferedTalents.length > 0 ? (
                   filteredOfferedTalents.map((app) => (
                     <div
@@ -1387,7 +1399,10 @@ const Talents = () => {
                   </button>
                 </form>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {filteredRejectedTalents.length > 0 ? (
                   filteredRejectedTalents.map((app) => (
                     <div
@@ -1636,7 +1651,10 @@ const Talents = () => {
                   </h5>
                 </div>
               </div>
-              <div href="#" className="grid grid-cols-3 space-x-6 mt-5">
+              <div
+                href="#"
+                className="grid grid-cols-3 space-x-6 space-y-6 mt-5"
+              >
                 {rejectedSentTalents.length > 0 ? (
                   rejectedSentTalents.map((app) => (
                     <div
