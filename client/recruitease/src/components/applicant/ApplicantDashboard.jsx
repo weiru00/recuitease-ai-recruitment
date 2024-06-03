@@ -162,12 +162,20 @@ const ApplicantDashboard = () => {
         <div className="grid grid-cols-2 gap-6 mx-6 mb-6">
           <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto max-h-80 overflow-y-auto">
             <ApplicationWidget
-              statuses={["Applied", "Interview", "Review"]}
+              statuses={[
+                "Applied",
+                "Interview",
+                "Review",
+                "Reschedule",
+                "Forwarded",
+                "Cancel Interview",
+                "Accept",
+              ]}
               title="Ongoing Applications"
             />
           </div>
           <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto max-h-80 overflow-y-auto">
-            <ApplicationWidget statuses={["Onboard"]} title="Jobs Offered" />
+            <ApplicationWidget statuses={["Offered"]} title="Jobs Offered" />
           </div>
         </div>
         <div className="border-2 rounded-2xl border-gray-100 dark:border-gray-600 h-auto mb-6 mx-6">

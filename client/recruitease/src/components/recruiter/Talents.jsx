@@ -332,6 +332,9 @@ const Talents = () => {
                     }`}
                   >
                     Pending
+                    <span className="rounded-full bg-gray-200 text-gray-800 px-2 py-0.5 ml-2 ">
+                      {pendingTalents.length}
+                    </span>
                   </a>
                 </li>
                 <li>
@@ -343,6 +346,9 @@ const Talents = () => {
                     }`}
                   >
                     Approved
+                    <span className="rounded-full bg-gray-200 text-gray-800 px-2 py-0.5 ml-2 ">
+                      {hiredTalents.length + offeredTalents.length}
+                    </span>
                   </a>
                 </li>
                 <li>
@@ -354,6 +360,9 @@ const Talents = () => {
                     }`}
                   >
                     Rejected
+                    <span className="rounded-full bg-gray-200 text-gray-800 px-2 py-0.5 ml-2 ">
+                      {rejectedTalents.length + rejectedSentTalents.length}
+                    </span>
                   </a>
                 </li>
               </ul>
@@ -1736,6 +1745,7 @@ const Talents = () => {
         <ForwardForm
           onCloseModal={closeForwardForm}
           applicationID={applicationID}
+          fetchApplications={fetchApplications}
         />
       )}
       {showOfferForm && (

@@ -924,13 +924,20 @@ def forward_application():
 
         if not applicationID:
             return jsonify({'error': 'Missing application ID'}), 400
-
+                                       
+        application_ref = db.collection('applications').document(applicationID)
+        app_doc = application_ref.get()
+        if app_doc.exists:
+            app_data = app_doc.to_dict()
+            prevStatus = app_data.get('status', 'Unknown')
+            
         forward_data = {        
             'managerID' : request.form['managerID'],
             'feedbackHR' : request.form['feedbackHR'],
+            'prevStatus': prevStatus,
+            'status': request.form['status'],
         }
-                                       
-        application_ref = db.collection('applications').document(applicationID)
+
         application_ref.update(forward_data)
         
         return jsonify({'success': True}), 200

@@ -69,7 +69,7 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
     },
     {
       name: "Offered",
-      status: "Offer",
+      status: "Offered",
       icon: (isActiveOrCompleted) => (
         <svg
           className={`w-3.5 h-3.5 ${
@@ -109,13 +109,29 @@ const StepIndicator = ({ currentStatus, prevStatus }) => {
   ];
 
   // Determine the index of the current status in the steps array
-  const currentStatusIndex = steps.findIndex(
+  let currentStatusIndex = steps.findIndex(
     (step) => step.status === currentStatus
   );
   const isRejected = currentStatus === "Reject";
   const rejectionIndex = isRejected
     ? steps.findIndex((step) => step.status === prevStatus)
     : null;
+
+  if (currentStatus === "Forwarded") {
+    currentStatusIndex = steps.findIndex((step) => step.status === "Review");
+  }
+
+  if (
+    currentStatus === "Schedule Interview" ||
+    currentStatus === "Reschedule" ||
+    currentStatus === "Cancel Interview"
+  ) {
+    currentStatusIndex = steps.findIndex((step) => step.status === "Interview");
+  }
+
+  if (currentStatus === "Accept") {
+    currentStatusIndex = steps.findIndex((step) => step.status === "Interview");
+  }
 
   return (
     <ol className="flex justify-center space-x-auto font-body">

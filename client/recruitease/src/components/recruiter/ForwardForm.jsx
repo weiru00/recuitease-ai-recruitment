@@ -13,7 +13,7 @@ import {
 import SuccessfulModal from "../SuccessfulModal";
 import styles from "../../style";
 
-const ForwardForm = ({ onCloseModal, applicationID }) => {
+const ForwardForm = ({ onCloseModal, applicationID, fetchApplications }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const uid = queryParams.get("uid");
@@ -56,6 +56,7 @@ const ForwardForm = ({ onCloseModal, applicationID }) => {
             f_name: doc.data().firstName,
             l_name: doc.data().lastName,
             email: doc.data().email,
+            position: doc.data().position,
           }));
 
           setManagers(managers);
@@ -87,8 +88,10 @@ const ForwardForm = ({ onCloseModal, applicationID }) => {
 
       const data = await response.json();
       if (data.success) {
-        onCloseModal;
+        onCloseModal();
+
         setShowSuccessModal(true);
+        fetchApplications();
         console.log("Application forwarded successfully");
       } else {
         console.error("Failed to forward application");
@@ -162,8 +165,7 @@ const ForwardForm = ({ onCloseModal, applicationID }) => {
                             <option defaultValue>Select a manager</option>
                             {managers.map((manager) => (
                               <option key={manager.id} value={manager.id}>
-                                {manager.f_name} {manager.l_name}&#10; (
-                                {manager.email})
+                                {manager.email}&#10; ({manager.position})
                               </option>
                             ))}
                           </select>

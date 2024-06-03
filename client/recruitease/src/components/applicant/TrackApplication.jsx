@@ -136,10 +136,16 @@ const TrackApplication = () => {
   if (error) return <div>Error: {error}</div>;
 
   const activeApplications = applications.filter(
-    (app) => app.status !== "Reject"
+    (app) =>
+      app.status !== "Reject" &&
+      app.status !== "Reject Sent" &&
+      app.status !== "Offered"
   );
   const pastApplications = applications.filter(
-    (app) => app.status === "Reject"
+    (app) =>
+      app.status === "Reject" ||
+      app.status === "Reject Sent" ||
+      app.status === "Offered"
   );
 
   return (
