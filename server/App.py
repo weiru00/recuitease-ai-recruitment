@@ -1328,7 +1328,7 @@ def apply_job():
             job_doc = db.collection('jobListings').document(jobId).get()
             job_category = job_doc.to_dict().get('category', '')
             
-            scores = calculate_similarity_scores([resume_text], job_desc_text, predicted_category, job_category, similarity_weight=0.6, category_weight=0.4)
+            scores = calculate_similarity_scores([resume_text], job_desc_text, predicted_category, job_category, similarity_weight=0.8, category_weight=0.2)
             score = scores[0]
             # score = calculate_similarity_scores([resume_text], job_desc_text)
             # print("Score here", score)
@@ -1386,7 +1386,7 @@ def match_jobs():
             'predicted_category': predicted_category.tolist(),
         }
         
-        print(response_data)
+        # print(response_data)
         return jsonify(response_data)
   
 

@@ -455,7 +455,7 @@ const JobPostings = () => {
                 </div>
               )}
 
-              <div>
+              <div className="max-h-[620px] overflow-y-auto">
                 {role === "applicant" ? (
                   viewMatchedJobs ? (
                     matchedJobs.length > 0 ? (

@@ -79,17 +79,17 @@ const JobDescription = () => {
     // }
   };
 
-  useEffect(() => {
-    const fetchJobDetails = async () => {
-      try {
-        const response = await fetch(`/api/job-details/${jobId}`);
-        const data = await response.json();
-        setJobDetails(data);
-      } catch (error) {
-        console.error("Error fetching job details:", error);
-      }
-    };
+  const fetchJobDetails = async () => {
+    try {
+      const response = await fetch(`/api/job-details/${jobId}`);
+      const data = await response.json();
+      setJobDetails(data);
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+    }
+  };
 
+  useEffect(() => {
     if (jobId) {
       fetchJobDetails();
     }
@@ -358,7 +358,7 @@ const JobDescription = () => {
           isOpen={isFormOpen}
           isClose={() => {
             closeForm();
-            triggerUpdate(); // Call triggerUpdate after closing the form to refresh the job listings
+            fetchJobDetails(); // Call triggerUpdate after closing the form to refresh the job listings
           }}
           mode={formMode}
           jobData={selectedJob}

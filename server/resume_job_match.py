@@ -99,10 +99,49 @@ def get_embeddings(text, model, tokenizer, device):
     return embeddings
 
 # # For recruiter
-def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.6, category_weight=0.4):
+# def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.8, category_weight=0.2):
+#     try:
+
+#         device = "cuda" if torch.cuda.is_available() else "cpu"
+
+#         # Load the tokenizer and model from the Hugging Face library
+#         model_name = "bert-base-uncased"
+#         tokenizer = AutoTokenizer.from_pretrained(model_name)
+#         model = AutoModel.from_pretrained(model_name)
+#         model.to(device)
+
+#         preprocessed_resumes = [preprocess(resume) for resume in resumes]
+
+#         # Generate embeddings for the job description and the resume
+#         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
+#         # resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
+#         resume_embeddings = [get_embeddings(resume, model, tokenizer, device) for resume in preprocessed_resumes]
+       
+#         similarity_scores = [cosine_similarity(job_desc_embedding, resume_embedding)[0][0] for resume_embedding in resume_embeddings]
+#         similarity_scores = [(score + 1) / 2 for score in similarity_scores]  # Normalize cosine similarity to [0, 1]
+#         similarity_scores = [np.around(score * 100, 2) for score in similarity_scores]
+#         # similarity_scores = [np.around(score * 100, 2) for score in similarity_scores]
+        
+#         category_match_score = 1.0 if predicted_category == job_category else 0.0
+#         print("Matched?:",category_match_score)
+
+#         # Combine scores
+#         final_scores = [
+#             similarity_weight * similarity_score + category_weight * category_match_score
+#             for similarity_score in similarity_scores
+#         ]
+
+#         return np.around(final_scores, 2)
+
+#     except Exception as e:
+#         print(f"Error calculating similarity scores: {e}")
+
+def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_category, job_category, similarity_weight=0.8, category_weight=0.2):
     try:
+        print("Starting similarity score calculation")
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
+        print("Using device:", device)
 
         # Load the tokenizer and model from the Hugging Face library
         model_name = "bert-base-uncased"
@@ -110,20 +149,27 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_categ
         model = AutoModel.from_pretrained(model_name)
         model.to(device)
 
-        preprocessed_resumes = [preprocess(resume) for resume in resumes]
+        print("Model and tokenizer loaded")
 
-        # Generate embeddings for the job description and the resume
+        preprocessed_resumes = [preprocess(resume) for resume in resumes]
+        print("Resumes preprocessed:", preprocessed_resumes)
+
+        # Generate embeddings for the job description and the resumes
         job_desc_embedding = get_embeddings(preprocessed_job_descs, model, tokenizer, device)
-        # resume_embedding = get_embeddings(preprocessed_resume, model, tokenizer, device)
+        print("Job description embedding generated")
+
         resume_embeddings = [get_embeddings(resume, model, tokenizer, device) for resume in preprocessed_resumes]
-       
+        print("Resume embeddings generated")
+
         similarity_scores = [cosine_similarity(job_desc_embedding, resume_embedding)[0][0] for resume_embedding in resume_embeddings]
+        print("Similarity scores calculated:", similarity_scores)
+
+        similarity_scores = [(score + 1) / 2 for score in similarity_scores]  # Normalize cosine similarity to [0, 1]
         similarity_scores = [np.around(score * 100, 2) for score in similarity_scores]
-        # Calculate the cosine similarity between the job description and resume embeddings
-        # similarity_scores = cosine_similarity(job_desc_embedding, resume_embedding)[0][0]
-        # similarity_scores = np.around(similarity_scores * 100, 2)
-        
-        category_match_score = 1.0 if predicted_category == job_category else 0.0
+        print("Normalized similarity scores:", similarity_scores)
+
+        category_match_score = 100 if predicted_category == job_category else 0
+        print("Matched?:", category_match_score)
 
         # Combine scores
         final_scores = [
@@ -131,10 +177,14 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_categ
             for similarity_score in similarity_scores
         ]
 
+        print("Final scores calculated:", final_scores)
+
         return np.around(final_scores, 2)
 
     except Exception as e:
         print(f"Error calculating similarity scores: {e}")
+        return []
+
 
 # def calculate_similarity_scores(preprocessed_resumes, preprocessed_job_descs, vectorizer):
 #     try:
@@ -150,7 +200,7 @@ def calculate_similarity_scores(resumes, preprocessed_job_descs, predicted_categ
 #     except Exception as e:
 #         print(f"Error calculating similarity scores: {e}")
     
-def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,  predicted_category, job_categories, similarity_weight=0.6, category_weight=0.4, top_n=10):
+def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,  predicted_category, job_categories, similarity_weight=0.8, category_weight=0.2, top_n=10):
     try:
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -171,9 +221,15 @@ def calculate_similarity_for_resume(preprocessed_resume, preprocessed_job_descs,
 
         # Calculate the cosine similarity between the job description and resume embeddings
         similarity_scores = cosine_similarity(resume_embedding, job_desc_embeddings).flatten()
-        similarity_scores = np.around(similarity_scores * 100, 2)
+        print("Similarity scores calculated:", similarity_scores)
+
+        similarity_scores = [(score + 1) / 2 for score in similarity_scores]  # Normalize cosine similarity to [0, 1]
+        similarity_scores = [np.around(score * 100, 2) for score in similarity_scores]
+        print("Normalized similarity scores:", similarity_scores)
+        # similarity_scores = np.around(similarity_scores * 100, 2)
         
-        category_match_scores = [1.0 if predicted_category == job_category else 0.0 for job_category in job_categories]
+        category_match_scores = [100 if predicted_category == job_category else 0 for job_category in job_categories]
+        print("Matched?:", category_match_scores)
 
         final_scores = [
             similarity_weight * similarity_score + category_weight * category_match_score
