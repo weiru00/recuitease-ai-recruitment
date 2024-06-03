@@ -754,7 +754,7 @@ const ManagerDashboard = () => {
                             onClick={() =>
                               openStatusModal(
                                 app.applicationID,
-                                "Decline",
+                                "Reject",
                                 "Are you sure to REJECT this applicant? This will be reverted to the recruiter."
                               )
                             }
