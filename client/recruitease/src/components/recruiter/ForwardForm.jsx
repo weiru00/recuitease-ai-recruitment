@@ -47,7 +47,8 @@ const ForwardForm = ({ onCloseModal, applicationID, fetchApplications }) => {
           const q = query(
             collection(db, "users"),
             where("companyID", "==", userCompanyID),
-            where("role", "==", "manager")
+            where("role", "==", "manager"),
+            where("register_status", "==", "approved")
           );
 
           const querySnapshot = await getDocs(q);

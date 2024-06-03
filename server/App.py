@@ -645,11 +645,11 @@ def get_user_data():
             for app in apps:
                 job_applied_counter += 1
                 status = app.to_dict().get('status', '')
-                if status == "Offer":
+                if status == "Offered":
                     job_offer_counter += 1
-                elif status == "Reject":
+                elif status == "Reject" or status == "Reject Sent":
                     job_reject_counter += 1
-                elif status == "Interview":
+                elif status == "Interview" or status == "Reschedule":
                     interview_counter += 1
             
             # Construct the response object
