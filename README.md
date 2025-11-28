@@ -4,7 +4,7 @@
 RecruitEase is an **AI-powered recruitment platform** designed to streamline the hiring process by automating resume screening and candidate-job matching.  
 The system combines **machine learning** with a **full-stack web application** to reduce recruiter workload and minimize bias in candidate evaluation.  
 
-👉 **[Demo Link](https://pixelusm.com/projects/id/U2FsdGVkX1p1L2u3S4FP9MMXX5R1wbW7HVBWrb3J2fnh14NOO1din7gJy3bC2va8qBLa9l)**  
+👉 **[Demo Link](https://pixelusm.com/awards/2024/Intelligent%20Computing)**  
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/0c46e85b-f44a-462a-9742-54dd885111db" alt="Landing" width="90%"/>
